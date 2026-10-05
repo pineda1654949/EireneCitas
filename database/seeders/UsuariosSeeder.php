@@ -16,11 +16,11 @@ class UsuariosSeeder extends Seeder
     public function run()
     {
         User::updateOrCreate(
-            ['email' => 'admin@eirene.test'],
+            ['email' => 'admin'],
             [
                 'name' => 'Administrador',
                 'apellidos' => 'Eirene',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('contraseña'),
                 'role' => 'administrador',
                 'activo' => true,
             ]
@@ -31,7 +31,7 @@ class UsuariosSeeder extends Seeder
             [
                 'name' => 'Encargada',
                 'apellidos' => 'Administrativa',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('contraseña'),
                 'role' => 'recepcionista',
                 'activo' => true,
             ]
@@ -42,7 +42,7 @@ class UsuariosSeeder extends Seeder
             [
                 'name' => 'Maria',
                 'apellidos' => 'Fernandez',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('contraseña'),
                 'role' => 'psicologo',
                 'activo' => true,
             ]
@@ -53,7 +53,7 @@ class UsuariosSeeder extends Seeder
             [
                 'name' => 'Carlos',
                 'apellidos' => 'Ramirez',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('contraseña'),
                 'role' => 'psicologo',
                 'activo' => true,
             ]
@@ -64,7 +64,7 @@ class UsuariosSeeder extends Seeder
             [
                 'name' => 'Ana',
                 'apellidos' => 'Torres',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('contraseña'),
                 'role' => 'paciente',
                 'activo' => true,
             ]

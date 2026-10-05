@@ -15,6 +15,11 @@ class Cita extends Model
      */
     public const MAX_REPROGRAMACIONES = 3;
 
+    /**
+     * Estados en los que la cita sigue ocupando el horario del psicologo.
+     */
+    public const ESTADOS_ACTIVOS = ['pendiente', 'confirmada', 'reprogramada'];
+
     protected $fillable = [
         'paciente_id',
         'psicologo_id',
@@ -79,6 +84,11 @@ class Cita extends Model
     {
         return $this->numero_reprogramaciones < self::MAX_REPROGRAMACIONES
             && !in_array($this->estado, ['cancelada', 'atendida']);
+    }
+
+    public function puedeCancelarse(): bool
+    {
+        return !in_array($this->estado, ['cancelada', 'atendida']);
     }
 
     public function pagoConfirmado(): bool

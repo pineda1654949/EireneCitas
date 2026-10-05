@@ -111,11 +111,11 @@ Abre: `http://localhost/EireneCitas/public/`
 
 ---
 
-## 8. Usuarios de prueba (contrasena para todos: `password`)
+## 8. Usuarios de prueba (contrasena para todos: `contraseña`)
 
 | Rol | Correo |
 |---|---|
-| Administrador | admin@eirene.test |
+| Administrador | admin (usuario, sin dominio de correo) |
 | Recepcionista | recepcion@eirene.test |
 | Psicologo 1 (Ansiedad, Depresion, Autoestima) | psicologo1@eirene.test |
 | Psicologo 2 (Pareja, Infantil) | psicologo2@eirene.test |

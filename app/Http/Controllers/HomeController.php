@@ -51,7 +51,7 @@ class HomeController extends Controller
                     'proximasCitas' => Cita::with('paciente')
                         ->where('psicologo_id', $user->id)
                         ->where('fecha', '>=', now()->toDateString())
-                        ->whereIn('estado', ['pendiente', 'confirmada'])
+                        ->whereIn('estado', Cita::ESTADOS_ACTIVOS)
                         ->orderBy('fecha')->orderBy('hora')->take(10)->get(),
                 ]);
 

@@ -68,6 +68,11 @@ class PagoController extends Controller
             'validado_por' => Auth::id(),
         ]);
 
+        // Una cita cancelada o ya atendida no vuelve a "confirmada" por validar su pago.
+        if (!in_array($pago->cita->estado, ['pendiente', 'reprogramada'])) {
+            return back()->with('status', 'Pago validado. La cita no cambio de estado porque esta ' . $pago->cita->estado . '.');
+        }
+
         $pago->cita->update(['estado' => 'confirmada']);
 
         return back()->with('status', 'Pago validado y cita confirmada.');

@@ -63,7 +63,9 @@ Route::middleware(['auth', 'role:recepcionista,administrador'])->group(function 
 // ----- Administrador: psicologos, promociones -----
 Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('psicologos', PsicologoController::class)->except(['show']);
-    Route::resource('promociones', PromocionController::class)->except(['show']);
+    // "promociones" se singulariza en ingles como {promocione}; se fija el nombre real.
+    Route::resource('promociones', PromocionController::class)->except(['show'])
+        ->parameters(['promociones' => 'promocion']);
 });
 
 // ----- Pacientes: administrador y recepcionista (RF-05, Tabla 8 del documento) -----

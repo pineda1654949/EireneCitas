@@ -63,20 +63,24 @@
                 <div class="card-body d-grid gap-2">
 
                     @if(in_array(auth()->user()->role, ['recepcionista','administrador']))
-                        @if($cita->estado === 'pendiente')
+                        @if(in_array($cita->estado, ['pendiente', 'reprogramada']))
                             <a href="{{ route('pagos.create', $cita) }}" class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-credit-card me-1"></i> Registrar pago
                             </a>
-                            <form action="{{ route('citas.confirmar', $cita) }}" method="POST">
-                                @csrf @method('PUT')
-                                <button class="btn btn-success btn-sm w-100">
-                                    <i class="bi bi-check2-circle me-1"></i> Confirmar cita
-                                </button>
-                            </form>
+                            @if($cita->pagos->contains('estado', 'confirmado'))
+                                <form action="{{ route('citas.confirmar', $cita) }}" method="POST">
+                                    @csrf @method('PUT')
+                                    <button class="btn btn-success btn-sm w-100">
+                                        <i class="bi bi-check2-circle me-1"></i> Confirmar cita
+                                    </button>
+                                </form>
+                            @else
+                                <div class="small text-muted">Para confirmar la cita primero valida un pago en el modulo de Pagos.</div>
+                            @endif
                         @endif
                     @endif
 
-                    @if(auth()->user()->role === 'psicologo' && $cita->psicologo_id === auth()->id() && !$cita->historialClinico && in_array($cita->estado, ['confirmada','pendiente']))
+                    @if(auth()->user()->role === 'psicologo' && $cita->psicologo_id === auth()->id() && !$cita->historialClinico && in_array($cita->estado, \App\Models\Cita::ESTADOS_ACTIVOS))
                         <a href="{{ route('psicologo.historial.create', $cita) }}" class="btn btn-primary btn-sm">
                             <i class="bi bi-journal-medical me-1"></i> Registrar historial / atender sesion
                         </a>
@@ -88,7 +92,7 @@
                         </a>
                     @endif
 
-                    @if(!in_array($cita->estado, ['cancelada','atendida']))
+                    @if($cita->puedeCancelarse())
                         <a href="{{ route('citas.cancelar.form', $cita) }}" class="btn btn-outline-danger btn-sm">
                             <i class="bi bi-x-circle me-1"></i> Cancelar cita
                         </a>

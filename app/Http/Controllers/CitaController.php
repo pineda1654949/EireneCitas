@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cita;
 use App\Models\Especialidad;
+use App\Models\Horario;
 use App\Models\Paciente;
 use App\Models\Pago;
 use App\Models\Promocion;
@@ -22,15 +23,15 @@ class CitaController extends Controller
 
     /**
      * RF-01 (paso 1): formulario de solicitud de cita.
-     * Disponible para paciente y recepcionista.
+     * Disponible para paciente, recepcionista y administrador.
      */
     public function create()
     {
         $especialidades = Especialidad::orderBy('nombre')->get();
         $promociones = Promocion::where('activa', true)->orderBy('nombre')->get();
 
-        // La recepcionista puede crear la cita a nombre de cualquier paciente
-        $pacientes = Auth::user()->role === 'recepcionista'
+        // La recepcionista y el administrador pueden crear la cita a nombre de cualquier paciente
+        $pacientes = in_array(Auth::user()->role, ['recepcionista', 'administrador'])
             ? Paciente::orderBy('nombres')->get()
             : null;
 
@@ -53,26 +54,20 @@ class CitaController extends Controller
             'motivo_consulta' => 'nullable|string',
         ];
 
-        if ($user->role === 'recepcionista') {
+        if (in_array($user->role, ['recepcionista', 'administrador'])) {
             $reglas['paciente_id'] = 'required|exists:pacientes,id';
         }
 
         $datos = $request->validate($reglas);
 
-        $paciente = $user->role === 'recepcionista'
+        $paciente = in_array($user->role, ['recepcionista', 'administrador'])
             ? Paciente::findOrFail($datos['paciente_id'])
             : Paciente::where('user_id', $user->id)->firstOrFail();
 
         // RF-02: verificar disponibilidad antes de confirmar el registro.
-        $ocupado = Cita::where('psicologo_id', $datos['psicologo_id'])
-            ->where('fecha', $datos['fecha'])
-            ->where('hora', $datos['hora'])
-            ->whereIn('estado', ['pendiente', 'confirmada'])
-            ->exists();
-
-        if ($ocupado) {
+        if (!$this->horaDisponible($datos['psicologo_id'], $datos['fecha'], $datos['hora'])) {
             return back()->withInput()->withErrors([
-                'hora' => 'El psicologo ya tiene una cita registrada en ese horario. Elige otro horario disponible.',
+                'hora' => 'Ese horario ya no esta disponible para el psicologo. Elige otro horario disponible.',
             ]);
         }
 
@@ -130,6 +125,14 @@ class CitaController extends Controller
             abort(403);
         }
 
+        if (!in_array($cita->estado, ['pendiente', 'reprogramada'])) {
+            return back()->withErrors(['estado' => 'Solo se pueden confirmar citas pendientes o reprogramadas.']);
+        }
+
+        if (!$cita->pagoConfirmado()) {
+            return back()->withErrors(['estado' => 'No se puede confirmar la cita: primero registra y valida su pago.']);
+        }
+
         $cita->update(['estado' => 'confirmada']);
 
         return back()->with('status', 'Cita confirmada correctamente.');
@@ -163,6 +166,13 @@ class CitaController extends Controller
             'motivo' => 'nullable|string',
         ]);
 
+        // RF-02: la nueva fecha/hora debe estar libre en el horario del psicologo.
+        if (!$this->horaDisponible($cita->psicologo_id, $datos['fecha'], $datos['hora'], $cita->id)) {
+            return back()->withInput()->withErrors([
+                'hora' => 'Ese horario no esta disponible para el psicologo. Elige otro horario disponible.',
+            ]);
+        }
+
         DB::transaction(function () use ($cita, $datos) {
             Reprogramacion::create([
                 'cita_id' => $cita->id,
@@ -192,12 +202,22 @@ class CitaController extends Controller
     public function formCancelar(Cita $cita)
     {
         $this->autorizarAccesoCita($cita);
+
+        if (!$cita->puedeCancelarse()) {
+            return back()->withErrors(['estado' => 'Esta cita ya fue cancelada o atendida; no puede cancelarse.']);
+        }
+
         return view('citas.cancelar', compact('cita'));
     }
 
     public function cancelar(Request $request, Cita $cita)
     {
         $this->autorizarAccesoCita($cita);
+
+        if (!$cita->puedeCancelarse()) {
+            return redirect()->route('citas.show', $cita)
+                ->withErrors(['estado' => 'Esta cita ya fue cancelada o atendida; no puede cancelarse.']);
+        }
 
         $datos = $request->validate(['motivo' => 'nullable|string']);
 
@@ -215,6 +235,17 @@ class CitaController extends Controller
         });
 
         return redirect()->route('citas.index')->with('status', 'Cita cancelada correctamente.');
+    }
+
+    /**
+     * La hora debe ser uno de los bloques libres del horario del psicologo.
+     */
+    private function horaDisponible($psicologoId, $fecha, $hora, $ignorarCitaId = null): bool
+    {
+        return in_array(
+            substr($hora, 0, 5),
+            Horario::horasDisponibles($psicologoId, $fecha, $ignorarCitaId)
+        );
     }
 
     private function autorizarAccesoCita(Cita $cita)

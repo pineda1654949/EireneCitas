@@ -84,6 +84,8 @@ const psicologoSelect = document.getElementById('psicologo_id');
 const fechaInput = document.getElementById('fecha');
 const horaSelect = document.getElementById('hora');
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+// URL base generada por Laravel: funciona con "php artisan serve" y con Apache en /EireneCitas/public
+const apiUrl = @json(url('/api'));
 
 especialidadSelect.addEventListener('change', async function () {
     psicologoSelect.innerHTML = '<option value="">Cargando...</option>';
@@ -94,7 +96,7 @@ especialidadSelect.addEventListener('change', async function () {
         return;
     }
 
-    const res = await fetch(`/api/especialidades/${this.value}/psicologos`, {
+    const res = await fetch(`${apiUrl}/especialidades/${this.value}/psicologos`, {
         headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
     });
     const psicologos = await res.json();
@@ -119,7 +121,7 @@ async function cargarHoras() {
     horaSelect.innerHTML = '<option value="">Cargando horas disponibles...</option>';
 
     const params = new URLSearchParams({ psicologo_id: psicologoSelect.value, fecha: fechaInput.value });
-    const res = await fetch(`/api/horas-disponibles?${params.toString()}`, {
+    const res = await fetch(`${apiUrl}/horas-disponibles?${params.toString()}`, {
         headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
     });
     const horas = await res.json();

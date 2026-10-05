@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Cita;
 use App\Models\Especialidad;
 use App\Models\Horario;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DisponibilidadController extends Controller
@@ -31,39 +29,11 @@ class DisponibilidadController extends Controller
         $request->validate([
             'psicologo_id' => 'required|exists:users,id',
             'fecha' => 'required|date',
+            'cita_id' => 'nullable|integer', // al reprogramar, su propia hora cuenta como libre
         ]);
 
-        $fecha = Carbon::parse($request->fecha);
-        $diaSemana = $fecha->dayOfWeek; // 0=domingo ... 6=sabado
-
-        $bloques = Horario::where('psicologo_id', $request->psicologo_id)
-            ->where('dia_semana', $diaSemana)
-            ->where('activo', true)
-            ->get();
-
-        $horasOcupadas = Cita::where('psicologo_id', $request->psicologo_id)
-            ->where('fecha', $fecha->toDateString())
-            ->whereIn('estado', ['pendiente', 'confirmada'])
-            ->pluck('hora')
-            ->map(fn ($h) => substr($h, 0, 5))
-            ->toArray();
-
-        $disponibles = [];
-
-        foreach ($bloques as $bloque) {
-            $inicio = Carbon::parse($bloque->hora_inicio);
-            $fin = Carbon::parse($bloque->hora_fin);
-
-            // Sesiones de 50 minutos, con 10 minutos de margen entre citas.
-            while ($inicio->copy()->addMinutes(50)->lte($fin)) {
-                $horaTexto = $inicio->format('H:i');
-                if (!in_array($horaTexto, $horasOcupadas)) {
-                    $disponibles[] = $horaTexto;
-                }
-                $inicio->addMinutes(60);
-            }
-        }
-
-        return response()->json($disponibles);
+        return response()->json(
+            Horario::horasDisponibles($request->psicologo_id, $request->fecha, $request->cita_id)
+        );
     }
 }

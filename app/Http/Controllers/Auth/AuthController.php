@@ -23,7 +23,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credenciales = $request->validate([
-            'email' => 'required|email',
+            // Acepta correo o nombre de usuario (p. ej. la cuenta "admin").
+            'email' => 'required|string',
             'password' => 'required',
         ]);
 

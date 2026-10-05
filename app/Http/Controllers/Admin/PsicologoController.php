@@ -61,6 +61,7 @@ class PsicologoController extends Controller
 
     public function edit(User $psicologo)
     {
+        $this->asegurarPsicologo($psicologo);
         $especialidades = Especialidad::orderBy('nombre')->get();
         $psicologo->load('especialidades');
         return view('admin.psicologos.edit', compact('psicologo', 'especialidades'));
@@ -68,6 +69,8 @@ class PsicologoController extends Controller
 
     public function update(Request $request, User $psicologo)
     {
+        $this->asegurarPsicologo($psicologo);
+
         $datos = $request->validate([
             'name' => 'required|string|max:255',
             'apellidos' => 'required|string|max:255',
@@ -93,7 +96,19 @@ class PsicologoController extends Controller
 
     public function destroy(User $psicologo)
     {
+        $this->asegurarPsicologo($psicologo);
         $psicologo->delete();
         return back()->with('status', 'Psicologo eliminado.');
+    }
+
+    /**
+     * Evita que desde este modulo se edite o elimine a un usuario que no es
+     * psicologo (p. ej. un administrador o un paciente) cambiando el id en la URL.
+     */
+    private function asegurarPsicologo(User $usuario)
+    {
+        if (!$usuario->esPsicologo()) {
+            abort(404);
+        }
     }
 }
