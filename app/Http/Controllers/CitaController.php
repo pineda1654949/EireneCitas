@@ -89,7 +89,7 @@ class CitaController extends Controller
         $cita = $this->citas->registrar($paciente, $request->validated(), $usuario);
 
         return redirect()->route('citas.show', $cita)
-            ->with('status', 'Cita registrada correctamente. Queda pendiente de confirmacion de pago.');
+            ->with('status', 'Cita registrada correctamente. Queda pendiente de confirmación de pago.');
     }
 
     public function show(Cita $cita): View
@@ -125,7 +125,7 @@ class CitaController extends Controller
 
         if (! $cita->puedeReprogramarse()) {
             return redirect()->route('citas.show', $cita)->withErrors([
-                'fecha' => 'Esta cita ya no puede reprogramarse (limite alcanzado o cita cerrada).',
+                'fecha' => 'Esta cita ya no puede reprogramarse (límite alcanzado o cita cerrada).',
             ]);
         }
 

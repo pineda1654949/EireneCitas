@@ -9,6 +9,13 @@ use Illuminate\Validation\Rules\Password;
 
 class PsicologoRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('email')) {
+            $this->merge(['email' => mb_strtolower(trim($this->string('email')->toString()))]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */

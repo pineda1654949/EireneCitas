@@ -54,7 +54,7 @@ class PagoController extends Controller
     {
         $this->citas->registrarPago($cita, $request->validated());
 
-        return redirect()->route('citas.show', $cita)->with('status', 'Pago registrado, pendiente de validacion.');
+        return redirect()->route('citas.show', $cita)->with('status', 'Pago registrado, pendiente de validación.');
     }
 
     public function validar(Request $request, Pago $pago): RedirectResponse
@@ -66,7 +66,7 @@ class PagoController extends Controller
 
         return back()->with('status', $confirmada
             ? 'Pago validado y cita confirmada.'
-            : 'Pago validado. La cita no cambio de estado porque ya esta '.$pago->cita->estado->etiqueta().'.');
+            : 'Pago validado. La cita no cambió de estado porque ya está '.$pago->cita->estado->etiqueta().'.');
     }
 
     public function rechazar(Request $request, Pago $pago): RedirectResponse

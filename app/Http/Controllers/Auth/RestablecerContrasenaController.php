@@ -46,6 +46,6 @@ class RestablecerContrasenaController extends Controller
             return back()->withInput($request->only('email'))->withErrors(['email' => __($estado)]);
         }
 
-        return redirect()->route('login')->with('status', 'Tu contrasena fue restablecida. Ya puedes iniciar sesion.');
+        return redirect()->route('login')->with('status', 'Tu contraseña fue restablecida. Ya puedes iniciar sesión.');
     }
 }

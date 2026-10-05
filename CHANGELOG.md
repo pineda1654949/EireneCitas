@@ -33,7 +33,7 @@ Versión preparada para producción.
 - Páginas de error en español.
 
 ### Calidad
-- 210 pruebas automatizadas (unitarias y de funcionalidad), con matriz de trazabilidad.
+- 224 pruebas automatizadas (unitarias y de funcionalidad), con matriz de trazabilidad.
 - Análisis estático con PHPStan/Larastan (nivel 6) y estilo de código con Pint.
 - Integración continua con GitHub Actions.
 
@@ -43,3 +43,5 @@ Versión preparada para producción.
 - La edición de promociones no funcionaba.
 - El cruce de bloques de horario se detectaba mal en el borde (DEF-001).
 - Error 500 al enviar los correos de cita desde la cola (DEF-006).
+- Revisión extensiva (DEF-007 a DEF-016): migraciones no reversibles en MySQL, mensajes de validación en inglés, correos con mayúsculas, citas simultáneas del mismo paciente, fichas duplicadas por DNI, sesiones futuras marcadas como atendidas, reprogramación sin cambios, inyección de fórmulas en el CSV, próxima sesión mal calculada y horarios duplicados por el seeder.
+- Textos de la interfaz, los correos y los mensajes con ortografía correcta (tildes y eñes).

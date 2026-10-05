@@ -56,6 +56,6 @@ class HistorialController extends Controller
         );
 
         return redirect()->route('citas.show', $cita)
-            ->with('status', 'Historial clinico registrado. Sesion marcada como atendida.');
+            ->with('status', 'Historial clínico registrado. Sesión marcada como atendida.');
     }
 }

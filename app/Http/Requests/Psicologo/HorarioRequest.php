@@ -40,7 +40,7 @@ class HorarioRequest extends FormRequest
                     ->exists();
 
                 if ($seCruza) {
-                    $validator->errors()->add('hora_inicio', 'El bloque se cruza con otro horario que ya registraste ese dia.');
+                    $validator->errors()->add('hora_inicio', 'El bloque se cruza con otro horario que ya registraste ese día.');
                 }
             },
         ];

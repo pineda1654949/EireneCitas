@@ -56,6 +56,6 @@ class RegistroController extends Controller
         Auth::login($usuario);
         $request->session()->regenerate();
 
-        return redirect()->route('home')->with('status', 'Registro exitoso. ¡Bienvenido(a) a Eirene!');
+        return redirect()->route('home')->with('status', 'Registro exitoso. ¡Te damos la bienvenida a Eirene!');
     }
 }

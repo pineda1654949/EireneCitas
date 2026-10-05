@@ -47,7 +47,7 @@ class HorarioController extends Controller
 
         $horario->update(['activo' => ! $horario->activo]);
 
-        return back()->with('status', $horario->activo ? 'Bloque activado.' : 'Bloque pausado: no se ofreceran esas horas.');
+        return back()->with('status', $horario->activo ? 'Bloque activado.' : 'Bloque pausado: no se ofrecerán esas horas.');
     }
 
     public function destroy(Request $request, Horario $horario): RedirectResponse

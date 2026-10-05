@@ -15,12 +15,12 @@ class RestablecerContrasena extends ResetPassword
         $minutos = config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
 
         return (new MailMessage)
-            ->subject('Restablecer contrasena - '.config('eirene.clinica.nombre'))
+            ->subject('Restablecer contraseña - '.config('eirene.clinica.nombre'))
             ->greeting('Hola:')
-            ->line('Recibimos una solicitud para restablecer la contrasena de tu cuenta.')
-            ->action('Restablecer contrasena', $url)
+            ->line('Recibimos una solicitud para restablecer la contraseña de tu cuenta.')
+            ->action('Restablecer contraseña', $url)
             ->line("Este enlace vence en {$minutos} minutos.")
-            ->line('Si no solicitaste el cambio, puedes ignorar este correo; tu contrasena no se modificara.')
+            ->line('Si no solicitaste el cambio, puedes ignorar este correo; tu contraseña no se modificará.')
             ->salutation('Atentamente, '.config('eirene.clinica.nombre'));
     }
 }

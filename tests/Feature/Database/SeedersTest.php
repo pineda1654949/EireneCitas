@@ -3,6 +3,7 @@
 namespace Tests\Feature\Database;
 
 use App\Models\Especialidad;
+use App\Models\Horario;
 use App\Models\Promocion;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -46,5 +47,6 @@ class SeedersTest extends TestCase
 
         $this->assertSame(5, User::count());
         $this->assertSame(3, Promocion::count());
+        $this->assertSame(20, Horario::count()); // 2 psicologos x 5 dias x 2 bloques (DEF-016)
     }
 }

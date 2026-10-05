@@ -25,6 +25,6 @@ class RecuperarContrasenaController extends Controller
         Password::sendResetLink($request->only('email'));
 
         // Siempre la misma respuesta: no revela si el correo esta registrado.
-        return back()->with('status', 'Si el correo esta registrado, te enviamos un enlace para restablecer tu contrasena.');
+        return back()->with('status', 'Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.');
     }
 }

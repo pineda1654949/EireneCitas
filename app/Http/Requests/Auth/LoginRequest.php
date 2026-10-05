@@ -14,6 +14,13 @@ class LoginRequest extends FormRequest
     /** Intentos fallidos permitidos antes de bloquear temporalmente. */
     public const MAX_INTENTOS = 5;
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('email')) {
+            $this->merge(['email' => mb_strtolower(trim($this->string('email')->toString()))]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -77,7 +84,7 @@ class LoginRequest extends FormRequest
         $segundos = RateLimiter::availableIn($this->claveDeBloqueo());
 
         throw ValidationException::withMessages([
-            'email' => "Demasiados intentos de inicio de sesion. Intenta de nuevo en {$segundos} segundos.",
+            'email' => "Demasiados intentos de inicio de sesión. Intenta de nuevo en {$segundos} segundos.",
         ]);
     }
 

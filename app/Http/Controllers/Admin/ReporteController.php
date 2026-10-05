@@ -63,14 +63,14 @@ class ReporteController extends Controller
         return response()->streamDownload(function () use ($desde, $hasta) {
             $salida = fopen('php://output', 'w');
             fwrite($salida, "\xEF\xBB\xBF"); // BOM para que Excel reconozca UTF-8
-            fputcsv($salida, ['ID', 'Fecha', 'Hora', 'Paciente', 'DNI', 'Psicologo', 'Especialidad', 'Estado', 'Reprogramaciones']);
+            fputcsv($salida, ['ID', 'Fecha', 'Hora', 'Paciente', 'DNI', 'Psicólogo', 'Especialidad', 'Estado', 'Reprogramaciones']);
 
             Cita::with(['paciente', 'psicologo', 'especialidad'])
                 ->whereBetween('fecha', [$desde, $hasta])
                 ->orderBy('fecha')->orderBy('hora')
                 ->chunk(200, function ($citas) use ($salida) {
                     foreach ($citas as $cita) {
-                        fputcsv($salida, [
+                        fputcsv($salida, array_map([$this, 'celdaSegura'], [
                             $cita->id,
                             $cita->fecha->format('d/m/Y'),
                             $cita->hora_corta,
@@ -80,12 +80,25 @@ class ReporteController extends Controller
                             $cita->especialidad?->nombre,
                             $cita->estado->etiqueta(),
                             $cita->numero_reprogramaciones,
-                        ]);
+                        ]));
                     }
                 });
 
             fclose($salida);
         }, $nombre, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Evita la inyeccion de formulas (OWASP "CSV Injection"): un nombre que
+     * empiece por = + - @ se ejecutaria como formula al abrirlo en Excel.
+     */
+    private function celdaSegura(mixed $valor): mixed
+    {
+        if (is_string($valor) && $valor !== '' && in_array($valor[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'".$valor;
+        }
+
+        return $valor;
     }
 
     /**

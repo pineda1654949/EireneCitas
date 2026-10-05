@@ -49,7 +49,7 @@ class PsicologoController extends Controller
             $psicologo->especialidades()->sync($datos['especialidades'] ?? []);
         });
 
-        return redirect()->route('admin.psicologos.index')->with('status', 'Psicologo registrado correctamente.');
+        return redirect()->route('admin.psicologos.index')->with('status', 'Psicólogo registrado correctamente.');
     }
 
     public function edit(User $psicologo): View
@@ -94,12 +94,12 @@ class PsicologoController extends Controller
         if ($psicologo->citasComoPsicologo()->exists()) {
             $psicologo->update(['activo' => false]);
 
-            return back()->with('status', 'El psicologo tiene citas registradas: se desactivo en lugar de eliminarse.');
+            return back()->with('status', 'El psicólogo tiene citas registradas: se desactivó en lugar de eliminarse.');
         }
 
         $psicologo->delete();
 
-        return back()->with('status', 'Psicologo eliminado.');
+        return back()->with('status', 'Psicólogo eliminado.');
     }
 
     /**

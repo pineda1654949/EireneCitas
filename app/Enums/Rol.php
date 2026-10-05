@@ -17,7 +17,7 @@ enum Rol: string
         return match ($this) {
             self::Administrador => 'Administrador',
             self::Recepcionista => 'Recepcionista',
-            self::Psicologo => 'Psicologo',
+            self::Psicologo => 'Psicólogo',
             self::Paciente => 'Paciente',
         };
     }

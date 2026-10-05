@@ -21,7 +21,7 @@ class VerificarRol
         }
 
         if (! in_array($usuario->role->value, $roles, true)) {
-            abort(403, 'No tienes permisos para acceder a este modulo.');
+            abort(403, 'No tienes permisos para acceder a este módulo.');
         }
 
         return $next($request);

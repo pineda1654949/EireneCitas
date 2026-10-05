@@ -11,6 +11,6 @@ class CitaCancelada extends NotificacionDeCita
 
     protected function introduccion(): string
     {
-        return 'La siguiente cita fue cancelada. Si fue un error, comunicate con la clinica.';
+        return 'La siguiente cita fue cancelada. Si fue un error, comunícate con la clínica.';
     }
 }

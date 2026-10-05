@@ -11,6 +11,6 @@ class CitaRegistrada extends NotificacionDeCita
 
     protected function introduccion(): string
     {
-        return 'Se registro una nueva cita. Quedara confirmada cuando se valide el pago.';
+        return 'Se registró una nueva cita. Quedará confirmada cuando se valide el pago.';
     }
 }

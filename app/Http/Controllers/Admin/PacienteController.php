@@ -59,7 +59,7 @@ class PacienteController extends Controller
         // Un paciente con citas tiene historial clinico asociado: no se borra.
         if ($paciente->citas()->exists()) {
             return back()->withErrors([
-                'paciente' => 'No se puede eliminar un paciente con citas registradas; su historial debe conservarse.',
+                'paciente' => 'No se puede eliminar un paciente con citas registradas: su historial debe conservarse.',
             ]);
         }
 

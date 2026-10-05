@@ -36,7 +36,8 @@ class UsuariosDemoSeeder extends Seeder
         // Lunes a viernes, 09:00-13:00 y 15:00-18:00.
         foreach ([$psicologa, $psicologo] as $profesional) {
             foreach (range(1, 5) as $dia) {
-                foreach ([['09:00', '13:00'], ['15:00', '18:00']] as [$inicio, $fin]) {
+                // Formato HH:MM:SS, igual al que guarda el modelo (DEF-016).
+                foreach ([['09:00:00', '13:00:00'], ['15:00:00', '18:00:00']] as [$inicio, $fin]) {
                     Horario::firstOrCreate([
                         'psicologo_id' => $profesional->id,
                         'dia_semana' => $dia,

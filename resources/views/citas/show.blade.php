@@ -93,7 +93,7 @@
                         @endif
                     @endcan
 
-                    @if ($usuario->can('atender', $cita) && ! $cita->estado->estaCerrada())
+                    @if ($usuario->can('atender', $cita) && ! $cita->estado->estaCerrada() && ! $cita->fecha->isAfter(today()))
                         <a href="{{ route('psicologo.historial.create', $cita) }}" class="btn btn-primary">
                             <x-heroicon-o-document-text class="size-5" /> Atender sesión
                         </a>

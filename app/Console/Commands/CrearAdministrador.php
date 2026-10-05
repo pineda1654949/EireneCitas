@@ -24,7 +24,7 @@ class CrearAdministrador extends Command
     public function handle(): int
     {
         $usuario = $this->option('usuario') ?: $this->ask('Usuario o correo del administrador');
-        $password = $this->option('password') ?: $this->secret('Contrasena (minimo 8 caracteres, letras y numeros)');
+        $password = $this->option('password') ?: $this->secret('Contraseña (mínimo 8 caracteres, letras y números)');
 
         $validador = Validator::make(
             ['usuario' => $usuario, 'password' => $password],

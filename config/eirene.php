@@ -11,7 +11,7 @@
 return [
 
     'clinica' => [
-        'nombre' => env('CLINICA_NOMBRE', 'Clinica Psicologica Eirene'),
+        'nombre' => env('CLINICA_NOMBRE', 'Clínica Psicológica Eirene'),
         'telefono' => env('CLINICA_TELEFONO'),
         'correo' => env('CLINICA_CORREO', env('MAIL_FROM_ADDRESS')),
     ],

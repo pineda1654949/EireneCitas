@@ -31,14 +31,22 @@ return new class extends Migration
         });
     }
 
+    /**
+     * En MySQL, al crear un indice compuesto que empieza por la columna de una
+     * llave foranea, el motor elimina el indice simple que habia creado para
+     * esa FK y pasa a usar el compuesto. Por eso, antes de borrar los
+     * compuestos se recrea el indice simple de psicologo_id (DEF-007).
+     */
     public function down(): void
     {
-        Schema::table('pacientes', function (Blueprint $table) {
-            $table->dropIndex(['dni']);
-            $table->dropIndex(['apellidos']);
+        Schema::table('citas', function (Blueprint $table) {
+            $table->index('psicologo_id', 'citas_psicologo_id_foreign');
+            $table->dropIndex('citas_agenda_index');
+            $table->dropIndex('citas_fecha_estado_index');
         });
 
         Schema::table('horarios', function (Blueprint $table) {
+            $table->index('psicologo_id', 'horarios_psicologo_id_foreign');
             $table->dropIndex('horarios_busqueda_index');
         });
 
@@ -46,9 +54,9 @@ return new class extends Migration
             $table->dropIndex(['estado']);
         });
 
-        Schema::table('citas', function (Blueprint $table) {
-            $table->dropIndex('citas_agenda_index');
-            $table->dropIndex('citas_fecha_estado_index');
+        Schema::table('pacientes', function (Blueprint $table) {
+            $table->dropIndex(['dni']);
+            $table->dropIndex(['apellidos']);
         });
     }
 };

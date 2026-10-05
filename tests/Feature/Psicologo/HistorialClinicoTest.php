@@ -19,7 +19,7 @@ class HistorialClinicoTest extends TestCase
     public function test_el_psicologo_registra_la_sesion_y_la_cita_queda_atendida(): void
     {
         [$psicologo] = $this->psicologoConAgenda();
-        $cita = $this->citaPara($psicologo, atributos: ['estado' => EstadoCita::Confirmada]);
+        $cita = $this->citaPara($psicologo, atributos: ['estado' => EstadoCita::Confirmada, 'fecha' => now()->toDateString(), 'hora' => '09:00']);
 
         $this->actingAs($psicologo)->get(route('psicologo.historial.create', $cita))->assertOk();
         $this->actingAs($psicologo)
@@ -35,7 +35,7 @@ class HistorialClinicoTest extends TestCase
     public function test_registrar_dos_veces_actualiza_el_mismo_historial(): void
     {
         [$psicologo] = $this->psicologoConAgenda();
-        $cita = $this->citaPara($psicologo);
+        $cita = $this->citaPara($psicologo, atributos: ['fecha' => now()->toDateString(), 'hora' => '09:00']);
 
         $this->actingAs($psicologo)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Version 1']);
         $this->actingAs($psicologo)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Version 2']);

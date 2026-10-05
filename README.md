@@ -7,7 +7,7 @@ Sistema web para la gestión de citas de la **Clínica Psicológica Eirene**: re
 | **Backend** | PHP 8.2+ · Laravel 12 |
 | **Frontend** | Blade · Tailwind CSS 4 · Vite 7 (sin dependencias de CDN) |
 | **Base de datos** | MySQL 8 / MariaDB 10.4+ (SQLite en pruebas) |
-| **Calidad** | PHPUnit 11 (210 pruebas) · PHPStan/Larastan nivel 6 · Laravel Pint · GitHub Actions |
+| **Calidad** | PHPUnit 11 (224 pruebas) · PHPStan/Larastan nivel 6 · Laravel Pint · GitHub Actions |
 
 ---
 

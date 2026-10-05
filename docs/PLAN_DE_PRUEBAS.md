@@ -20,12 +20,12 @@ Verificar que el Sistema de Gestión de Citas Eirene cumple sus requerimientos f
 | Nivel | Ubicación | Qué verifica | Casos |
 |---|---|---|---|
 | **Unitarias** | `tests/Unit` | Lógica aislada: enums de estado y roles, reglas de la cita (límite de reprogramaciones, cancelación) | 21 |
-| **Integración / funcionalidad** | `tests/Feature` | Flujos completos vía HTTP con base de datos real (SQLite en memoria): controladores, validación, políticas, servicios, eventos y notificaciones | 189 |
+| **Integración / funcionalidad** | `tests/Feature` | Flujos completos vía HTTP con base de datos real (SQLite en memoria): controladores, validación, políticas, servicios, eventos y notificaciones | 203 |
 | **Análisis estático** | `phpstan.neon` | Tipos, llamadas inexistentes y errores lógicos detectables sin ejecutar (PHPStan + Larastan, nivel 6) | — |
 | **Estilo de código** | `pint.json` | Convenciones PSR-12 / Laravel | — |
-| **Regresión** | GitHub Actions | Toda la suite en cada *push* (PHP 8.2, 8.3 y 8.4, SQLite y MySQL 8) | 210 |
+| **Regresión** | GitHub Actions | Toda la suite en cada *push* (PHP 8.2, 8.3 y 8.4, SQLite y MySQL 8) | 224 |
 
-**Total: 210 casos de prueba y 629 aserciones.**
+**Total: 224 casos de prueba y 666 aserciones.**
 
 ## 4. Técnicas de diseño de casos
 
@@ -106,7 +106,11 @@ php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/cobertura
 
 | Fecha | Entorno | Pruebas | Aserciones | Resultado |
 |---|---|---|---|---|
-| 2026-10-05 | Windows 11 · PHP 8.2.12 · SQLite | 210 | 629 | ✅ Todas aprobadas |
+| 2026-10-05 | Windows 11 · PHP 8.2.12 · SQLite | 224 | 666 | ✅ Todas aprobadas |
+| 2026-10-05 | Windows 11 · PHP 8.2.12 · MariaDB 10.4 (XAMPP) | 224 | 666 | ✅ Todas aprobadas |
+| 2026-10-05 | Migraciones en MariaDB: aplicar → revertir todas → aplicar | — | — | ✅ 16/16 reversibles |
+| 2026-10-05 | Respaldo real con `mysqldump` + `backup:monitor` | — | — | ✅ Respaldo válido y sano |
+| 2026-10-05 | Recorrido HTTP de todas las páginas por rol con datos reales | 35 páginas | — | ✅ Todas responden 200 |
 | 2026-10-05 | PHPStan nivel 6 | — | — | ✅ 0 errores |
 | 2026-10-05 | Pint | — | — | ✅ Sin diferencias |
 | 2026-10-05 | `composer audit` / `npm audit` | — | — | ✅ 0 vulnerabilidades |
@@ -121,3 +125,29 @@ php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/cobertura
 | DEF-004 | Revisión de código | La edición de promociones no funcionaba porque el parámetro de la ruta era `{promocione}`. | Media | ✅ Corregido y cubierto por `PsicologoYPromocionTest` |
 | DEF-005 | Análisis estático (PHPStan) | Faltaban tipos en los accessors y en las closures de auditoría. | Baja | ✅ Corregido |
 | DEF-006 | Prueba manual del usuario al registrar una cita | Error 500 al enviar los correos: la propiedad `readonly` de `NotificacionDeCita` no se podía reconstruir al deserializar la notificación desde la cola. Las pruebas no lo detectaron porque `Notification::fake()` no serializa. | Alta | ✅ Corregido. Regresión cubierta por `EnvioRealDeCorreosTest`, que envía los correos por la cola real |
+| DEF-007 | Revisión extensiva: migraciones revertidas en MariaDB | `migrate:rollback` fallaba: MySQL reemplaza el índice automático de una llave foránea por el índice compuesto nuevo, y luego no permite borrarlo. En SQLite no ocurre. | Media | ✅ Corregido. `MigracionesYTraduccionesTest` revierte y reaplica todas las migraciones |
+| DEF-008 | Revisión extensiva: comparación de claves de traducción | 37 reglas de validación sin traducir. Los mensajes de la política de contraseñas salían en inglés en el registro. | Media | ✅ Traducción completa, con una prueba que falla si falta alguna regla |
+| DEF-009 | Revisión extensiva | El registro rechazaba correos escritos con mayúsculas (regla `lowercase`) en lugar de normalizarlos. | Baja | ✅ Se normalizan a minúsculas en el registro, el login y el alta de psicólogos |
+| DEF-010 | Revisión extensiva | Un paciente podía tener dos citas a la misma hora con psicólogos distintos, al registrar o al reprogramar. | Alta | ✅ Nueva regla en `CitaService` |
+| DEF-011 | Revisión extensiva | El registro público duplicaba la ficha de un paciente ya creado por recepción con el mismo DNI. | Media | ✅ Se rechaza con un mensaje que indica acercarse a la clínica (vincular la ficha automáticamente permitiría suplantar al paciente) |
+| DEF-012 | Revisión extensiva | El psicólogo podía marcar como atendida una cita futura, lo que alteraba los reportes. | Media | ✅ Solo desde el día de la cita; el botón se oculta antes |
+| DEF-013 | Revisión extensiva | Reprogramar a la misma fecha y hora consumía una de las 3 reprogramaciones. | Baja | ✅ Se rechaza |
+| DEF-014 | Revisión extensiva (seguridad) | Inyección de fórmulas en el CSV exportado (OWASP *CSV Injection*): un nombre como `=HYPERLINK(...)` se ejecutaba al abrir el archivo en Excel. | Alta | ✅ Las celdas que empiezan con `= + - @` se neutralizan |
+| DEF-015 | Revisión extensiva | "Tu próxima sesión" mostraba una cita lejana si el paciente tenía más de 10 citas futuras. | Baja | ✅ Consulta propia ordenada por cercanía |
+| DEF-016 | Revisión extensiva | El seeder de demostración duplicaba los horarios en cada ejecución (formato `09:00` frente a `09:00:00`). | Baja | ✅ Corregido; la prueba de idempotencia ahora cuenta los horarios |
+
+Las pruebas de regresión de DEF-009 a DEF-015 están en `tests/Feature/RevisionDefectosTest.php`. Cada una falló antes de su corrección (ver la sección 11).
+
+## 11. Revisión extensiva (2026-10-05)
+
+Método aplicado después de la primera versión:
+
+1. **Ejecución contra la infraestructura real**, no solo contra dobles de prueba: la suite completa en MariaDB, las migraciones de ida y vuelta, un respaldo real con `mysqldump` y un recorrido HTTP de todas las pantallas por rol con los datos de la base local.
+2. **Comparación automática** de las claves de traducción del framework con las del proyecto.
+3. **Lectura del código** buscando reglas de negocio incompletas (solapamientos, límites, estados) y riesgos OWASP.
+4. **Confirmación antes de corregir:** cada sospecha se convirtió primero en una prueba. Si fallaba, era un defecto: se registró y se corrigió. Dos sospechas (mensajes de contraseñas, cuya traducción ya se había completado, y el primer día del rango de reportes) resultaron no ser defectos; se mantienen como pruebas de valor límite.
+
+**Observaciones que no son defectos, pero conviene decidir antes de producción:**
+- **No existe una pantalla para crear cuentas de recepcionista.** Hoy solo se crean con el seeder de demostración, que no corre en producción, así que la clínica no podría dar de alta a su personal de recepción.
+- Reprogramar una cita ya confirmada la deja en estado "reprogramada", y la recepción debe volver a confirmarla aunque el pago ya esté validado.
+- Excel elimina los ceros a la izquierda de un DNI al abrir el CSV.

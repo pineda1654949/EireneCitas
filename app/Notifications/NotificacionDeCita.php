@@ -50,7 +50,7 @@ abstract class NotificacionDeCita extends Notification implements ShouldQueue
             ->line($this->introduccion())
             ->line('**Fecha:** '.ucfirst($cita->fecha->isoFormat('dddd D [de] MMMM [de] YYYY')))
             ->line('**Hora:** '.$cita->hora_corta)
-            ->line('**Psicologo(a):** '.$cita->psicologo->nombre_completo)
+            ->line('**Psicólogo(a):** '.$cita->psicologo->nombre_completo)
             ->line('**Paciente:** '.$cita->paciente->nombre_completo);
 
         if ($cita->especialidad) {

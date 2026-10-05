@@ -29,7 +29,7 @@ class RecuperarContrasenaTest extends TestCase
         Notification::assertSentTo($usuario, RestablecerContrasena::class, function (RestablecerContrasena $notificacion) use ($usuario) {
             $correo = $notificacion->toMail($usuario);
 
-            return str_contains($correo->subject, 'Restablecer contrasena')
+            return str_contains($correo->subject, 'Restablecer contraseña')
                 && str_contains((string) $correo->actionUrl, '/restablecer-contrasena/');
         });
     }

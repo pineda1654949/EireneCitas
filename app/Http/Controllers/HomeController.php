@@ -95,10 +95,17 @@ class HomeController extends Controller
                 ->get()
             : collect();
 
-        $proximaCita = $citas
-            ->filter(fn (Cita $cita) => $cita->estado->estaActiva() && $cita->inicio->isFuture())
-            ->sortBy(fn (Cita $cita) => $cita->inicio)
-            ->first();
+        // Consulta propia: la lista anterior solo trae las 10 citas mas
+        // lejanas y podia omitir la mas cercana (DEF-015).
+        $proximaCita = $paciente
+            ? Cita::with(['psicologo', 'especialidad'])
+                ->where('paciente_id', $paciente->id)
+                ->activas()
+                ->whereDate('fecha', '>=', today())
+                ->orderBy('fecha')->orderBy('hora')
+                ->get()
+                ->first(fn (Cita $cita) => $cita->inicio->isFuture())
+            : null;
 
         return view('dashboard.paciente', [
             'paciente' => $paciente,

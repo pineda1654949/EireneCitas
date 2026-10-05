@@ -26,7 +26,7 @@ class PromocionController extends Controller
     {
         Promocion::create([...$request->validated(), 'activa' => $request->boolean('activa')]);
 
-        return redirect()->route('admin.promociones.index')->with('status', 'Promocion creada correctamente.');
+        return redirect()->route('admin.promociones.index')->with('status', 'Promoción creada correctamente.');
     }
 
     public function edit(Promocion $promocion): View
@@ -38,7 +38,7 @@ class PromocionController extends Controller
     {
         $promocion->update([...$request->validated(), 'activa' => $request->boolean('activa')]);
 
-        return redirect()->route('admin.promociones.index')->with('status', 'Promocion actualizada.');
+        return redirect()->route('admin.promociones.index')->with('status', 'Promoción actualizada.');
     }
 
     public function destroy(Promocion $promocion): RedirectResponse
@@ -46,6 +46,6 @@ class PromocionController extends Controller
         // Las citas conservan su referencia como "sin promocion" (nullOnDelete).
         $promocion->delete();
 
-        return back()->with('status', 'Promocion eliminada.');
+        return back()->with('status', 'Promoción eliminada.');
     }
 }

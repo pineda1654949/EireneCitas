@@ -14,7 +14,7 @@ class EnviarRecordatoriosCitas extends Command
 {
     protected $signature = 'citas:enviar-recordatorios';
 
-    protected $description = 'Envia recordatorios por correo de las citas de manana';
+    protected $description = 'Envía recordatorios por correo de las citas de mañana';
 
     public function handle(): int
     {

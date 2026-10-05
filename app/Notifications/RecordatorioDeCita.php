@@ -11,6 +11,6 @@ class RecordatorioDeCita extends NotificacionDeCita
 
     protected function introduccion(): string
     {
-        return 'Te recordamos que tienes una cita programada para manana.';
+        return 'Te recordamos que tienes una cita programada para mañana.';
     }
 }

@@ -7,6 +7,7 @@ use App\Enums\EstadoPago;
 use App\Exceptions\ReglaDeNegocioException;
 use App\Models\Cita;
 use App\Models\HistorialClinico;
+use App\Models\Horario;
 use App\Models\Paciente;
 use App\Models\Pago;
 use App\Models\Reprogramacion;
@@ -38,10 +39,11 @@ class CitaService
             $psicologo = $this->bloquearAgenda((int) $datos['psicologo_id']);
 
             if (! $psicologo->especialidades()->whereKey($datos['especialidad_id'])->exists()) {
-                throw new ReglaDeNegocioException('El psicologo seleccionado no atiende esa especialidad.', 'psicologo_id');
+                throw new ReglaDeNegocioException('El psicólogo seleccionado no atiende esa especialidad.', 'psicologo_id');
             }
 
             $this->exigirDisponibilidad($psicologo->id, $datos['fecha'], $datos['hora']);
+            $this->exigirPacienteLibre($paciente->id, $datos['fecha'], $datos['hora']);
 
             return Cita::create([
                 'paciente_id' => $paciente->id,
@@ -68,14 +70,19 @@ class CitaService
     {
         if (! $cita->puedeReprogramarse()) {
             throw new ReglaDeNegocioException(
-                'Esta cita ya no puede reprogramarse: alcanzo el limite de '.Cita::maxReprogramaciones().' reprogramaciones o ya fue cerrada.',
+                'Esta cita ya no puede reprogramarse: alcanzó el límite de '.Cita::maxReprogramaciones().' reprogramaciones o ya fue cerrada.',
                 'fecha',
             );
+        }
+
+        if ($cita->fecha->toDateString() === $fecha && $cita->hora_corta === substr($hora, 0, 5)) {
+            throw new ReglaDeNegocioException('Elige una fecha u hora distinta a la actual de la cita.', 'hora');
         }
 
         DB::transaction(function () use ($cita, $fecha, $hora, $motivo, $usuario) {
             $this->bloquearAgenda($cita->psicologo_id);
             $this->exigirDisponibilidad($cita->psicologo_id, $fecha, $hora, $cita->id);
+            $this->exigirPacienteLibre($cita->paciente_id, $fecha, $hora, $cita->id);
 
             Reprogramacion::create([
                 'cita_id' => $cita->id,
@@ -216,7 +223,11 @@ class CitaService
     public function atenderSesion(Cita $cita, string $notas, ?string $avance, User $psicologo): HistorialClinico
     {
         if (! $cita->estado->estaActiva() && $cita->estado !== EstadoCita::Atendida) {
-            throw new ReglaDeNegocioException('No se puede registrar la sesion de una cita cancelada.', 'notas_sesion');
+            throw new ReglaDeNegocioException('No se puede registrar la sesión de una cita cancelada.', 'notas_sesion');
+        }
+
+        if ($cita->fecha->isAfter(today())) {
+            throw new ReglaDeNegocioException('La sesión aún no se realiza: solo puede registrarse a partir del día de la cita.', 'notas_sesion');
         }
 
         return DB::transaction(function () use ($cita, $notas, $avance, $psicologo) {
@@ -246,7 +257,7 @@ class CitaService
         $psicologo = User::psicologos()->activos()->whereKey($psicologoId)->lockForUpdate()->first();
 
         if (! $psicologo) {
-            throw new ReglaDeNegocioException('El psicologo seleccionado no esta disponible.', 'psicologo_id');
+            throw new ReglaDeNegocioException('El psicólogo seleccionado no está disponible.', 'psicologo_id');
         }
 
         return $psicologo;
@@ -256,9 +267,27 @@ class CitaService
     {
         if (! $this->agenda->estaDisponible($psicologoId, $fecha, $hora, $ignorarCitaId)) {
             throw new ReglaDeNegocioException(
-                'Ese horario no esta disponible para el psicologo. Elige otro horario disponible.',
+                'Ese horario no está disponible para el psicólogo. Elige otro horario disponible.',
                 'hora',
             );
+        }
+    }
+
+    /**
+     * Un paciente no puede tener dos citas activas a la misma hora, aunque
+     * sean con psicologos distintos (DEF-010).
+     */
+    private function exigirPacienteLibre(int $pacienteId, string $fecha, string $hora, ?int $ignorarCitaId = null): void
+    {
+        $ocupado = Cita::activas()
+            ->where('paciente_id', $pacienteId)
+            ->whereDate('fecha', $fecha)
+            ->where('hora', Horario::normalizarHora(substr($hora, 0, 5)))
+            ->when($ignorarCitaId, fn ($q) => $q->whereKeyNot($ignorarCitaId))
+            ->exists();
+
+        if ($ocupado) {
+            throw new ReglaDeNegocioException('El paciente ya tiene otra cita a esa misma hora.', 'hora');
         }
     }
 
