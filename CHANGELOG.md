@@ -33,7 +33,7 @@ Versión preparada para producción.
 - Páginas de error en español.
 
 ### Calidad
-- 204 pruebas automatizadas (unitarias y de funcionalidad), con matriz de trazabilidad.
+- 210 pruebas automatizadas (unitarias y de funcionalidad), con matriz de trazabilidad.
 - Análisis estático con PHPStan/Larastan (nivel 6) y estilo de código con Pint.
 - Integración continua con GitHub Actions.
 
@@ -42,3 +42,4 @@ Versión preparada para producción.
 - Validar el pago de una cita cancelada la volvía a confirmar.
 - La edición de promociones no funcionaba.
 - El cruce de bloques de horario se detectaba mal en el borde (DEF-001).
+- Error 500 al enviar los correos de cita desde la cola (DEF-006).

@@ -20,12 +20,12 @@ Verificar que el Sistema de Gestión de Citas Eirene cumple sus requerimientos f
 | Nivel | Ubicación | Qué verifica | Casos |
 |---|---|---|---|
 | **Unitarias** | `tests/Unit` | Lógica aislada: enums de estado y roles, reglas de la cita (límite de reprogramaciones, cancelación) | 21 |
-| **Integración / funcionalidad** | `tests/Feature` | Flujos completos vía HTTP con base de datos real (SQLite en memoria): controladores, validación, políticas, servicios, eventos y notificaciones | 183 |
+| **Integración / funcionalidad** | `tests/Feature` | Flujos completos vía HTTP con base de datos real (SQLite en memoria): controladores, validación, políticas, servicios, eventos y notificaciones | 189 |
 | **Análisis estático** | `phpstan.neon` | Tipos, llamadas inexistentes y errores lógicos detectables sin ejecutar (PHPStan + Larastan, nivel 6) | — |
 | **Estilo de código** | `pint.json` | Convenciones PSR-12 / Laravel | — |
-| **Regresión** | GitHub Actions | Toda la suite en cada *push* (PHP 8.2, 8.3 y 8.4, SQLite y MySQL 8) | 204 |
+| **Regresión** | GitHub Actions | Toda la suite en cada *push* (PHP 8.2, 8.3 y 8.4, SQLite y MySQL 8) | 210 |
 
-**Total: 204 casos de prueba y 621 aserciones.**
+**Total: 210 casos de prueba y 629 aserciones.**
 
 ## 4. Técnicas de diseño de casos
 
@@ -47,7 +47,7 @@ Todos los casos con datos múltiples usan *data providers* de PHPUnit, con un no
 - **Base de datos:** SQLite en memoria, recreada en cada prueba (`RefreshDatabase`). En CI también se usa **MySQL 8.0**.
 - **Tiempo congelado:** todas las pruebas se ejecutan como si fuera el *lunes 5 de octubre de 2026 a las 08:00 (America/Lima)*. Ver `tests/TestCase.php`. Así los resultados son deterministas.
 - **Datos:** *factories* de Laravel (`database/factories`) con estados legibles: `->psicologo()`, `->confirmada()`, `->inactivo()`, etc. El trait `tests/Concerns/CreaEscenarios.php` arma los escenarios repetidos.
-- **Servicios externos simulados:** `Notification::fake()` para los correos y cola síncrona.
+- **Servicios externos simulados:** `Notification::fake()` para los correos y cola síncrona. Como `fake()` no serializa las notificaciones, `EnvioRealDeCorreosTest` además envía los correos por la cola real (lección del DEF-006).
 
 ## 6. Matriz de trazabilidad
 
@@ -106,7 +106,7 @@ php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/cobertura
 
 | Fecha | Entorno | Pruebas | Aserciones | Resultado |
 |---|---|---|---|---|
-| 2026-10-05 | Windows 11 · PHP 8.2.12 · SQLite | 204 | 621 | ✅ Todas aprobadas |
+| 2026-10-05 | Windows 11 · PHP 8.2.12 · SQLite | 210 | 629 | ✅ Todas aprobadas |
 | 2026-10-05 | PHPStan nivel 6 | — | — | ✅ 0 errores |
 | 2026-10-05 | Pint | — | — | ✅ Sin diferencias |
 | 2026-10-05 | `composer audit` / `npm audit` | — | — | ✅ 0 vulnerabilidades |
@@ -120,3 +120,4 @@ php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/cobertura
 | DEF-003 | Revisión de código | Validar el pago de una cita cancelada la volvía a "confirmada". | Alta | ✅ Corregido y cubierto por `PagoTest` |
 | DEF-004 | Revisión de código | La edición de promociones no funcionaba porque el parámetro de la ruta era `{promocione}`. | Media | ✅ Corregido y cubierto por `PsicologoYPromocionTest` |
 | DEF-005 | Análisis estático (PHPStan) | Faltaban tipos en los accessors y en las closures de auditoría. | Baja | ✅ Corregido |
+| DEF-006 | Prueba manual del usuario al registrar una cita | Error 500 al enviar los correos: la propiedad `readonly` de `NotificacionDeCita` no se podía reconstruir al deserializar la notificación desde la cola. Las pruebas no lo detectaron porque `Notification::fake()` no serializa. | Alta | ✅ Corregido. Regresión cubierta por `EnvioRealDeCorreosTest`, que envía los correos por la cola real |

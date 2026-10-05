@@ -18,7 +18,12 @@ abstract class NotificacionDeCita extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public readonly Cita $cita)
+    /**
+     * Sin "readonly": la cola deserializa la notificacion desde la subclase
+     * (CitaRegistrada, etc.) y PHP no permite inicializar alli una propiedad
+     * readonly declarada en esta clase base (DEF-006).
+     */
+    public function __construct(public Cita $cita)
     {
         $this->afterCommit();
     }
