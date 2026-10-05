@@ -53,6 +53,16 @@ class CitaPolicy
     }
 
     /**
+     * Registrar un pago con su voucher: el personal o el propio paciente
+     * (reemplaza el envio del comprobante por WhatsApp del AS-IS).
+     */
+    public function reportarPago(User $usuario, Cita $cita): bool
+    {
+        return $usuario->esPersonalAdministrativo()
+            || ($usuario->esPaciente() && $this->view($usuario, $cita));
+    }
+
+    /**
      * RF-06: solo el psicologo asignado registra la sesion.
      */
     public function atender(User $usuario, Cita $cita): bool

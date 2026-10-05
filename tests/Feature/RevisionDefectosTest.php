@@ -75,7 +75,7 @@ class RevisionDefectosTest extends TestCase
         $cita = $this->citaPara($psicologoB, $paciente, ['hora' => '09:00']);
 
         $this->actingAs($usuario)
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '11:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '11:00', 'motivo' => 'Cambio solicitado'])
             ->assertSessionHasErrors('hora');
     }
 
@@ -100,7 +100,7 @@ class RevisionDefectosTest extends TestCase
         $cita = $this->citaPara($psicologo); // el proximo lunes
 
         $this->actingAs($psicologo)
-            ->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Notas'])
+            ->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Notas de la sesion'])
             ->assertSessionHasErrors('notas_sesion');
 
         $this->assertSame(EstadoCita::Pendiente, $cita->refresh()->estado);
@@ -114,7 +114,7 @@ class RevisionDefectosTest extends TestCase
         $cita = $this->citaPara($psicologo, atributos: ['fecha' => now()->toDateString(), 'hora' => '09:00']);
 
         $this->actingAs($psicologo)
-            ->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Notas'])
+            ->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Notas de la sesion'])
             ->assertSessionHasNoErrors();
 
         $this->assertSame(EstadoCita::Atendida, $cita->refresh()->estado);
@@ -139,7 +139,7 @@ class RevisionDefectosTest extends TestCase
         $cita = $this->citaPara($psicologo, $this->fichaDe($usuario), ['hora' => '10:00']);
 
         $this->actingAs($usuario)
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '10:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '10:00', 'motivo' => 'Cambio solicitado'])
             ->assertSessionHasErrors('hora');
 
         $this->assertSame(0, $cita->refresh()->numero_reprogramaciones);

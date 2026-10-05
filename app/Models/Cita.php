@@ -206,6 +206,19 @@ class Cita extends Model
             && ! $this->estado->estaCerrada();
     }
 
+    /**
+     * RN-01: superado el limite, solo el administrador puede autorizar un
+     * nuevo cambio.
+     */
+    public function puedeReprogramarsePor(User $usuario): bool
+    {
+        if ($this->estado->estaCerrada()) {
+            return false;
+        }
+
+        return $this->numero_reprogramaciones < self::maxReprogramaciones() || $usuario->esAdministrador();
+    }
+
     public function reprogramacionesRestantes(): int
     {
         return max(0, self::maxReprogramaciones() - $this->numero_reprogramaciones);

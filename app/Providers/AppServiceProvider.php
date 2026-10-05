@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         Password::defaults(fn () => Password::min(8)->letters()->numbers());
 
         RateLimiter::for('formularios-publicos', function (Request $request) {
-            return Limit::perMinute(10)->by($request->ip());
+            return Limit::perMinute((int) config('eirene.limite_formularios_por_minuto'))->by($request->ip());
         });
     }
 }

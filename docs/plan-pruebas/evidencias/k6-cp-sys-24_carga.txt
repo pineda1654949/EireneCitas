@@ -1,0 +1,247 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: tests/Carga/cp_sys_24_carga.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 25 max VUs, 1m30s max duration (incl. graceful stop):
+              * carga: 25 looping VUs for 1m0s (gracefulStop: 30s)
+
+
+running (0m01.0s), 25/25 VUs, 0 complete and 0 interrupted iterations
+carga   [   2% ] 25 VUs  0m01.0s/1m0s
+
+running (0m02.0s), 25/25 VUs, 0 complete and 0 interrupted iterations
+carga   [   3% ] 25 VUs  0m02.0s/1m0s
+
+running (0m03.0s), 25/25 VUs, 5 complete and 0 interrupted iterations
+carga   [   5% ] 25 VUs  0m03.0s/1m0s
+
+running (0m04.0s), 25/25 VUs, 8 complete and 0 interrupted iterations
+carga   [   7% ] 25 VUs  0m04.0s/1m0s
+
+running (0m05.0s), 25/25 VUs, 16 complete and 0 interrupted iterations
+carga   [   8% ] 25 VUs  0m05.0s/1m0s
+
+running (0m06.0s), 25/25 VUs, 27 complete and 0 interrupted iterations
+carga   [  10% ] 25 VUs  0m06.0s/1m0s
+
+running (0m07.1s), 25/25 VUs, 45 complete and 0 interrupted iterations
+carga   [  12% ] 25 VUs  0m07.1s/1m0s
+
+running (0m08.0s), 25/25 VUs, 53 complete and 0 interrupted iterations
+carga   [  13% ] 25 VUs  0m08.0s/1m0s
+
+running (0m09.0s), 25/25 VUs, 73 complete and 0 interrupted iterations
+carga   [  15% ] 25 VUs  0m09.0s/1m0s
+
+running (0m10.1s), 25/25 VUs, 80 complete and 0 interrupted iterations
+carga   [  17% ] 25 VUs  0m10.1s/1m0s
+
+running (0m11.0s), 25/25 VUs, 80 complete and 0 interrupted iterations
+carga   [  18% ] 25 VUs  0m11.0s/1m0s
+
+running (0m12.0s), 25/25 VUs, 105 complete and 0 interrupted iterations
+carga   [  20% ] 25 VUs  0m12.0s/1m0s
+
+running (0m13.0s), 25/25 VUs, 110 complete and 0 interrupted iterations
+carga   [  22% ] 25 VUs  0m13.0s/1m0s
+
+running (0m14.0s), 25/25 VUs, 133 complete and 0 interrupted iterations
+carga   [  23% ] 25 VUs  0m14.0s/1m0s
+
+running (0m15.0s), 25/25 VUs, 139 complete and 0 interrupted iterations
+carga   [  25% ] 25 VUs  0m15.0s/1m0s
+
+running (0m16.0s), 25/25 VUs, 162 complete and 0 interrupted iterations
+carga   [  27% ] 25 VUs  0m16.0s/1m0s
+
+running (0m17.0s), 25/25 VUs, 167 complete and 0 interrupted iterations
+carga   [  28% ] 25 VUs  0m17.0s/1m0s
+
+running (0m18.0s), 25/25 VUs, 185 complete and 0 interrupted iterations
+carga   [  30% ] 25 VUs  0m18.0s/1m0s
+
+running (0m19.0s), 25/25 VUs, 188 complete and 0 interrupted iterations
+carga   [  32% ] 25 VUs  0m19.0s/1m0s
+
+running (0m20.0s), 25/25 VUs, 193 complete and 0 interrupted iterations
+carga   [  33% ] 25 VUs  0m20.0s/1m0s
+
+running (0m21.0s), 25/25 VUs, 209 complete and 0 interrupted iterations
+carga   [  35% ] 25 VUs  0m21.0s/1m0s
+
+running (0m22.0s), 25/25 VUs, 213 complete and 0 interrupted iterations
+carga   [  37% ] 25 VUs  0m22.0s/1m0s
+
+running (0m23.0s), 25/25 VUs, 216 complete and 0 interrupted iterations
+carga   [  38% ] 25 VUs  0m23.0s/1m0s
+
+running (0m24.0s), 25/25 VUs, 228 complete and 0 interrupted iterations
+carga   [  40% ] 25 VUs  0m24.0s/1m0s
+
+running (0m25.0s), 25/25 VUs, 233 complete and 0 interrupted iterations
+carga   [  42% ] 25 VUs  0m25.0s/1m0s
+
+running (0m26.0s), 25/25 VUs, 238 complete and 0 interrupted iterations
+carga   [  43% ] 25 VUs  0m26.0s/1m0s
+
+running (0m27.0s), 25/25 VUs, 242 complete and 0 interrupted iterations
+carga   [  45% ] 25 VUs  0m27.0s/1m0s
+
+running (0m28.0s), 25/25 VUs, 252 complete and 0 interrupted iterations
+carga   [  47% ] 25 VUs  0m28.0s/1m0s
+
+running (0m29.0s), 25/25 VUs, 254 complete and 0 interrupted iterations
+carga   [  48% ] 25 VUs  0m29.0s/1m0s
+
+running (0m30.0s), 25/25 VUs, 260 complete and 0 interrupted iterations
+carga   [  50% ] 25 VUs  0m30.0s/1m0s
+
+running (0m31.0s), 25/25 VUs, 268 complete and 0 interrupted iterations
+carga   [  52% ] 25 VUs  0m31.0s/1m0s
+
+running (0m32.0s), 25/25 VUs, 269 complete and 0 interrupted iterations
+carga   [  53% ] 25 VUs  0m32.0s/1m0s
+
+running (0m33.0s), 25/25 VUs, 289 complete and 0 interrupted iterations
+carga   [  55% ] 25 VUs  0m33.0s/1m0s
+
+running (0m34.0s), 25/25 VUs, 295 complete and 0 interrupted iterations
+carga   [  57% ] 25 VUs  0m34.0s/1m0s
+
+running (0m35.0s), 25/25 VUs, 318 complete and 0 interrupted iterations
+carga   [  58% ] 25 VUs  0m35.0s/1m0s
+
+running (0m36.0s), 25/25 VUs, 340 complete and 0 interrupted iterations
+carga   [  60% ] 25 VUs  0m36.0s/1m0s
+
+running (0m37.0s), 25/25 VUs, 356 complete and 0 interrupted iterations
+carga   [  62% ] 25 VUs  0m37.0s/1m0s
+
+running (0m38.0s), 25/25 VUs, 379 complete and 0 interrupted iterations
+carga   [  63% ] 25 VUs  0m38.0s/1m0s
+
+running (0m39.2s), 25/25 VUs, 397 complete and 0 interrupted iterations
+carga   [  65% ] 25 VUs  0m39.2s/1m0s
+
+running (0m40.0s), 25/25 VUs, 402 complete and 0 interrupted iterations
+carga   [  67% ] 25 VUs  0m40.0s/1m0s
+
+running (0m41.0s), 25/25 VUs, 423 complete and 0 interrupted iterations
+carga   [  68% ] 25 VUs  0m41.0s/1m0s
+
+running (0m42.0s), 25/25 VUs, 428 complete and 0 interrupted iterations
+carga   [  70% ] 25 VUs  0m42.0s/1m0s
+
+running (0m43.0s), 25/25 VUs, 449 complete and 0 interrupted iterations
+carga   [  72% ] 25 VUs  0m43.0s/1m0s
+
+running (0m44.0s), 25/25 VUs, 461 complete and 0 interrupted iterations
+carga   [  73% ] 25 VUs  0m44.0s/1m0s
+
+running (0m45.0s), 25/25 VUs, 476 complete and 0 interrupted iterations
+carga   [  75% ] 25 VUs  0m45.0s/1m0s
+
+running (0m46.0s), 25/25 VUs, 480 complete and 0 interrupted iterations
+carga   [  77% ] 25 VUs  0m46.0s/1m0s
+
+running (0m47.0s), 25/25 VUs, 498 complete and 0 interrupted iterations
+carga   [  78% ] 25 VUs  0m47.0s/1m0s
+
+running (0m48.0s), 25/25 VUs, 508 complete and 0 interrupted iterations
+carga   [  80% ] 25 VUs  0m48.0s/1m0s
+
+running (0m49.0s), 25/25 VUs, 523 complete and 0 interrupted iterations
+carga   [  82% ] 25 VUs  0m49.0s/1m0s
+
+running (0m50.0s), 25/25 VUs, 539 complete and 0 interrupted iterations
+carga   [  83% ] 25 VUs  0m50.0s/1m0s
+
+running (0m51.0s), 25/25 VUs, 553 complete and 0 interrupted iterations
+carga   [  85% ] 25 VUs  0m51.0s/1m0s
+
+running (0m52.0s), 25/25 VUs, 569 complete and 0 interrupted iterations
+carga   [  87% ] 25 VUs  0m52.0s/1m0s
+
+running (0m53.0s), 25/25 VUs, 590 complete and 0 interrupted iterations
+carga   [  88% ] 25 VUs  0m53.0s/1m0s
+
+running (0m54.0s), 25/25 VUs, 604 complete and 0 interrupted iterations
+carga   [  90% ] 25 VUs  0m54.0s/1m0s
+
+running (0m55.0s), 25/25 VUs, 625 complete and 0 interrupted iterations
+carga   [  92% ] 25 VUs  0m55.0s/1m0s
+
+running (0m56.0s), 25/25 VUs, 637 complete and 0 interrupted iterations
+carga   [  93% ] 25 VUs  0m56.0s/1m0s
+
+running (0m57.0s), 25/25 VUs, 650 complete and 0 interrupted iterations
+carga   [  95% ] 25 VUs  0m57.0s/1m0s
+
+running (0m58.0s), 25/25 VUs, 661 complete and 0 interrupted iterations
+carga   [  97% ] 25 VUs  0m58.0s/1m0s
+
+running (0m59.0s), 25/25 VUs, 678 complete and 0 interrupted iterations
+carga   [  98% ] 25 VUs  0m59.0s/1m0s
+
+running (1m00.0s), 25/25 VUs, 692 complete and 0 interrupted iterations
+carga ↓ [ 100% ] 25 VUs  1m0s
+
+running (1m01.0s), 20/25 VUs, 697 complete and 0 interrupted iterations
+carga ↓ [ 100% ] 25 VUs  1m0s
+
+running (1m02.0s), 02/25 VUs, 715 complete and 0 interrupted iterations
+carga ↓ [ 100% ] 25 VUs  1m0s
+
+
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate>0.99' rate=100.00%
+
+    http_req_duration
+    ✗ 'avg<300' avg=378.88ms
+    ✗ 'p(95)<800' p(95)=1.24s
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 2893    46.429834/s
+    checks_succeeded...: 100.00% 2893 out of 2893
+    checks_failed......: 0.00%   0 out of 2893
+
+    ✓ login redirige al panel
+    ✓ respuesta 200
+
+    HTTP
+    http_req_duration..............: avg=378.88ms min=16.46ms med=206.53ms max=10.55s p(90)=863.04ms p(95)=1.24s
+      { expected_response:true }...: avg=378.88ms min=16.46ms med=206.53ms max=10.55s p(90)=863.04ms p(95)=1.24s
+    http_req_failed................: 0.00%  0 out of 5686
+    http_reqs......................: 5686   91.254766/s
+
+    EXECUTION
+    iteration_duration.............: avg=2.14s    min=1.05s   med=1.76s    max=15.16s p(90)=3.31s    p(95)=4.3s 
+    iterations.....................: 717    11.507152/s
+    vus............................: 2      min=2         max=25
+    vus_max........................: 25     min=25        max=25
+
+    NETWORK
+    data_received..................: 34 MB  545 kB/s
+    data_sent......................: 2.7 MB 43 kB/s
+
+
+
+
+running (1m02.3s), 00/25 VUs, 717 complete and 0 interrupted iterations
+carga ✓ [ 100% ] 25 VUs  1m0s
+time="2026-10-05T17:23:35-05:00" level=error msg="thresholds on metrics 'http_req_duration' have been crossed"

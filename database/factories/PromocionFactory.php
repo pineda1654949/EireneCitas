@@ -21,6 +21,11 @@ class PromocionFactory extends Factory
         ];
     }
 
+    public function enCuotas(int $maximo = 3): static
+    {
+        return $this->state(['permite_cuotas' => true, 'max_cuotas' => $maximo]);
+    }
+
     public function inactiva(): static
     {
         return $this->state(['activa' => false]);

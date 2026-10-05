@@ -1,0 +1,171 @@
+PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12 with PCOV 1.0.12
+Configuration: C:\xampp\htdocs\EireneCitas\phpunit.xml
+
+...............................................................  63 / 347 ( 18%)
+............................................................... 126 / 347 ( 36%)
+............................................................... 189 / 347 ( 54%)
+............................................................... 252 / 347 ( 72%)
+............................................................... 315 / 347 ( 90%)
+................................                                347 / 347 (100%)
+
+Time: 01:35.507, Memory: 76.00 MB
+
+OK (347 tests, 1089 assertions)
+
+Generating code coverage report in Clover XML format ... done [00:00.095]
+
+Generating code coverage report in HTML format ... done [00:02.537]
+
+
+Code Coverage Report:        
+  2026-10-05 17:47:51        
+                             
+ Summary:                    
+  Classes: 74.65% (53/71)    
+  Methods: 91.61% (251/274)  
+  Lines:   97.45% (1299/1333)
+
+App\Console\Commands\CrearAdministrador
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 22/ 22)
+App\Console\Commands\EnviarRecordatoriosCitas
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 11/ 11)
+App\Enums\EstadoAtencion
+  Methods:  50.00% ( 1/ 2)   Lines:  83.33% ( 10/ 12)
+App\Enums\EstadoCita
+  Methods: 100.00% ( 7/ 7)   Lines: 100.00% ( 19/ 19)
+App\Enums\EstadoDerivacion
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 10/ 10)
+App\Enums\EstadoPago
+  Methods:  50.00% ( 1/ 2)   Lines:  90.00% (  9/ 10)
+App\Enums\MetodoPago
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  6/  6)
+App\Enums\Rol
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  7/  7)
+App\Exceptions\ReglaDeNegocioException
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  1/  1)
+App\Http\Controllers\Admin\AuditoriaController
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 22/ 22)
+App\Http\Controllers\Admin\DerivacionController
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 20/ 20)
+App\Http\Controllers\Admin\PacienteController
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 27/ 27)
+App\Http\Controllers\Admin\PagoController
+  Methods: 100.00% ( 7/ 7)   Lines: 100.00% ( 39/ 39)
+App\Http\Controllers\Admin\PromocionController
+  Methods: 100.00% ( 7/ 7)   Lines: 100.00% ( 17/ 17)
+App\Http\Controllers\Admin\PsicologoController
+  Methods:  71.43% ( 5/ 7)   Lines:  88.64% ( 39/ 44)
+App\Http\Controllers\Admin\ReporteController
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 61/ 61)
+App\Http\Controllers\Api\DisponibilidadController
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 20/ 20)
+App\Http\Controllers\Auth\RecuperarContrasenaController
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  4/  4)
+App\Http\Controllers\Auth\RegistroController
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 26/ 26)
+App\Http\Controllers\Auth\RestablecerContrasenaController
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 19/ 19)
+App\Http\Controllers\Auth\SesionController
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% (  8/  8)
+App\Http\Controllers\CitaController
+  Methods:  90.00% ( 9/10)   Lines:  98.67% ( 74/ 75)
+App\Http\Controllers\HomeController
+  Methods: 100.00% ( 5/ 5)   Lines: 100.00% ( 72/ 72)
+App\Http\Controllers\Psicologo\DerivacionController
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 13/ 13)
+App\Http\Controllers\Psicologo\HistorialController
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 19/ 19)
+App\Http\Controllers\Psicologo\HorarioController
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 17/ 17)
+App\Http\Middleware\AsegurarUsuarioActivo
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  8/  8)
+App\Http\Middleware\CabecerasDeSeguridad
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 23/ 23)
+App\Http\Middleware\VerificarRol
+  Methods:   0.00% ( 0/ 1)   Lines:  83.33% (  5/  6)
+App\Http\Requests\Admin\DerivarPacienteRequest
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  5/  5)
+App\Http\Requests\Admin\PacienteRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 20/ 20)
+App\Http\Requests\Admin\PagoRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 11/ 11)
+App\Http\Requests\Admin\PromocionRequest
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  9/  9)
+App\Http\Requests\Admin\PsicologoRequest
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 16/ 16)
+App\Http\Requests\Auth\LoginRequest
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% ( 27/ 27)
+App\Http\Requests\Auth\RegistroRequest
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 15/ 15)
+App\Http\Requests\Citas\CancelarCitaRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  4/  4)
+App\Http\Requests\Citas\RegistrarCitaRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 15/ 15)
+App\Http\Requests\Citas\ReprogramarCitaRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  6/  6)
+App\Http\Requests\Psicologo\HistorialClinicoRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  5/  5)
+App\Http\Requests\Psicologo\HorarioRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 18/ 18)
+App\Http\Requests\Psicologo\RechazarDerivacionRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  4/  4)
+App\Listeners\RegistrarEventoDeAutenticacion
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  8/  8)
+App\Models\Auditoria
+  Methods:  83.33% ( 5/ 6)   Lines:  94.74% ( 18/ 19)
+App\Models\Cita
+  Methods:  95.24% (20/21)   Lines:  96.97% ( 32/ 33)
+App\Models\Concerns\Auditable
+  Methods:  66.67% ( 2/ 3)   Lines:  96.00% ( 24/ 25)
+App\Models\Derivacion
+  Methods: 100.00% ( 6/ 6)   Lines: 100.00% (  9/  9)
+App\Models\Especialidad
+  Methods:  50.00% ( 1/ 2)   Lines:  66.67% (  2/  3)
+App\Models\HistorialClinico
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% (  6/  6)
+App\Models\Horario
+  Methods:  66.67% ( 4/ 6)   Lines:  77.78% (  7/  9)
+App\Models\Paciente
+  Methods: 100.00% ( 9/ 9)   Lines: 100.00% ( 19/ 19)
+App\Models\Pago
+  Methods:  83.33% ( 5/ 6)   Lines:  92.31% ( 12/ 13)
+App\Models\Promocion
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 10/ 10)
+App\Models\Reprogramacion
+  Methods:  33.33% ( 1/ 3)   Lines:  66.67% (  4/  6)
+App\Models\User
+  Methods:  83.33% (15/18)   Lines:  88.46% ( 23/ 26)
+App\Notifications\CitaCancelada
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  2/  2)
+App\Notifications\CitaConfirmada
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  2/  2)
+App\Notifications\CitaRegistrada
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  2/  2)
+App\Notifications\CitaReprogramada
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  2/  2)
+App\Notifications\DerivacionRecibida
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 11/ 11)
+App\Notifications\DerivacionRespondida
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 13/ 13)
+App\Notifications\NotificacionDeCita
+  Methods: 100.00% ( 5/ 5)   Lines: 100.00% ( 21/ 21)
+App\Notifications\RecordatorioDeCita
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  2/  2)
+App\Notifications\RestablecerContrasena
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  9/  9)
+App\Policies\CitaPolicy
+  Methods:  87.50% ( 7/ 8)   Lines:  93.75% ( 15/ 16)
+App\Policies\DerivacionPolicy
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  1/  1)
+App\Policies\PacientePolicy
+  Methods:   0.00% ( 0/ 1)   Lines:  75.00% (  3/  4)
+App\Providers\AppServiceProvider
+  Methods:  50.00% ( 1/ 2)   Lines:  81.82% (  9/ 11)
+App\Services\AgendaService
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 44/ 44)
+App\Services\CitaService
+  Methods:  92.31% (12/13)   Lines:  96.49% (165/171)
+App\Services\DerivacionService
+  Methods:  83.33% ( 5/ 6)   Lines:  95.35% ( 41/ 43)

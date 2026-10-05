@@ -5,7 +5,8 @@
 
     <div class="grid gap-4 sm:grid-cols-3">
         <x-stat etiqueta="Sesiones de hoy" :valor="$citasHoy->count()" icono="calendar-days" />
-        <x-stat etiqueta="Próximas sesiones" :valor="$proximasCitas->count()" icono="arrow-trending-up" tono="violet" />
+        <x-stat etiqueta="Derivaciones por responder" :valor="$derivacionesPendientes" icono="arrow-right-circle" tono="violet"
+                :href="route('psicologo.derivaciones.index')" />
         <x-stat etiqueta="Atendidas este mes" :valor="$atendidasMes" icono="check-badge" tono="emerald" />
     </div>
 

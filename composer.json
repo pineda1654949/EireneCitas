@@ -3,7 +3,12 @@
     "name": "eirene/sistema-gestion-citas",
     "type": "project",
     "description": "Sistema de Gestion de Citas para la Clinica Psicologica Eirene",
-    "keywords": ["laravel", "eirene", "citas", "psicologia"],
+    "keywords": [
+        "laravel",
+        "eirene",
+        "citas",
+        "psicologia"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -15,6 +20,7 @@
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",
+        "laravel/dusk": "^8.7",
         "laravel/pint": "^1.24",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
@@ -65,6 +71,10 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "test:cobertura": [
+            "@php artisan config:clear --ansi",
+            "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=app vendor/bin/phpunit --coverage-text --coverage-html build/cobertura"
         ]
     },
     "extra": {

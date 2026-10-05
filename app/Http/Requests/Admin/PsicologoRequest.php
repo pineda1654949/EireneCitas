@@ -29,7 +29,7 @@ class PsicologoRequest extends FormRequest
             'apellidos' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
             'dni' => ['nullable', 'digits_between:8,12', Rule::unique('users', 'dni')->ignore($id)],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono' => ['nullable', 'regex:/^9\d{8}$/'],
             // Obligatoria al crear; al editar solo si se quiere cambiar.
             'password' => [$id ? 'nullable' : 'required', Password::defaults()],
             'activo' => ['sometimes', 'boolean'],

@@ -23,6 +23,7 @@
                             <th scope="col">Paciente</th>
                             <th scope="col">DNI</th>
                             <th scope="col">Contacto</th>
+                            <th scope="col">Estado</th>
                             <th scope="col">Citas</th>
                             <th scope="col"><span class="sr-only">Acciones</span></th>
                         </tr>
@@ -42,9 +43,15 @@
                                     <div>{{ $paciente->telefono ?? '—' }}</div>
                                     <div class="text-xs text-slate-500">{{ $paciente->correo }}</div>
                                 </td>
+                                <td>
+                                    <x-badge :tono="$paciente->estado_atencion->tono()">{{ $paciente->estado_atencion->etiqueta() }}</x-badge>
+                                    @if ($paciente->psicologoAsignado)
+                                        <div class="mt-1 text-xs text-slate-500">{{ $paciente->psicologoAsignado->nombre_completo }}</div>
+                                    @endif
+                                </td>
                                 <td><x-badge>{{ $paciente->citas_count }}</x-badge></td>
                                 <td class="whitespace-nowrap text-right">
-                                    <a href="{{ route('admin.pacientes.edit', $paciente) }}" class="btn btn-ghost btn-sm"><x-heroicon-o-pencil-square class="size-4" /> Editar</a>
+                                    <a href="{{ route('admin.pacientes.edit', $paciente) }}" class="btn btn-ghost btn-sm"><x-heroicon-o-pencil-square class="size-4" /> Ficha</a>
                                     @if ($paciente->citas_count === 0)
                                         <form method="POST" action="{{ route('admin.pacientes.destroy', $paciente) }}" class="inline" data-confirm="¿Eliminar la ficha de este paciente?">
                                             @csrf @method('DELETE')

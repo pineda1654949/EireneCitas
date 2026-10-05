@@ -1,5 +1,7 @@
 # Plan y reporte de pruebas · Eirene
 
+> Este documento resume la estrategia general y el registro de defectos. El **plan V-Bounce detallado (Fases 1 a 9)**, con los casos CP-UT, CP-IT, CP-SYS y CP-UAT, sus resultados y evidencias, está en **[docs/plan-pruebas/](plan-pruebas/README.md)**. Proyecto sobre **Laravel 12**.
+
 ## 1. Objetivo
 
 Verificar que el Sistema de Gestión de Citas Eirene cumple sus requerimientos funcionales (RF-01 a RF-08) y los requisitos no funcionales de **confiabilidad de reglas de negocio**, **seguridad** y **mantenibilidad**, antes de su paso a producción.
@@ -25,7 +27,7 @@ Verificar que el Sistema de Gestión de Citas Eirene cumple sus requerimientos f
 | **Estilo de código** | `pint.json` | Convenciones PSR-12 / Laravel | — |
 | **Regresión** | GitHub Actions | Toda la suite en cada *push* (PHP 8.2, 8.3 y 8.4, SQLite y MySQL 8) | 224 |
 
-**Total: 224 casos de prueba y 666 aserciones.**
+**Total: 347 pruebas PHPUnit y 1089 aserciones** (regresión + Fases 6, 7 y 8 del plan V-Bounce), más **15 pruebas E2E con Laravel Dusk** y **5 escenarios de rendimiento con k6**.
 
 ## 4. Técnicas de diseño de casos
 
@@ -106,8 +108,10 @@ php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/cobertura
 
 | Fecha | Entorno | Pruebas | Aserciones | Resultado |
 |---|---|---|---|---|
-| 2026-10-05 | Windows 11 · PHP 8.2.12 · SQLite | 224 | 666 | ✅ Todas aprobadas |
-| 2026-10-05 | Windows 11 · PHP 8.2.12 · MariaDB 10.4 (XAMPP) | 224 | 666 | ✅ Todas aprobadas |
+| 2026-10-05 | Windows 11 · PHP 8.2.12 · SQLite | 347 | 1089 | ✅ Todas aprobadas (cobertura del 97,45 %) |
+| 2026-10-05 | Windows 11 · PHP 8.2.12 · MariaDB 10.4 (XAMPP) | 347 | 1089 | ✅ Todas aprobadas |
+| 2026-10-05 | Laravel Dusk 8.7 + Chrome 154 (E2E) | 15 | 52 | ✅ Todas aprobadas |
+| 2026-10-05 | k6 2.2 + Apache (rendimiento) | 5 escenarios | — | ⚠️ 4 de 5 cumplen el umbral (ver la Fase 8) |
 | 2026-10-05 | Migraciones en MariaDB: aplicar → revertir todas → aplicar | — | — | ✅ 16/16 reversibles |
 | 2026-10-05 | Respaldo real con `mysqldump` + `backup:monitor` | — | — | ✅ Respaldo válido y sano |
 | 2026-10-05 | Recorrido HTTP de todas las páginas por rol con datos reales | 35 páginas | — | ✅ Todas responden 200 |

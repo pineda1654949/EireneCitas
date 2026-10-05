@@ -29,8 +29,8 @@ class RegistroRequest extends FormRequest
             // Si recepcion ya registro una ficha con ese DNI no se crea otra:
             // vincularla requiere verificar la identidad en la clinica (DEF-011).
             'dni' => ['nullable', 'digits_between:8,12', 'unique:users,dni', Rule::unique('pacientes', 'dni')],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', Rule::unique('pacientes', 'correo')],
+            'telefono' => ['nullable', 'regex:/^9\d{8}$/'],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }
@@ -50,6 +50,7 @@ class RegistroRequest extends FormRequest
     {
         return [
             'dni.unique' => 'Ya existe un paciente registrado con este DNI. Comunícate con la clínica para activar tu cuenta.',
+            'email.unique' => 'Este correo ya está registrado. Si ya eres paciente, comunícate con la clínica para activar tu cuenta.',
         ];
     }
 }

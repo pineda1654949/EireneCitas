@@ -171,6 +171,17 @@ return [
         'hasta' => [
             'after_or_equal' => 'La fecha final debe ser igual o posterior a la fecha inicial.',
         ],
+        'telefono' => [
+            'regex' => 'El teléfono debe tener 9 dígitos y empezar con 9 (por ejemplo 987654321).',
+        ],
+        'precio' => [
+            'gt' => 'El precio debe ser mayor que 0.',
+        ],
+        'comprobante' => [
+            'required' => 'Adjunta el voucher del pago (foto o PDF).',
+            'mimes' => 'El voucher debe ser una imagen JPG o PNG, o un PDF.',
+            'max' => 'El voucher no debe pesar más de 5 MB.',
+        ],
     ],
 
     /*
@@ -210,6 +221,13 @@ return [
         'hora_fin' => 'hora de fin',
         'notas_sesion' => 'notas de la sesión',
         'avance' => 'avance',
+        'comprobante' => 'voucher',
+        'total_cuotas' => 'número de cuotas',
+        'max_cuotas' => 'máximo de cuotas',
+        'permite_cuotas' => 'pago en cuotas',
+        'estado_atencion' => 'estado de atención',
+        'motivo_rechazo' => 'motivo del rechazo',
+        'observaciones' => 'observaciones',
         'desde' => 'fecha inicial',
         'hasta' => 'fecha final',
         'buscar' => 'búsqueda',

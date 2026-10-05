@@ -56,6 +56,7 @@
                     <x-nav-link :href="route('citas.create')" :active="request()->routeIs('citas.create')" icono="calendar-days">Registrar cita</x-nav-link>
                     <x-nav-link :href="route('citas.index')" :active="request()->routeIs('citas.index', 'citas.show', 'citas.reprogramar.form', 'citas.cancelar.form')" icono="clipboard-document-list">Citas</x-nav-link>
                     <x-nav-link :href="route('admin.pacientes.index')" :active="request()->routeIs('admin.pacientes.*')" icono="users">Pacientes</x-nav-link>
+                    <x-nav-link :href="route('admin.derivaciones.index')" :active="request()->routeIs('admin.derivaciones.*')" icono="arrow-right-circle">Derivaciones</x-nav-link>
                     <x-nav-link :href="route('pagos.index')" :active="request()->routeIs('pagos.*')" icono="banknotes">Pagos</x-nav-link>
                     <x-nav-link :href="route('reportes.index')" :active="request()->routeIs('reportes.*')" icono="chart-bar">Reportes</x-nav-link>
                 </x-nav-seccion>
@@ -72,6 +73,7 @@
             @if ($usuario->esPsicologo())
                 <x-nav-seccion titulo="Consulta">
                     <x-nav-link :href="route('citas.index')" :active="request()->routeIs('citas.*', 'psicologo.historial.*')" icono="clipboard-document-list">Mis citas</x-nav-link>
+                    <x-nav-link :href="route('psicologo.derivaciones.index')" :active="request()->routeIs('psicologo.derivaciones.*')" icono="arrow-right-circle">Derivaciones</x-nav-link>
                     <x-nav-link :href="route('psicologo.horarios.index')" :active="request()->routeIs('psicologo.horarios.*')" icono="clock">Mi disponibilidad</x-nav-link>
                 </x-nav-seccion>
             @endif

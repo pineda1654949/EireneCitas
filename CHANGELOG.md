@@ -37,6 +37,16 @@ Versión preparada para producción.
 - Análisis estático con PHPStan/Larastan (nivel 6) y estilo de código con Pint.
 - Integración continua con GitHub Actions.
 
+### Plan de pruebas V-Bounce (Fases 6 a 9)
+- Derivación de pacientes (RF-05): derivar, aceptar o rechazar con motivo, con aviso por correo.
+- Agenda por colores: libre (verde), ocupado (rojo) y bloqueado (gris), con bloques que se pueden pausar.
+- Pagos en cuotas según la promoción y voucher adjunto (jpg, png o pdf de hasta 5 MB), que también puede subir el paciente.
+- Ciclo de vida del paciente: Inscripto, En proceso, Finalizado y Cancelado.
+- RN-01: motivo obligatorio al reprogramar y autorización del administrador para una 4.ª reprogramación.
+- Validaciones: celular `9XXXXXXXX`, edad ≥ 1, precio > 0, notas clínicas de al menos 10 caracteres, correo y DNI únicos por paciente.
+- El correo de confirmación también llega al psicólogo; los fallos del servidor de correo no interrumpen la operación.
+- 123 casos del plan automatizados: PHPUnit (Fases 6 a 8), Laravel Dusk (E2E) y k6 (rendimiento). Cobertura del 97,45 %.
+
 ### Corregido
 - Las citas reprogramadas no ocupaban su horario.
 - Validar el pago de una cita cancelada la volvía a confirmar.

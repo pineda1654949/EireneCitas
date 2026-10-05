@@ -37,10 +37,10 @@ class HistorialClinicoTest extends TestCase
         [$psicologo] = $this->psicologoConAgenda();
         $cita = $this->citaPara($psicologo, atributos: ['fecha' => now()->toDateString(), 'hora' => '09:00']);
 
-        $this->actingAs($psicologo)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Version 1']);
-        $this->actingAs($psicologo)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Version 2']);
+        $this->actingAs($psicologo)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Version 1 de las notas']);
+        $this->actingAs($psicologo)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Version 2 de las notas']);
 
-        $this->assertSame('Version 2', HistorialClinico::sole()->notas_sesion);
+        $this->assertSame('Version 2 de las notas', HistorialClinico::sole()->notas_sesion);
     }
 
     public function test_otro_psicologo_no_puede_atender_la_cita(): void
@@ -50,7 +50,7 @@ class HistorialClinicoTest extends TestCase
         $cita = $this->citaPara($psicologo);
 
         $this->actingAs($otro)->get(route('psicologo.historial.create', $cita))->assertForbidden();
-        $this->actingAs($otro)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'x'])->assertForbidden();
+        $this->actingAs($otro)->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Notas de la sesion'])->assertForbidden();
 
         $this->assertDatabaseCount('historiales_clinicos', 0);
     }
@@ -61,7 +61,7 @@ class HistorialClinicoTest extends TestCase
         $cita = $this->citaPara($psicologo, atributos: ['estado' => EstadoCita::Cancelada]);
 
         $this->actingAs($psicologo)
-            ->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Notas'])
+            ->post(route('psicologo.historial.store', $cita), ['notas_sesion' => 'Notas de la sesion'])
             ->assertSessionHasErrors('notas_sesion');
 
         $this->assertSame(EstadoCita::Cancelada, $cita->refresh()->estado);

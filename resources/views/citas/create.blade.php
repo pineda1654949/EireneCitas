@@ -3,7 +3,7 @@
     <div class="grid gap-6 lg:grid-cols-3">
         <form method="POST" action="{{ route('citas.store') }}" class="space-y-6 lg:col-span-2" data-reserva
               data-url-psicologos="{{ route('api.especialidades.psicologos', ['especialidad' => '__ID__']) }}"
-              data-url-horas="{{ route('api.horas-disponibles') }}">
+              data-url-agenda="{{ route('api.agenda-del-dia') }}">
             @csrf
 
             @if ($pacientes)
@@ -40,9 +40,10 @@
                               min="{{ today()->toDateString() }}" class="sm:max-w-xs" />
 
                 <fieldset class="mt-5">
-                    <legend class="form-label">Horas disponibles <span class="text-rose-500" aria-hidden="true">*</span></legend>
-                    <p class="text-sm text-slate-500" data-horas-ayuda>Elige psicólogo y fecha para ver las horas libres.</p>
+                    <legend class="form-label">Hora <span class="text-rose-500" aria-hidden="true">*</span></legend>
+                    <p class="text-sm text-slate-500" data-horas-ayuda>Elige psicólogo y fecha para ver las horas.</p>
                     <div class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5" data-horas data-inicial="{{ old('hora') }}" aria-live="polite"></div>
+                    <x-leyenda-horas />
                     @error('hora') <p class="form-error">{{ $message }}</p> @enderror
                 </fieldset>
             </x-card>

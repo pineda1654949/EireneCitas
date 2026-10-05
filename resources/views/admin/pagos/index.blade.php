@@ -42,8 +42,13 @@
                                 </td>
                                 <td class="font-semibold text-slate-900 tabular-nums">S/ {{ number_format((float) $pago->monto, 2) }}</td>
                                 <td>
-                                    <div>{{ $pago->metodo_pago->etiqueta() }}</div>
+                                    <div>{{ $pago->metodo_pago->etiqueta() }} <span class="text-xs text-slate-500">· {{ $pago->etiquetaCuota() }}</span></div>
                                     @if ($pago->numero_comprobante) <div class="text-xs text-slate-500">{{ $pago->numero_comprobante }}</div> @endif
+                                    @if ($pago->tieneComprobante())
+                                        <a href="{{ route('pagos.comprobante', $pago) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline">
+                                            <x-heroicon-o-paper-clip class="size-3.5" /> Ver voucher
+                                        </a>
+                                    @endif
                                 </td>
                                 <td>
                                     <x-estado-pago :estado="$pago->estado" />

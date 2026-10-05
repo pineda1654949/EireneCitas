@@ -110,10 +110,21 @@
         @apply transition hover:bg-slate-50/70;
     }
 
-    /* ----- Selector de horas (RF-02) ----- */
+    /* ----- Matriz de horas (RF-06): Verde libre, Rojo ocupado, Gris bloqueado ----- */
     .hora-chip {
-        @apply flex cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium
-            text-slate-700 transition hover:border-brand-400 hover:text-brand-700
-            has-checked:border-brand-600 has-checked:bg-brand-600 has-checked:text-white has-focus-visible:ring-2 has-focus-visible:ring-brand-500;
+        @apply flex items-center justify-center rounded-xl border px-3 py-2 text-sm font-medium tabular-nums transition;
+    }
+
+    .hora-libre {
+        @apply cursor-pointer border-emerald-300 bg-emerald-50 text-emerald-800 hover:border-emerald-500
+            has-checked:border-brand-700 has-checked:bg-brand-600 has-checked:text-white has-focus-visible:ring-2 has-focus-visible:ring-brand-500;
+    }
+
+    .hora-ocupado {
+        @apply cursor-not-allowed border-rose-200 bg-rose-50 text-rose-400 line-through;
+    }
+
+    .hora-bloqueado {
+        @apply cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400;
     }
 }

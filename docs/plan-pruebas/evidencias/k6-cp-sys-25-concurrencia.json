@@ -1,0 +1,156 @@
+{
+    "root_group": {
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "login redirige al panel": {
+                    "passes": 30,
+                    "fails": 0,
+                    "name": "login redirige al panel",
+                    "path": "::login redirige al panel",
+                    "id": "8172c311c2b3c5136033bf6742dd4b54"
+                },
+                "sin errores 500": {
+                    "name": "sin errores 500",
+                    "path": "::sin errores 500",
+                    "id": "5b45cb2aad715dce077aa3ce6b9f496c",
+                    "passes": 30,
+                    "fails": 0
+                }
+            },
+        "name": "",
+        "path": ""
+    },
+    "metrics": {
+        "iterations": {
+            "count": 30,
+            "rate": 1.1258038098476837
+        },
+        "http_req_waiting": {
+            "p(90)": 9681.40333,
+            "p(95)": 9735.117694999999,
+            "avg": 5958.796957500001,
+            "min": 1389.3906,
+            "med": 5519.19315,
+            "max": 14757.3508
+        },
+        "data_received": {
+            "count": 991504,
+            "rate": 37207.96602264059
+        },
+        "http_reqs": {
+            "count": 120,
+            "rate": 4.503215239390735
+        },
+        "reservas_exitosas": {
+            "count": 1,
+            "rate": 0.03752679366158945,
+            "thresholds": {
+                "count==1": false
+            }
+        },
+        "http_req_tls_handshaking": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0
+        },
+        "iteration_duration": {
+            "p(90)": 26491.172280000003,
+            "p(95)": 26558.607915,
+            "avg": 25967.14687,
+            "min": 25324.5239,
+            "med": 25971.1658,
+            "max": 26606.3868
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 6020.030671666665,
+            "min": 1406.3168,
+            "med": 5604.18205,
+            "max": 14774.5296,
+            "p(90)": 9714.55485,
+            "p(95)": 9788.644955
+        },
+        "vus_max": {
+            "value": 30,
+            "min": 30,
+            "max": 30
+        },
+        "http_req_receiving": {
+            "max": 174.0159,
+            "p(90)": 131.37683,
+            "p(95)": 146.90271,
+            "avg": 60.53766833333335,
+            "min": 0,
+            "med": 54.882850000000005
+        },
+        "checks": {
+            "passes": 60,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_connecting": {
+            "min": 0,
+            "med": 0,
+            "max": 33.8,
+            "p(90)": 2.7321,
+            "p(95)": 3.0637549999999996,
+            "avg": 0.8302725000000001
+        },
+        "respuestas_inesperadas": {
+            "count": 0,
+            "rate": 0,
+            "thresholds": {
+                "count==0": false
+            }
+        },
+        "http_req_sending": {
+            "min": 0,
+            "med": 0,
+            "max": 30.6829,
+            "p(90)": 1.0168,
+            "p(95)": 1.212629999999997,
+            "avg": 0.6960458333333333
+        },
+        "reservas_rechazadas_por_horario_ocupado": {
+            "count": 29,
+            "rate": 1.0882770161860942
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 120,
+            "value": 0
+        },
+        "vus": {
+            "value": 15,
+            "min": 15,
+            "max": 30
+        },
+        "http_req_blocked": {
+            "max": 37.9452,
+            "p(90)": 3.058960000000001,
+            "p(95)": 3.6361,
+            "avg": 1.0068758333333334,
+            "min": 0,
+            "med": 0
+        },
+        "data_sent": {
+            "count": 84771,
+            "rate": 3181.1838254865997
+        },
+        "http_req_duration": {
+            "p(95)": 9788.644955,
+            "avg": 6020.030671666665,
+            "min": 1406.3168,
+            "med": 5604.18205,
+            "max": 14774.5296,
+            "p(90)": 9714.55485
+        }
+    },
+    "setup_data": {
+        "disparo": 1791238564346,
+        "fecha": "2026-10-19"
+    }
+}

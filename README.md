@@ -7,7 +7,7 @@ Sistema web para la gestión de citas de la **Clínica Psicológica Eirene**: re
 | **Backend** | PHP 8.2+ · Laravel 12 |
 | **Frontend** | Blade · Tailwind CSS 4 · Vite 7 (sin dependencias de CDN) |
 | **Base de datos** | MySQL 8 / MariaDB 10.4+ (SQLite en pruebas) |
-| **Calidad** | PHPUnit 11 (224 pruebas) · PHPStan/Larastan nivel 6 · Laravel Pint · GitHub Actions |
+| **Calidad** | PHPUnit 11 (347 pruebas, 97 % de cobertura) · Laravel Dusk (15 E2E) · k6 (carga) · Larastan nivel 6 · Pint · GitHub Actions |
 
 ---
 
@@ -23,6 +23,8 @@ Sistema web para la gestión de citas de la **Clínica Psicológica Eirene**: re
 | RF-06 | Historia clínica | `Psicologo\HistorialController`, `PacientePolicy` |
 | RF-07 | Control de acceso por rol | middleware `rol`, `CitaPolicy`, `PacientePolicy` |
 | RF-08 | Reportes e indicadores | `Admin\ReporteController` (incluye exportación CSV) |
+
+**Funciones añadidas por el plan de pruebas V-Bounce:** derivación de pacientes con aceptación o rechazo, agenda por colores (libre, ocupado, bloqueado), voucher de pago subido por el propio paciente, pago en cuotas, ciclo de vida del paciente y autorización del administrador para una 4.ª reprogramación (RN-01).
 
 **Funciones adicionales para producción:** recuperación de contraseña por correo, notificaciones encoladas (registro, confirmación, reprogramación, cancelación y recordatorio del día anterior), auditoría de acciones, respaldos automáticos de la base de datos, cabeceras de seguridad, cifrado de notas clínicas y límite de intentos de inicio de sesión.
 
@@ -79,7 +81,16 @@ composer calidad     # las tres anteriores en secuencia
 composer format      # corrige el estilo automáticamente
 ```
 
-La estrategia de pruebas, la matriz de trazabilidad requerimiento → prueba y los defectos detectados están en **[docs/PLAN_DE_PRUEBAS.md](docs/PLAN_DE_PRUEBAS.md)**.
+- **Plan de pruebas V-Bounce (Fases 1 a 9)**, con los casos CP-UT, CP-IT, CP-SYS y CP-UAT, sus resultados y evidencias: **[docs/plan-pruebas/](docs/plan-pruebas/README.md)**.
+- Estrategia general, trazabilidad y registro de defectos: **[docs/PLAN_DE_PRUEBAS.md](docs/PLAN_DE_PRUEBAS.md)**.
+
+```bash
+php artisan test --testsuite=Fase6    # casos CP-UT del plan
+php artisan test --testsuite=Fase7    # casos CP-IT
+php artisan test --testsuite=Fase8    # casos CP-SYS de seguridad
+composer test:cobertura               # cobertura (requiere la extension PCOV)
+php artisan dusk                      # E2E en Chrome (ver docs/plan-pruebas/08_Fase8_System_Testing.md)
+```
 
 Cada *push* ejecuta la integración continua ([.github/workflows/ci.yml](.github/workflows/ci.yml)): estilo, análisis estático, auditoría de dependencias, pruebas en PHP 8.2/8.3/8.4 con cobertura, pruebas contra MySQL 8 y compilación del frontend.
 

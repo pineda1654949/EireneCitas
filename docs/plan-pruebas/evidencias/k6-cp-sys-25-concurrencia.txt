@@ -1,0 +1,139 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: tests/Carga/cp_sys_25_concurrencia.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 30 max VUs, 2m30s max duration (incl. graceful stop):
+              * misma_hora: 1 iterations for each of 30 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+running (0m01.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m01.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m02.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m02.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m03.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m03.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m04.1s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m04.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m05.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m05.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m06.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m06.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m07.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m07.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m08.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m08.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m09.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m09.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m10.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m10.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m11.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m11.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m12.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m12.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m13.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m13.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m14.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m14.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m15.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m15.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m16.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m16.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m17.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m17.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m18.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m18.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m19.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m19.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m20.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m20.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m21.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m21.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m22.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m22.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m23.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m23.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m24.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m24.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m25.0s), 30/30 VUs, 0 complete and 0 interrupted iterations
+misma_hora   [   0% ] 30 VUs  0m25.0s/2m0s  00/30 iters, 1 per VU
+
+running (0m26.0s), 15/30 VUs, 15 complete and 0 interrupted iterations
+misma_hora   [  50% ] 30 VUs  0m26.0s/2m0s  15/30 iters, 1 per VU
+
+
+  █ THRESHOLDS 
+
+    reservas_exitosas
+    ✓ 'count==1' count=1
+
+    respuestas_inesperadas
+    ✓ 'count==0' count=0
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 60      2.251608/s
+    checks_succeeded...: 100.00% 60 out of 60
+    checks_failed......: 0.00%   0 out of 60
+
+    ✓ login redirige al panel
+    ✓ sin errores 500
+
+    CUSTOM
+    reservas_exitosas.........................: 1      0.037527/s
+    reservas_rechazadas_por_horario_ocupado...: 29     1.088277/s
+    respuestas_inesperadas....................: 0      0/s
+
+    HTTP
+    http_req_duration.........................: avg=6.02s  min=1.4s   med=5.6s   max=14.77s p(90)=9.71s  p(95)=9.78s 
+      { expected_response:true }..............: avg=6.02s  min=1.4s   med=5.6s   max=14.77s p(90)=9.71s  p(95)=9.78s 
+    http_req_failed...........................: 0.00%  0 out of 120
+    http_reqs.................................: 120    4.503215/s
+
+    EXECUTION
+    iteration_duration........................: avg=25.96s min=25.32s med=25.97s max=26.6s  p(90)=26.49s p(95)=26.55s
+    iterations................................: 30     1.125804/s
+    vus.......................................: 15     min=15       max=30
+    vus_max...................................: 30     min=30       max=30
+
+    NETWORK
+    data_received.............................: 992 kB 37 kB/s
+    data_sent.................................: 85 kB  3.2 kB/s
+
+
+
+
+running (0m26.6s), 00/30 VUs, 30 complete and 0 interrupted iterations
+misma_hora ✓ [ 100% ] 30 VUs  0m26.6s/2m0s  30/30 iters, 1 per VU

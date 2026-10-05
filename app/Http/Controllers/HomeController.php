@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EstadoCita;
+use App\Enums\EstadoDerivacion;
 use App\Enums\EstadoPago;
 use App\Enums\Rol;
 use App\Models\Cita;
@@ -76,6 +77,9 @@ class HomeController extends Controller
                 ->orderBy('fecha')->orderBy('hora')
                 ->take(10)
                 ->get(),
+            'derivacionesPendientes' => $psicologo->derivacionesRecibidas()
+                ->where('estado', EstadoDerivacion::Pendiente->value)
+                ->count(),
             'atendidasMes' => Cita::where('psicologo_id', $psicologo->id)
                 ->where('estado', EstadoCita::Atendida->value)
                 ->whereBetween('fecha', [now()->startOfMonth(), now()->endOfMonth()])

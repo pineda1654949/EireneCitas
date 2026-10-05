@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditoriaController;
+use App\Http\Controllers\Admin\DerivacionController as AdminDerivacionController;
 use App\Http\Controllers\Admin\PacienteController;
 use App\Http\Controllers\Admin\PagoController;
 use App\Http\Controllers\Admin\PromocionController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Auth\RestablecerContrasenaController;
 use App\Http\Controllers\Auth\SesionController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Psicologo\DerivacionController as PsicologoDerivacionController;
 use App\Http\Controllers\Psicologo\HistorialController;
 use App\Http\Controllers\Psicologo\HorarioController;
 use Illuminate\Support\Facades\Route;
@@ -69,12 +71,17 @@ Route::middleware('auth')->group(function () {
             ->name('especialidades.psicologos');
         Route::get('/horas-disponibles', [DisponibilidadController::class, 'horasDisponibles'])
             ->name('horas-disponibles');
+        Route::get('/agenda-del-dia', [DisponibilidadController::class, 'agendaDelDia'])
+            ->name('agenda-del-dia');
     });
+
+    // ----- Pagos con voucher: el personal o el propio paciente (RF-04; permisos en CitaPolicy) -----
+    Route::get('/citas/{cita}/pagos/registrar', [PagoController::class, 'create'])->name('pagos.create');
+    Route::post('/citas/{cita}/pagos', [PagoController::class, 'store'])->name('pagos.store');
+    Route::get('/pagos/{pago}/comprobante', [PagoController::class, 'comprobante'])->name('pagos.comprobante');
 
     // ----- Pagos, pacientes y reportes: recepcionista y administrador -----
     Route::middleware('rol:recepcionista,administrador')->group(function () {
-        Route::get('/citas/{cita}/pagos/registrar', [PagoController::class, 'create'])->name('pagos.create');
-        Route::post('/citas/{cita}/pagos', [PagoController::class, 'store'])->name('pagos.store');
         Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index');
         Route::put('/pagos/{pago}/validar', [PagoController::class, 'validar'])->name('pagos.validar');
         Route::put('/pagos/{pago}/rechazar', [PagoController::class, 'rechazar'])->name('pagos.rechazar');
@@ -82,10 +89,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index'); // RF-08
         Route::get('/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar');
 
-        // RF-05 (Tabla 8 del documento)
+        // RF-02 (Tabla 8 del documento)
         Route::resource('admin/pacientes', PacienteController::class)
             ->except(['show'])
             ->names('admin.pacientes');
+
+        // RF-05: derivacion de pacientes
+        Route::get('/admin/derivaciones', [AdminDerivacionController::class, 'index'])->name('admin.derivaciones.index');
+        Route::post('/admin/pacientes/{paciente}/derivaciones', [AdminDerivacionController::class, 'store'])
+            ->name('admin.pacientes.derivar');
     });
 
     // ----- Administrador: psicologos, promociones y auditoria -----
@@ -103,6 +115,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
         Route::patch('/horarios/{horario}/alternar', [HorarioController::class, 'alternar'])->name('horarios.alternar');
         Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+
+        Route::get('/derivaciones', [PsicologoDerivacionController::class, 'index'])->name('derivaciones.index');
+        Route::put('/derivaciones/{derivacion}/aceptar', [PsicologoDerivacionController::class, 'aceptar'])->name('derivaciones.aceptar');
+        Route::put('/derivaciones/{derivacion}/rechazar', [PsicologoDerivacionController::class, 'rechazar'])->name('derivaciones.rechazar');
 
         Route::get('/pacientes/{paciente}/historial', [HistorialController::class, 'porPaciente'])->name('historial.paciente');
         Route::get('/citas/{cita}/historial/crear', [HistorialController::class, 'create'])->name('historial.create');

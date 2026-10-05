@@ -17,7 +17,7 @@ class HistorialClinicoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'notas_sesion' => ['required', 'string', 'max:10000'],
+            'notas_sesion' => ['required', 'string', 'min:10', 'max:10000'],
             'avance' => ['nullable', 'string', 'max:255'],
         ];
     }

@@ -12,6 +12,7 @@ Esta guía cubre dos escenarios: **hosting compartido con cPanel** (lo más econ
 | Extensiones PHP | `bcmath`, `ctype`, `fileinfo`, `mbstring`, `openssl`, `pdo_mysql`, `tokenizer`, `xml`, `zip` |
 | Base de datos | MySQL 8.0 o MariaDB 10.4+ (`utf8mb4_unicode_ci`) |
 | Herramientas | Composer 2, acceso a **cron**, `mysqldump` (para los respaldos) |
+| **OPcache** | **Activado** (`zend_extension=opcache`, `opcache.enable=1`). Sin OPcache cada página tarda unas 10 veces más: en las pruebas de la Fase 8, unos 690 ms frente a unos 60 ms. XAMPP lo trae desactivado |
 | Certificado | **HTTPS obligatorio** (Let's Encrypt gratuito) |
 
 Node.js **no** es necesario en el servidor: los assets se compilan antes de subir el código (`npm run build`).
@@ -138,6 +139,7 @@ php artisan up
 ## 7. Lista de verificación antes de salir a producción
 
 - [ ] `APP_ENV=production` y `APP_DEBUG=false`
+- [ ] OPcache activado (`php -i | grep opcache.enable` debe mostrar `On`)
 - [ ] HTTPS activo y redirección de HTTP a HTTPS
 - [ ] `APP_KEY` generada y guardada en un lugar seguro
 - [ ] El dominio apunta a la carpeta `public/` (el `.env` no es accesible desde el navegador)

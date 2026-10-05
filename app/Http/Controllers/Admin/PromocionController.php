@@ -24,7 +24,7 @@ class PromocionController extends Controller
 
     public function store(PromocionRequest $request): RedirectResponse
     {
-        Promocion::create([...$request->validated(), 'activa' => $request->boolean('activa')]);
+        Promocion::create($this->datos($request));
 
         return redirect()->route('admin.promociones.index')->with('status', 'Promoción creada correctamente.');
     }
@@ -36,9 +36,24 @@ class PromocionController extends Controller
 
     public function update(PromocionRequest $request, Promocion $promocion): RedirectResponse
     {
-        $promocion->update([...$request->validated(), 'activa' => $request->boolean('activa')]);
+        $promocion->update($this->datos($request));
 
         return redirect()->route('admin.promociones.index')->with('status', 'Promoción actualizada.');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function datos(PromocionRequest $request): array
+    {
+        $permiteCuotas = $request->boolean('permite_cuotas');
+
+        return [
+            ...$request->safe()->except(['max_cuotas']),
+            'activa' => $request->boolean('activa'),
+            'permite_cuotas' => $permiteCuotas,
+            'max_cuotas' => $permiteCuotas ? $request->integer('max_cuotas') : 1,
+        ];
     }
 
     public function destroy(Promocion $promocion): RedirectResponse

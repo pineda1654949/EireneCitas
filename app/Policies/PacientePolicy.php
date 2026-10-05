@@ -13,7 +13,12 @@ class PacientePolicy
      */
     public function verHistorial(User $usuario, Paciente $paciente): bool
     {
-        return $usuario->esPsicologo()
-            && $paciente->citas()->where('psicologo_id', $usuario->id)->exists();
+        if (! $usuario->esPsicologo()) {
+            return false;
+        }
+
+        // Psicologo asignado por una derivacion aceptada (RF-05) o que lo atiende.
+        return $paciente->psicologo_id === $usuario->id
+            || $paciente->citas()->where('psicologo_id', $usuario->id)->exists();
     }
 }

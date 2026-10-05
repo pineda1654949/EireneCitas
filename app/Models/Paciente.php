@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EstadoAtencion;
 use App\Models\Concerns\Auditable;
 use Database\Factories\PacienteFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,6 +27,9 @@ use Illuminate\Notifications\Notifiable;
  * @property string|null $telefono
  * @property string|null $direccion
  * @property string|null $motivo_consulta
+ * @property int|null $psicologo_id
+ * @property EstadoAtencion $estado_atencion
+ * @property-read User|null $psicologoAsignado
  * @property-read string $nombre_completo
  * @property-read User|null $user
  */
@@ -36,6 +40,7 @@ class Paciente extends Model
 
     protected $fillable = [
         'user_id',
+        'psicologo_id',
         'nombres',
         'apellidos',
         'dni',
@@ -44,12 +49,18 @@ class Paciente extends Model
         'telefono',
         'direccion',
         'motivo_consulta',
+        'estado_atencion',
+    ];
+
+    protected $attributes = [
+        'estado_atencion' => 'inscripto',
     ];
 
     protected function casts(): array
     {
         return [
             'edad' => 'integer',
+            'estado_atencion' => EstadoAtencion::class,
         ];
     }
 
@@ -92,6 +103,24 @@ class Paciente extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Psicologo que acepto la derivacion del paciente (RF-05).
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function psicologoAsignado(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'psicologo_id');
+    }
+
+    /**
+     * @return HasMany<Derivacion, $this>
+     */
+    public function derivaciones(): HasMany
+    {
+        return $this->hasMany(Derivacion::class);
     }
 
     /**

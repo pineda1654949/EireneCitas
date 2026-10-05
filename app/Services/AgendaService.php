@@ -9,18 +9,24 @@ use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
 /**
- * Calcula la disponibilidad real de un psicologo (RF-02): cruza sus bloques
- * de atencion semanales con las citas que ya ocupan ese dia.
+ * Calcula la disponibilidad real de un psicologo (RF-06 / RN-03): cruza sus
+ * bloques de atencion semanales con las citas que ya ocupan ese dia.
  */
 class AgendaService
 {
+    public const LIBRE = 'libre';         // Verde: se puede reservar
+
+    public const OCUPADO = 'ocupado';     // Rojo: ya tiene una cita
+
+    public const BLOQUEADO = 'bloqueado'; // Gris: bloque pausado u hora ya pasada
+
     /**
-     * Horas libres (formato H:i) del psicologo en la fecha indicada.
+     * Todas las horas del dia con su estado, para la matriz de colores.
      *
      * @param  int|null  $ignorarCitaId  al reprogramar, la hora de la propia cita cuenta como libre
-     * @return list<string>
+     * @return list<array{hora: string, estado: string}>
      */
-    public function horasDisponibles(int $psicologoId, CarbonInterface|string $fecha, ?int $ignorarCitaId = null): array
+    public function agendaDelDia(int $psicologoId, CarbonInterface|string $fecha, ?int $ignorarCitaId = null): array
     {
         $fecha = Carbon::parse($fecha)->startOfDay();
 
@@ -29,8 +35,7 @@ class AgendaService
         }
 
         $bloques = Horario::where('psicologo_id', $psicologoId)
-            ->where('dia_semana', $fecha->dayOfWeek)
-            ->where('activo', true)
+            ->where('dia_semana', $fecha->dayOfWeek) // 0=domingo ... 6=sabado
             ->orderBy('hora_inicio')
             ->get();
 
@@ -46,7 +51,7 @@ class AgendaService
         $intervalo = (int) config('eirene.citas.intervalo_minutos');
         $limiteHoy = now()->addMinutes((int) config('eirene.citas.anticipacion_minima_minutos'));
 
-        $disponibles = [];
+        $agenda = [];
 
         foreach ($bloques as $bloque) {
             $inicio = $fecha->copy()->setTimeFromTimeString($bloque->hora_inicio);
@@ -55,15 +60,40 @@ class AgendaService
             for (; $inicio->copy()->addMinutes($duracion)->lte($fin); $inicio->addMinutes($intervalo)) {
                 $hora = $inicio->format('H:i');
 
-                if (in_array($hora, $ocupadas, true) || $inicio->lt($limiteHoy)) {
-                    continue;
-                }
+                $estado = match (true) {
+                    in_array($hora, $ocupadas, true) => self::OCUPADO,
+                    ! $bloque->activo, $inicio->lt($limiteHoy) => self::BLOQUEADO,
+                    default => self::LIBRE,
+                };
 
-                $disponibles[] = $hora;
+                // Si dos bloques generan la misma hora, prevalece el estado mas restrictivo.
+                $agenda[$hora] = isset($agenda[$hora]) && $agenda[$hora] !== self::LIBRE ? $agenda[$hora] : $estado;
             }
         }
 
-        return array_values(array_unique($disponibles));
+        ksort($agenda);
+
+        return array_map(
+            fn (string $hora, string $estado) => ['hora' => $hora, 'estado' => $estado],
+            array_keys($agenda),
+            array_values($agenda),
+        );
+    }
+
+    /**
+     * Horas libres (formato H:i) del psicologo en la fecha indicada.
+     *
+     * @return list<string>
+     */
+    public function horasDisponibles(int $psicologoId, CarbonInterface|string $fecha, ?int $ignorarCitaId = null): array
+    {
+        return array_values(array_map(
+            fn (array $franja) => $franja['hora'],
+            array_filter(
+                $this->agendaDelDia($psicologoId, $fecha, $ignorarCitaId),
+                fn (array $franja) => $franja['estado'] === self::LIBRE,
+            ),
+        ));
     }
 
     public function estaDisponible(int $psicologoId, CarbonInterface|string $fecha, string $hora, ?int $ignorarCitaId = null): bool

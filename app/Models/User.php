@@ -164,6 +164,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Derivaciones de pacientes recibidas por el psicologo (RF-05).
+     *
+     * @return HasMany<Derivacion, $this>
+     */
+    public function derivacionesRecibidas(): HasMany
+    {
+        return $this->hasMany(Derivacion::class, 'psicologo_id');
+    }
+
+    /**
      * @return HasOne<Paciente, $this>
      */
     public function pacienteFicha(): HasOne

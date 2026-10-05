@@ -31,7 +31,7 @@ class ReprogramarCitaTest extends TestCase
         $cita = $this->citaPara($psicologo, $this->fichaDe($usuario), ['hora' => '10:00']);
 
         $this->actingAs($usuario)
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00', 'motivo' => 'Viaje'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00', 'motivo' => 'Viaje de trabajo'])
             ->assertRedirect(route('citas.show', $cita))
             ->assertSessionHasNoErrors();
 
@@ -42,7 +42,7 @@ class ReprogramarCitaTest extends TestCase
 
         $cambio = Reprogramacion::sole();
         $this->assertSame(Reprogramacion::TIPO_REPROGRAMACION, $cambio->tipo);
-        $this->assertSame('Viaje', $cambio->motivo);
+        $this->assertSame('Viaje de trabajo', $cambio->motivo);
         $this->assertSame($usuario->id, $cambio->realizado_por);
         $this->assertSame('10:00', substr((string) $cambio->hora_anterior, 0, 5));
 
@@ -56,7 +56,7 @@ class ReprogramarCitaTest extends TestCase
         $lunesSiguiente = now()->next('Monday')->addWeek()->toDateString();
 
         $this->actingAs(User::factory()->recepcionista()->create())
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $lunesSiguiente, 'hora' => '10:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $lunesSiguiente, 'hora' => '10:00', 'motivo' => 'Cambio solicitado'])
             ->assertSessionHasNoErrors();
 
         $this->assertSame($lunesSiguiente, $cita->refresh()->fecha->toDateString());
@@ -69,7 +69,7 @@ class ReprogramarCitaTest extends TestCase
         $cita = $this->citaPara($psicologo, atributos: ['hora' => '10:00']);
 
         $this->actingAs(User::factory()->recepcionista()->create())
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '11:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '11:00', 'motivo' => 'Cambio solicitado'])
             ->assertSessionHasErrors('hora');
 
         $this->assertSame('10:00', $cita->refresh()->hora_corta);
@@ -82,7 +82,7 @@ class ReprogramarCitaTest extends TestCase
         $cita = $this->citaPara($psicologo);
 
         $this->actingAs(User::factory()->recepcionista()->create())
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '03:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '03:00', 'motivo' => 'Cambio solicitado'])
             ->assertSessionHasErrors('hora');
     }
 
@@ -93,7 +93,7 @@ class ReprogramarCitaTest extends TestCase
         $recepcion = User::factory()->recepcionista()->create();
 
         $this->actingAs($recepcion)
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00', 'motivo' => 'Cambio solicitado'])
             ->assertSessionHasErrors('fecha');
 
         $this->actingAs($recepcion)
@@ -110,10 +110,10 @@ class ReprogramarCitaTest extends TestCase
         $this->actingAs(User::factory()->recepcionista()->create());
 
         foreach (['10:00', '11:00', '12:00'] as $hora) {
-            $this->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => $hora])->assertSessionHasNoErrors();
+            $this->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => $hora, 'motivo' => 'Cambio solicitado'])->assertSessionHasNoErrors();
         }
 
-        $this->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '09:00'])->assertSessionHasErrors('fecha');
+        $this->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '09:00', 'motivo' => 'Cambio solicitado'])->assertSessionHasErrors('fecha');
 
         $this->assertSame(3, $cita->refresh()->numero_reprogramaciones);
         $this->assertSame(3, Reprogramacion::count());
@@ -125,7 +125,7 @@ class ReprogramarCitaTest extends TestCase
         $cita = $this->citaPara($psicologo, atributos: ['estado' => EstadoCita::Cancelada]);
 
         $this->actingAs(User::factory()->recepcionista()->create())
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00', 'motivo' => 'Cambio solicitado'])
             ->assertSessionHasErrors('fecha');
     }
 
@@ -135,7 +135,7 @@ class ReprogramarCitaTest extends TestCase
         $cita = $this->citaPara($psicologo);
 
         $this->actingAs($this->usuarioPaciente())
-            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00'])
+            ->put(route('citas.reprogramar', $cita), ['fecha' => $this->proximoLunes(), 'hora' => '12:00', 'motivo' => 'Cambio solicitado'])
             ->assertForbidden();
     }
 

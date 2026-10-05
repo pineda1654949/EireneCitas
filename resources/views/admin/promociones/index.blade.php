@@ -19,6 +19,7 @@
                         <div>
                             <p class="text-2xl font-semibold text-slate-900 tabular-nums">S/ {{ number_format((float) $promocion->precio, 2) }}</p>
                             <p class="text-xs text-slate-500">{{ $promocion->numero_sesiones }} {{ $promocion->numero_sesiones === 1 ? 'sesión' : 'sesiones' }} · {{ $promocion->citas_count }} citas</p>
+                            <p class="text-xs text-slate-500">{{ $promocion->permite_cuotas ? 'Hasta '.$promocion->max_cuotas.' cuotas' : 'Pago al contado' }}</p>
                         </div>
                         <div class="flex gap-1">
                             <a href="{{ route('admin.promociones.edit', $promocion) }}" class="btn btn-ghost btn-sm" aria-label="Editar {{ $promocion->nombre }}"><x-heroicon-o-pencil-square class="size-4" /></a>

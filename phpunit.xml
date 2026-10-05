@@ -14,6 +14,16 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <!-- Plan de pruebas V-Bounce (docs/plan-pruebas): casos con ID del plan -->
+        <testsuite name="Fase6">
+            <directory>tests/Fase6</directory>
+        </testsuite>
+        <testsuite name="Fase7">
+            <directory>tests/Fase7</directory>
+        </testsuite>
+        <testsuite name="Fase8">
+            <directory>tests/Fase8</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>

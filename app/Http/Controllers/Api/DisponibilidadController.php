@@ -30,9 +30,30 @@ class DisponibilidadController extends Controller
     }
 
     /**
+     * Matriz del dia con el estado de cada hora: libre (verde), ocupado
+     * (rojo) o bloqueado (gris). La usa el formulario de reserva.
+     */
+    public function agendaDelDia(Request $request, AgendaService $agenda): JsonResponse
+    {
+        [$psicologoId, $fecha, $ignorar] = $this->parametros($request);
+
+        return response()->json($agenda->agendaDelDia($psicologoId, $fecha, $ignorar));
+    }
+
+    /**
      * Horas libres de un psicologo en una fecha.
      */
     public function horasDisponibles(Request $request, AgendaService $agenda): JsonResponse
+    {
+        [$psicologoId, $fecha, $ignorar] = $this->parametros($request);
+
+        return response()->json($agenda->horasDisponibles($psicologoId, $fecha, $ignorar));
+    }
+
+    /**
+     * @return array{0: int, 1: string, 2: int|null}
+     */
+    private function parametros(Request $request): array
     {
         $datos = $request->validate([
             'psicologo_id' => ['required', 'integer', 'exists:users,id'],
@@ -47,8 +68,6 @@ class DisponibilidadController extends Controller
             $ignorar = $cita && $request->user()?->can('view', $cita) ? $cita->id : null;
         }
 
-        return response()->json(
-            $agenda->horasDisponibles((int) $datos['psicologo_id'], $datos['fecha'], $ignorar)
-        );
+        return [(int) $datos['psicologo_id'], $datos['fecha'], $ignorar];
     }
 }

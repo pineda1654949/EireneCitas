@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\EstadoAtencion;
 use App\Enums\EstadoCita;
 use App\Enums\EstadoPago;
 use App\Exceptions\ReglaDeNegocioException;
@@ -16,8 +17,12 @@ use App\Notifications\CitaCancelada;
 use App\Notifications\CitaConfirmada;
 use App\Notifications\CitaRegistrada;
 use App\Notifications\CitaReprogramada;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * Casos de uso del ciclo de vida de una cita (RF-01, RF-03, RF-04, RF-06).
@@ -68,9 +73,14 @@ class CitaService
      */
     public function reprogramar(Cita $cita, string $fecha, string $hora, ?string $motivo, User $usuario): Cita
     {
-        if (! $cita->puedeReprogramarse()) {
+        if ($cita->estado->estaCerrada()) {
+            throw new ReglaDeNegocioException('Esta cita ya fue cancelada o atendida; no puede reprogramarse.', 'fecha');
+        }
+
+        // RN-01: al alcanzar el limite, solo el administrador puede autorizar otro cambio.
+        if (! $cita->puedeReprogramarsePor($usuario)) {
             throw new ReglaDeNegocioException(
-                'Esta cita ya no puede reprogramarse: alcanzó el límite de '.Cita::maxReprogramaciones().' reprogramaciones o ya fue cerrada.',
+                'Se alcanzó el límite de '.Cita::maxReprogramaciones().' reprogramaciones. Un nuevo cambio requiere la autorización del administrador.',
                 'fecha',
             );
         }
@@ -150,26 +160,69 @@ class CitaService
 
         $cita->update(['estado' => EstadoCita::Confirmada]);
 
-        $this->notificar($cita, new CitaConfirmada($cita));
+        $this->notificar($cita, new CitaConfirmada($cita), alPsicologo: true);
 
         return $cita;
     }
 
     /**
-     * @param  array{monto: float|int|string, metodo_pago: string, numero_comprobante?: string|null}  $datos
+     * RF-04: registra un pago (o una cuota) con su voucher adjunto.
+     *
+     * @param  array{monto: float|int|string, metodo_pago: string, numero_comprobante?: string|null, total_cuotas?: int|string|null}  $datos
      */
-    public function registrarPago(Cita $cita, array $datos): Pago
+    public function registrarPago(Cita $cita, array $datos, User $registrador, ?UploadedFile $comprobante = null): Pago
     {
         if ($cita->estado->estaCerrada()) {
             throw new ReglaDeNegocioException('No se pueden registrar pagos de una cita cancelada o atendida.', 'monto');
         }
 
-        return $cita->pagos()->create([
-            'monto' => $datos['monto'],
-            'metodo_pago' => $datos['metodo_pago'],
-            'numero_comprobante' => $datos['numero_comprobante'] ?? null,
-            'estado' => EstadoPago::Pendiente,
-        ]);
+        $cita->loadMissing('promocion');
+        $totalCuotas = (int) ($datos['total_cuotas'] ?? 1);
+        $maximo = $cita->promocion?->cuotasPermitidas() ?? 1;
+
+        if ($totalCuotas > $maximo) {
+            throw new ReglaDeNegocioException(
+                $maximo === 1
+                    ? 'Esta cita no admite pago en cuotas: se paga al contado.'
+                    : "La promoción permite como máximo {$maximo} cuotas.",
+                'total_cuotas',
+            );
+        }
+
+        // Las cuotas ya registradas (no rechazadas) fijan el plan de pago.
+        $previos = $cita->pagos()->where('estado', '!=', EstadoPago::Rechazado->value)->get();
+        $planVigente = $previos->first()?->total_cuotas;
+
+        if ($planVigente !== null && $planVigente !== $totalCuotas) {
+            throw new ReglaDeNegocioException("El plan de pago de esta cita ya es de {$planVigente} cuota(s).", 'total_cuotas');
+        }
+
+        if ($previos->count() >= $totalCuotas) {
+            throw new ReglaDeNegocioException('Ya se registraron todas las cuotas de esta cita.', 'monto');
+        }
+
+        $ruta = $comprobante?->store('comprobantes/'.$cita->id, 'local');
+
+        try {
+            return $cita->pagos()->create([
+                'monto' => $datos['monto'],
+                'metodo_pago' => $datos['metodo_pago'],
+                'numero_cuota' => $previos->count() + 1,
+                'total_cuotas' => $totalCuotas,
+                'numero_comprobante' => $datos['numero_comprobante'] ?? null,
+                'comprobante_path' => $ruta ?: null,
+                'comprobante_nombre' => $comprobante ? Str::limit($comprobante->getClientOriginalName(), 200, '') : null,
+                'estado' => EstadoPago::Pendiente,
+                'registrado_por' => $registrador->id,
+            ]);
+        } catch (Throwable $e) {
+            // Si no se pudo guardar el pago, no queda un archivo huerfano.
+            if ($ruta) {
+                Storage::disk('local')->delete($ruta);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -202,7 +255,7 @@ class CitaService
         });
 
         if ($confirmada) {
-            $this->notificar($cita, new CitaConfirmada($cita));
+            $this->notificar($cita, new CitaConfirmada($cita), alPsicologo: true);
         }
 
         return $confirmada;
@@ -242,6 +295,11 @@ class CitaService
             );
 
             $cita->update(['estado' => EstadoCita::Atendida]);
+
+            // HU-12: con la primera sesion atendida el paciente pasa a "En proceso".
+            if ($cita->paciente->estado_atencion === EstadoAtencion::Inscripto) {
+                $cita->paciente->update(['estado_atencion' => EstadoAtencion::EnProceso]);
+            }
 
             return $historial;
         });
@@ -295,10 +353,16 @@ class CitaService
     {
         $cita->loadMissing(['paciente.user', 'psicologo']);
 
-        $cita->paciente->notify($notificacion);
+        // Un fallo del servidor de correo no debe revertir ni interrumpir la
+        // operacion ya confirmada: se registra en el log y se continua (CP-IT-38).
+        try {
+            $cita->paciente->notify($notificacion);
 
-        if ($alPsicologo) {
-            $cita->psicologo->notify($notificacion);
+            if ($alPsicologo) {
+                $cita->psicologo->notify($notificacion);
+            }
+        } catch (Throwable $e) {
+            report($e);
         }
     }
 }

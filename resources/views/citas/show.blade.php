@@ -2,7 +2,7 @@
 
 @php
     $usuario = auth()->user();
-    $puedeGestionarPagos = $usuario->can('gestionarPagos', $cita) && $cita->estado->admiteConfirmacion();
+    $puedeReportarPago = $usuario->can('reportarPago', $cita) && $cita->estado->admiteConfirmacion();
 @endphp
 
 <x-layouts.app :titulo="'Cita #'.$cita->id" :subtitulo="ucfirst($cita->fecha->isoFormat('dddd D [de] MMMM [de] YYYY')).' · '.$cita->hora_corta.' h'">
@@ -76,9 +76,9 @@
         <aside class="space-y-6">
             <x-card titulo="Acciones">
                 <div class="grid gap-2">
-                    @if ($puedeGestionarPagos)
+                    @if ($puedeReportarPago)
                         <a href="{{ route('pagos.create', $cita) }}" class="btn btn-secondary">
-                            <x-heroicon-o-credit-card class="size-5" /> Registrar pago
+                            <x-heroicon-o-credit-card class="size-5" /> {{ $usuario->esPaciente() ? 'Reportar pago (subir voucher)' : 'Registrar pago' }}
                         </a>
                     @endif
 
@@ -105,11 +105,17 @@
                         </a>
                     @endif
 
-                    @if ($usuario->can('reprogramar', $cita) && $cita->puedeReprogramarse())
+                    @if ($usuario->can('reprogramar', $cita) && $cita->puedeReprogramarsePor($usuario))
                         <a href="{{ route('citas.reprogramar.form', $cita) }}" class="btn btn-secondary">
                             <x-heroicon-o-arrow-path class="size-5" /> Reprogramar
-                            <span class="text-xs font-normal text-slate-500">({{ $cita->reprogramacionesRestantes() }} disponibles)</span>
+                            <span class="text-xs font-normal text-slate-500">
+                                ({{ $cita->puedeReprogramarse() ? $cita->reprogramacionesRestantes().' disponibles' : 'autorización de administrador' }})
+                            </span>
                         </a>
+                    @elseif ($usuario->can('reprogramar', $cita) && ! $cita->estado->estaCerrada())
+                        <p class="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+                            Se alcanzó el límite de {{ App\Models\Cita::maxReprogramaciones() }} reprogramaciones. Un nuevo cambio requiere la autorización del administrador.
+                        </p>
                     @endif
 
                     @if ($usuario->can('cancelar', $cita) && $cita->puedeCancelarse())
@@ -124,14 +130,19 @@
                 </div>
             </x-card>
 
-            @if ($usuario->can('gestionarPagos', $cita) || $cita->pagos->isNotEmpty())
+            @if ($usuario->can('reportarPago', $cita) || $cita->pagos->isNotEmpty())
                 <x-card titulo="Pagos" :padding="false">
                     @forelse ($cita->pagos as $pago)
                         <div class="border-b border-slate-100 px-5 py-4 last:border-0 sm:px-6">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
                                     <p class="font-semibold text-slate-900 tabular-nums">S/ {{ number_format((float) $pago->monto, 2) }}</p>
-                                    <p class="text-xs text-slate-500">{{ $pago->metodo_pago->etiqueta() }} @if ($pago->numero_comprobante) · {{ $pago->numero_comprobante }} @endif</p>
+                                    <p class="text-xs text-slate-500">{{ $pago->metodo_pago->etiqueta() }} · {{ $pago->etiquetaCuota() }} @if ($pago->numero_comprobante) · {{ $pago->numero_comprobante }} @endif</p>
+                                    @if ($pago->tieneComprobante())
+                                        <a href="{{ route('pagos.comprobante', $pago) }}" target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline">
+                                            <x-heroicon-o-paper-clip class="size-3.5" /> Ver voucher
+                                        </a>
+                                    @endif
                                 </div>
                                 <x-estado-pago :estado="$pago->estado" />
                             </div>

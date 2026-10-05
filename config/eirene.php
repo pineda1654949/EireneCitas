@@ -28,6 +28,10 @@ return [
         'anticipacion_minima_minutos' => (int) env('CITAS_ANTICIPACION_MINUTOS', 60),
     ],
 
+    // Peticiones por minuto y por IP en los formularios publicos (login,
+    // registro, recuperacion). Se eleva solo en el entorno de pruebas de carga.
+    'limite_formularios_por_minuto' => (int) env('LIMITE_FORMULARIOS_POR_MINUTO', 10),
+
     // Proxies de confianza (p. ej. "*" detras de Cloudflare o un balanceador),
     // necesario para detectar HTTPS y la IP real del visitante.
     'proxies_confiables' => env('TRUSTED_PROXIES'),

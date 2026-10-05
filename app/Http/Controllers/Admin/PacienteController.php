@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PacienteRequest;
+use App\Models\Especialidad;
 use App\Models\Paciente;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,6 +22,7 @@ class PacienteController extends Controller
         $buscar = $request->string('buscar')->trim()->limit(100, '')->toString();
 
         $pacientes = Paciente::query()
+            ->with('psicologoAsignado')
             ->withCount('citas')
             ->buscar($buscar)
             ->orderBy('apellidos')
@@ -44,7 +47,13 @@ class PacienteController extends Controller
 
     public function edit(Paciente $paciente): View
     {
-        return view('admin.pacientes.edit', compact('paciente'));
+        $paciente->load(['psicologoAsignado', 'derivaciones' => fn ($q) => $q->with(['psicologo', 'especialidad'])->latest('id')]);
+
+        return view('admin.pacientes.edit', [
+            'paciente' => $paciente,
+            'psicologos' => User::psicologos()->activos()->with('especialidades')->orderBy('name')->get(),
+            'especialidades' => Especialidad::orderBy('nombre')->get(),
+        ]);
     }
 
     public function update(PacienteRequest $request, Paciente $paciente): RedirectResponse

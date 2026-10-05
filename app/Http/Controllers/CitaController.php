@@ -123,9 +123,14 @@ class CitaController extends Controller
     {
         $this->authorize('reprogramar', $cita);
 
-        if (! $cita->puedeReprogramarse()) {
+        /** @var User $usuario */
+        $usuario = request()->user();
+
+        if (! $cita->puedeReprogramarsePor($usuario)) {
             return redirect()->route('citas.show', $cita)->withErrors([
-                'fecha' => 'Esta cita ya no puede reprogramarse (límite alcanzado o cita cerrada).',
+                'fecha' => $cita->estado->estaCerrada()
+                    ? 'Esta cita ya fue cancelada o atendida; no puede reprogramarse.'
+                    : 'Se alcanzó el límite de '.Cita::maxReprogramaciones().' reprogramaciones. Un nuevo cambio requiere la autorización del administrador.',
             ]);
         }
 

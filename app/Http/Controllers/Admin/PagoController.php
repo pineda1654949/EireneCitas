@@ -12,12 +12,15 @@ use App\Models\User;
 use App\Services\CitaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Control de pagos: se registra el metodo elegido y se valida antes de
- * confirmar la cita (reemplaza la verificacion manual del AS-IS).
+ * Control de pagos (RF-04): se registra el metodo, la cuota y el voucher, y
+ * el personal lo valida antes de confirmar la cita (reemplaza la verificacion
+ * manual por WhatsApp del AS-IS).
  */
 class PagoController extends Controller
 {
@@ -40,21 +43,49 @@ class PagoController extends Controller
 
     public function create(Cita $cita): View
     {
-        $this->authorize('gestionarPagos', $cita);
+        $this->authorize('reportarPago', $cita);
 
-        $cita->load(['paciente', 'psicologo', 'promocion']);
+        $cita->load(['paciente', 'psicologo', 'promocion', 'pagos']);
+
+        $vigentes = $cita->pagos->reject(fn (Pago $pago) => $pago->estado === EstadoPago::Rechazado);
 
         return view('admin.pagos.create', [
             'cita' => $cita,
             'metodos' => MetodoPago::cases(),
+            'maxCuotas' => $cita->promocion?->cuotasPermitidas() ?? 1,
+            // Si ya hay cuotas registradas, el plan de pago queda fijado.
+            'planVigente' => $vigentes->first()?->total_cuotas,
+            'cuotasRegistradas' => $vigentes->count(),
         ]);
     }
 
     public function store(PagoRequest $request, Cita $cita): RedirectResponse
     {
-        $this->citas->registrarPago($cita, $request->validated());
+        /** @var User $usuario */
+        $usuario = $request->user();
 
-        return redirect()->route('citas.show', $cita)->with('status', 'Pago registrado, pendiente de validación.');
+        $this->citas->registrarPago($cita, $request->validated(), $usuario, $request->file('comprobante'));
+
+        return redirect()->route('citas.show', $cita)->with('status', $usuario->esPersonalAdministrativo()
+            ? 'Pago registrado, pendiente de validación.'
+            : 'Recibimos tu voucher. La clínica lo validará y te avisará por correo.');
+    }
+
+    /**
+     * Muestra el voucher solo a quien puede ver la cita. Los archivos viven en
+     * el disco privado y nunca se sirven desde /public (CP-SYS-34).
+     */
+    public function comprobante(Pago $pago): StreamedResponse
+    {
+        $this->authorize('view', $pago->cita);
+
+        abort_unless($pago->comprobante_path && Storage::disk('local')->exists($pago->comprobante_path), 404);
+
+        return Storage::disk('local')->response($pago->comprobante_path, $pago->comprobante_nombre, [
+            'X-Content-Type-Options' => 'nosniff',
+            // El archivo se muestra aislado: no puede ejecutar scripts ni cargar recursos.
+            'Content-Security-Policy' => "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox",
+        ]);
     }
 
     public function validar(Request $request, Pago $pago): RedirectResponse

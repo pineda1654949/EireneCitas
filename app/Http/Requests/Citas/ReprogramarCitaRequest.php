@@ -19,7 +19,8 @@ class ReprogramarCitaRequest extends FormRequest
         return [
             'fecha' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'hora' => ['required', 'date_format:H:i'],
-            'motivo' => ['nullable', 'string', 'max:1000'],
+            // RN-01: cada cambio queda justificado en el historial de la cita.
+            'motivo' => ['required', 'string', 'min:5', 'max:1000'],
         ];
     }
 }

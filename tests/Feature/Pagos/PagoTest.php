@@ -137,16 +137,19 @@ class PagoTest extends TestCase
         $this->assertNotNull($pendiente);
     }
 
-    public function test_pacientes_y_psicologos_no_gestionan_pagos(): void
+    public function test_solo_el_personal_valida_pagos_y_el_psicologo_no_los_registra(): void
     {
         [$psicologo] = $this->psicologoConAgenda();
         $usuario = $this->usuarioPaciente();
         $cita = $this->citaPara($psicologo, $this->fichaDe($usuario));
         $pago = Pago::factory()->create(['cita_id' => $cita->id]);
 
+        // El psicologo no registra pagos; el paciente si puede reportarlos (con voucher).
+        $this->actingAs($psicologo)->post(route('pagos.store', $cita), ['monto' => 80, 'metodo_pago' => 'efectivo'])->assertForbidden();
+
         foreach ([$usuario, $psicologo] as $actor) {
-            $this->actingAs($actor)->post(route('pagos.store', $cita), ['monto' => 80, 'metodo_pago' => 'efectivo'])->assertForbidden();
             $this->actingAs($actor)->put(route('pagos.validar', $pago))->assertForbidden();
+            $this->actingAs($actor)->put(route('pagos.rechazar', $pago))->assertForbidden();
         }
 
         $this->assertSame(EstadoPago::Pendiente, $pago->refresh()->estado);
