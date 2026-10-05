@@ -2,113 +2,112 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Rol;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\PsicologoRequest;
 use App\Models\Especialidad;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 /**
- * Gestion de psicologos: el administrador asigna al psicologo adecuado
- * segun los sintomas del paciente y su disponibilidad (Tabla 1 del documento).
+ * Gestion de psicologos y sus especialidades (Tabla 1 del documento).
  */
 class PsicologoController extends Controller
 {
-    public function __construct()
+    public function index(): View
     {
-        $this->middleware(['auth', 'role:administrador']);
-    }
+        $psicologos = User::psicologos()
+            ->with('especialidades')
+            ->withCount('citasComoPsicologo')
+            ->orderBy('name')
+            ->paginate(15);
 
-    public function index()
-    {
-        $psicologos = User::psicologos()->with('especialidades')->orderBy('name')->paginate(15);
         return view('admin.psicologos.index', compact('psicologos'));
     }
 
-    public function create()
+    public function create(): View
     {
-        $especialidades = Especialidad::orderBy('nombre')->get();
-        return view('admin.psicologos.create', compact('especialidades'));
+        return view('admin.psicologos.create', [
+            'psicologo' => new User(['activo' => true]),
+            'especialidades' => Especialidad::orderBy('nombre')->get(),
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(PsicologoRequest $request): RedirectResponse
     {
-        $datos = $request->validate([
-            'name' => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'dni' => 'nullable|string|max:15|unique:users,dni',
-            'telefono' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6',
-            'especialidades' => 'array',
-            'especialidades.*' => 'exists:especialidades,id',
-        ]);
+        $datos = $request->validated();
 
-        $psicologo = User::create([
-            'name' => $datos['name'],
-            'apellidos' => $datos['apellidos'],
-            'email' => $datos['email'],
-            'dni' => $datos['dni'] ?? null,
-            'telefono' => $datos['telefono'] ?? null,
-            'password' => Hash::make($datos['password']),
-            'role' => 'psicologo',
-        ]);
+        DB::transaction(function () use ($datos, $request) {
+            $psicologo = User::create([
+                ...collect($datos)->only(['name', 'apellidos', 'email', 'dni', 'telefono', 'password'])->all(),
+                'role' => Rol::Psicologo,
+                'activo' => $request->boolean('activo', true),
+            ]);
 
-        $psicologo->especialidades()->sync($datos['especialidades'] ?? []);
+            $psicologo->especialidades()->sync($datos['especialidades'] ?? []);
+        });
 
         return redirect()->route('admin.psicologos.index')->with('status', 'Psicologo registrado correctamente.');
     }
 
-    public function edit(User $psicologo)
+    public function edit(User $psicologo): View
     {
         $this->asegurarPsicologo($psicologo);
-        $especialidades = Especialidad::orderBy('nombre')->get();
+
         $psicologo->load('especialidades');
-        return view('admin.psicologos.edit', compact('psicologo', 'especialidades'));
+
+        return view('admin.psicologos.edit', [
+            'psicologo' => $psicologo,
+            'especialidades' => Especialidad::orderBy('nombre')->get(),
+        ]);
     }
 
-    public function update(Request $request, User $psicologo)
+    public function update(PsicologoRequest $request, User $psicologo): RedirectResponse
     {
         $this->asegurarPsicologo($psicologo);
 
-        $datos = $request->validate([
-            'name' => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $psicologo->id,
-            'telefono' => 'nullable|string|max:20',
-            'activo' => 'boolean',
-            'especialidades' => 'array',
-            'especialidades.*' => 'exists:especialidades,id',
-        ]);
+        $datos = $request->validated();
 
-        $psicologo->update([
-            'name' => $datos['name'],
-            'apellidos' => $datos['apellidos'],
-            'email' => $datos['email'],
-            'telefono' => $datos['telefono'] ?? null,
-            'activo' => $request->boolean('activo'),
-        ]);
+        DB::transaction(function () use ($datos, $request, $psicologo) {
+            $cambios = collect($datos)->only(['name', 'apellidos', 'email', 'dni', 'telefono'])->all();
+            $cambios['activo'] = $request->boolean('activo');
 
-        $psicologo->especialidades()->sync($datos['especialidades'] ?? []);
+            if (! empty($datos['password'])) {
+                $cambios['password'] = $datos['password'];
+            }
+
+            $psicologo->update($cambios);
+            $psicologo->especialidades()->sync($datos['especialidades'] ?? []);
+        });
 
         return redirect()->route('admin.psicologos.index')->with('status', 'Datos actualizados correctamente.');
     }
 
-    public function destroy(User $psicologo)
+    public function destroy(User $psicologo): RedirectResponse
     {
         $this->asegurarPsicologo($psicologo);
+
+        // Con citas registradas se desactiva en lugar de borrar, para no
+        // perder la trazabilidad de sus sesiones e historias clinicas.
+        if ($psicologo->citasComoPsicologo()->exists()) {
+            $psicologo->update(['activo' => false]);
+
+            return back()->with('status', 'El psicologo tiene citas registradas: se desactivo en lugar de eliminarse.');
+        }
+
         $psicologo->delete();
+
         return back()->with('status', 'Psicologo eliminado.');
     }
 
     /**
-     * Evita que desde este modulo se edite o elimine a un usuario que no es
-     * psicologo (p. ej. un administrador o un paciente) cambiando el id en la URL.
+     * Evita editar o eliminar desde este modulo a un usuario que no es
+     * psicologo (p. ej. cambiando el id en la URL).
      */
-    private function asegurarPsicologo(User $usuario)
+    private function asegurarPsicologo(User $usuario): void
     {
-        if (!$usuario->esPsicologo()) {
-            abort(404);
-        }
+        abort_unless($usuario->esPsicologo(), 404);
     }
 }

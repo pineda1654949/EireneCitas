@@ -2,13 +2,37 @@
 
 namespace App\Models;
 
+use App\Enums\Rol;
+use App\Models\Concerns\Auditable;
+use App\Notifications\RestablecerContrasena;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string|null $apellidos
+ * @property string $email
+ * @property string|null $dni
+ * @property string|null $telefono
+ * @property Rol $role
+ * @property bool $activo
+ * @property-read string $nombre_completo
+ * @property-read Paciente|null $pacienteFicha
+ * @property-read Collection<int, Especialidad> $especialidades
+ */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use Auditable, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -26,71 +50,134 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'activo' => 'boolean',
-    ];
-
-    // ----- Scopes por rol -----
-    public function scopePsicologos($query)
+    protected function casts(): array
     {
-        return $query->where('role', 'psicologo');
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'role' => Rol::class,
+            'activo' => 'boolean',
+        ];
     }
 
-    public function scopeRecepcionistas($query)
+    // ----- Scopes -----
+
+    /**
+     * @param  Builder<User>  $query
+     */
+    public function scopePsicologos(Builder $query): void
     {
-        return $query->where('role', 'recepcionista');
+        $query->where('role', Rol::Psicologo->value);
     }
 
-    public function scopeAdministradores($query)
+    /**
+     * @param  Builder<User>  $query
+     */
+    public function scopeActivos(Builder $query): void
     {
-        return $query->where('role', 'administrador');
+        $query->where('activo', true);
     }
 
-    // ----- Helpers de rol -----
-    public function esAdministrador()
+    // ----- Roles -----
+
+    public function tieneRol(Rol ...$roles): bool
     {
-        return $this->role === 'administrador';
+        return in_array($this->role, $roles, true);
     }
 
-    public function esRecepcionista()
+    public function esAdministrador(): bool
     {
-        return $this->role === 'recepcionista';
+        return $this->role === Rol::Administrador;
     }
 
-    public function esPsicologo()
+    public function esRecepcionista(): bool
     {
-        return $this->role === 'psicologo';
+        return $this->role === Rol::Recepcionista;
     }
 
-    public function esPaciente()
+    public function esPsicologo(): bool
     {
-        return $this->role === 'paciente';
+        return $this->role === Rol::Psicologo;
+    }
+
+    public function esPaciente(): bool
+    {
+        return $this->role === Rol::Paciente;
+    }
+
+    public function esPersonalAdministrativo(): bool
+    {
+        return $this->role->esPersonalAdministrativo();
+    }
+
+    /**
+     * @return Attribute<string, never>
+     */
+    protected function nombreCompleto(): Attribute
+    {
+        return Attribute::get(fn () => trim("{$this->name} {$this->apellidos}"));
+    }
+
+    /**
+     * @return Attribute<uppercase-string, never>
+     */
+    protected function iniciales(): Attribute
+    {
+        return Attribute::get(fn () => mb_strtoupper(
+            mb_substr($this->name, 0, 1).mb_substr((string) $this->apellidos, 0, 1)
+        ));
     }
 
     // ----- Relaciones -----
-    public function especialidades()
+
+    /**
+     * @return BelongsToMany<Especialidad, $this>
+     */
+    public function especialidades(): BelongsToMany
     {
-        return $this->belongsToMany(Especialidad::class, 'especialidad_psicologo', 'user_id', 'especialidad_id');
+        return $this->belongsToMany(Especialidad::class, 'especialidad_psicologo', 'user_id', 'especialidad_id')
+            ->withTimestamps();
     }
 
-    public function horarios()
+    /**
+     * @return HasMany<Horario, $this>
+     */
+    public function horarios(): HasMany
     {
         return $this->hasMany(Horario::class, 'psicologo_id');
     }
 
-    public function citasComoPsicologo()
+    /**
+     * @return HasMany<Cita, $this>
+     */
+    public function citasComoPsicologo(): HasMany
     {
         return $this->hasMany(Cita::class, 'psicologo_id');
     }
 
-    public function historialesClinicos()
+    /**
+     * @return HasMany<HistorialClinico, $this>
+     */
+    public function historialesClinicos(): HasMany
     {
         return $this->hasMany(HistorialClinico::class, 'psicologo_id');
     }
 
-    public function pacienteFicha()
+    /**
+     * @return HasOne<Paciente, $this>
+     */
+    public function pacienteFicha(): HasOne
     {
         return $this->hasOne(Paciente::class, 'user_id');
+    }
+
+    /**
+     * Envia el enlace de recuperacion con un correo en espanol.
+     *
+     * @param  string  $token
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new RestablecerContrasena($token));
     }
 }

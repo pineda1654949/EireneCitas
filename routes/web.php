@@ -1,12 +1,16 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\PacienteController;
 use App\Http\Controllers\Admin\PagoController;
 use App\Http\Controllers\Admin\PromocionController;
 use App\Http\Controllers\Admin\PsicologoController;
 use App\Http\Controllers\Admin\ReporteController;
 use App\Http\Controllers\Api\DisponibilidadController;
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\RecuperarContrasenaController;
+use App\Http\Controllers\Auth\RegistroController;
+use App\Http\Controllers\Auth\RestablecerContrasenaController;
+use App\Http\Controllers\Auth\SesionController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Psicologo\HistorialController;
@@ -15,77 +19,93 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes - Sistema de Gestion de Citas Eirene
+| Rutas web - Sistema de Gestion de Citas Eirene
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', fn () => redirect()->route('login'));
+Route::redirect('/', '/login');
 
-// ----- Autenticacion (RF-07) -----
+// ----- Autenticacion y recuperacion de contrasena (RF-07) -----
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'mostrarLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/registro', [AuthController::class, 'mostrarRegistro'])->name('register');
-    Route::post('/registro', [AuthController::class, 'registro']);
+    Route::get('/login', [SesionController::class, 'create'])->name('login');
+    Route::post('/login', [SesionController::class, 'store'])->middleware('throttle:formularios-publicos');
+
+    Route::get('/registro', [RegistroController::class, 'create'])->name('register');
+    Route::post('/registro', [RegistroController::class, 'store'])->middleware('throttle:formularios-publicos');
+
+    Route::get('/recuperar-contrasena', [RecuperarContrasenaController::class, 'create'])->name('password.request');
+    Route::post('/recuperar-contrasena', [RecuperarContrasenaController::class, 'store'])
+        ->middleware('throttle:formularios-publicos')
+        ->name('password.email');
+
+    Route::get('/restablecer-contrasena/{token}', [RestablecerContrasenaController::class, 'create'])->name('password.reset');
+    Route::post('/restablecer-contrasena', [RestablecerContrasenaController::class, 'store'])
+        ->middleware('throttle:formularios-publicos')
+        ->name('password.store');
 });
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// ----- Panel principal (redirige segun rol) -----
-Route::get('/home', [HomeController::class, 'index'])->middleware('auth')->name('home');
-
-// ----- Citas: RF-01, RF-02, RF-03, RF-04 (paciente, recepcionista, psicologo, admin) -----
 Route::middleware('auth')->group(function () {
-    Route::get('/citas/crear', [CitaController::class, 'create'])->name('citas.create');
-    Route::post('/citas', [CitaController::class, 'store'])->name('citas.store');
-    Route::get('/citas', [CitaController::class, 'index'])->name('citas.index');
-    Route::get('/citas/{cita}', [CitaController::class, 'show'])->name('citas.show');
+    Route::post('/logout', [SesionController::class, 'destroy'])->name('logout');
 
-    Route::get('/citas/{cita}/reprogramar', [CitaController::class, 'formReprogramar'])->name('citas.reprogramar.form');
-    Route::put('/citas/{cita}/reprogramar', [CitaController::class, 'reprogramar'])->name('citas.reprogramar');
+    // ----- Panel principal segun rol -----
+    Route::get('/home', HomeController::class)->name('home');
 
-    Route::get('/citas/{cita}/cancelar', [CitaController::class, 'formCancelar'])->name('citas.cancelar.form');
-    Route::put('/citas/{cita}/cancelar', [CitaController::class, 'cancelar'])->name('citas.cancelar');
-});
+    // ----- Citas: RF-01, RF-03, RF-04 (permisos en CitaPolicy) -----
+    Route::controller(CitaController::class)->prefix('citas')->name('citas.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/crear', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{cita}', 'show')->name('show');
+        Route::get('/{cita}/reprogramar', 'editarFecha')->name('reprogramar.form');
+        Route::put('/{cita}/reprogramar', 'reprogramar')->name('reprogramar');
+        Route::get('/{cita}/cancelar', 'confirmarCancelacion')->name('cancelar.form');
+        Route::put('/{cita}/cancelar', 'cancelar')->name('cancelar');
+        Route::put('/{cita}/confirmar', 'confirmar')->name('confirmar');
+    });
 
-// ----- Confirmacion y pagos: recepcionista / administrador -----
-Route::middleware(['auth', 'role:recepcionista,administrador'])->group(function () {
-    Route::put('/citas/{cita}/confirmar', [CitaController::class, 'confirm'])->name('citas.confirmar');
+    // ----- API interna (AJAX) de disponibilidad en tiempo real: RF-02 -----
+    Route::prefix('api')->name('api.')->group(function () {
+        Route::get('/especialidades/{especialidad}/psicologos', [DisponibilidadController::class, 'psicologosPorEspecialidad'])
+            ->name('especialidades.psicologos');
+        Route::get('/horas-disponibles', [DisponibilidadController::class, 'horasDisponibles'])
+            ->name('horas-disponibles');
+    });
 
-    Route::get('/citas/{cita}/pagos/registrar', [PagoController::class, 'create'])->name('pagos.create');
-    Route::post('/citas/{cita}/pagos', [PagoController::class, 'store'])->name('pagos.store');
-    Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index');
-    Route::put('/pagos/{pago}/validar', [PagoController::class, 'validar'])->name('pagos.validar');
-    Route::put('/pagos/{pago}/rechazar', [PagoController::class, 'rechazar'])->name('pagos.rechazar');
+    // ----- Pagos, pacientes y reportes: recepcionista y administrador -----
+    Route::middleware('rol:recepcionista,administrador')->group(function () {
+        Route::get('/citas/{cita}/pagos/registrar', [PagoController::class, 'create'])->name('pagos.create');
+        Route::post('/citas/{cita}/pagos', [PagoController::class, 'store'])->name('pagos.store');
+        Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index');
+        Route::put('/pagos/{pago}/validar', [PagoController::class, 'validar'])->name('pagos.validar');
+        Route::put('/pagos/{pago}/rechazar', [PagoController::class, 'rechazar'])->name('pagos.rechazar');
 
-    Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index'); // RF-08
-});
+        Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index'); // RF-08
+        Route::get('/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar');
 
-// ----- Administrador: psicologos, promociones -----
-Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('psicologos', PsicologoController::class)->except(['show']);
-    // "promociones" se singulariza en ingles como {promocione}; se fija el nombre real.
-    Route::resource('promociones', PromocionController::class)->except(['show'])
-        ->parameters(['promociones' => 'promocion']);
-});
+        // RF-05 (Tabla 8 del documento)
+        Route::resource('admin/pacientes', PacienteController::class)
+            ->except(['show'])
+            ->names('admin.pacientes');
+    });
 
-// ----- Pacientes: administrador y recepcionista (RF-05, Tabla 8 del documento) -----
-Route::middleware(['auth', 'role:administrador,recepcionista'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('pacientes', PacienteController::class)->except(['show']);
-});
+    // ----- Administrador: psicologos, promociones y auditoria -----
+    Route::middleware('rol:administrador')->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('psicologos', PsicologoController::class)->except(['show']);
+        Route::resource('promociones', PromocionController::class)
+            ->except(['show'])
+            ->parameters(['promociones' => 'promocion']);
+        Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+    });
 
-// ----- Psicologo: disponibilidad e historia clinica (RF-06) -----
-Route::middleware(['auth', 'role:psicologo'])->prefix('psicologo')->name('psicologo.')->group(function () {
-    Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
-    Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
-    Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+    // ----- Psicologo: disponibilidad e historia clinica (RF-06) -----
+    Route::middleware('rol:psicologo')->prefix('psicologo')->name('psicologo.')->group(function () {
+        Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
+        Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
+        Route::patch('/horarios/{horario}/alternar', [HorarioController::class, 'alternar'])->name('horarios.alternar');
+        Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
 
-    Route::get('/pacientes/{pacienteId}/historial', [HistorialController::class, 'porPaciente'])->name('historial.paciente');
-    Route::get('/citas/{cita}/historial/crear', [HistorialController::class, 'create'])->name('historial.create');
-    Route::post('/citas/{cita}/historial', [HistorialController::class, 'store'])->name('historial.store');
-});
-
-// ----- API interna (AJAX) para disponibilidad en tiempo real: RF-02 -----
-Route::middleware('auth')->prefix('api')->group(function () {
-    Route::get('/especialidades/{especialidad}/psicologos', [DisponibilidadController::class, 'psicologosPorEspecialidad']);
-    Route::get('/horas-disponibles', [DisponibilidadController::class, 'horasDisponibles']);
+        Route::get('/pacientes/{paciente}/historial', [HistorialController::class, 'porPaciente'])->name('historial.paciente');
+        Route::get('/citas/{cita}/historial/crear', [HistorialController::class, 'create'])->name('historial.create');
+        Route::post('/citas/{cita}/historial', [HistorialController::class, 'store'])->name('historial.store');
+    });
 });

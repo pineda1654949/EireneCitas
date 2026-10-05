@@ -2,85 +2,80 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\EstadoPago;
+use App\Enums\MetodoPago;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\PagoRequest;
 use App\Models\Cita;
 use App\Models\Pago;
+use App\Models\User;
+use App\Services\CitaService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 /**
- * Control de pagos (Tabla 1: "Se registra el metodo de pago elegido y el
- * estado de cada cuota"). Antes de confirmar una cita se debe validar el pago.
+ * Control de pagos: se registra el metodo elegido y se valida antes de
+ * confirmar la cita (reemplaza la verificacion manual del AS-IS).
  */
 class PagoController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly CitaService $citas) {}
+
+    public function index(Request $request): View
     {
-        $this->middleware(['auth', 'role:administrador,recepcionista']);
-    }
-
-    public function index(Request $request)
-    {
-        $query = Pago::with(['cita.paciente', 'cita.psicologo']);
-
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
-        }
-
-        $pagos = $query->latest()->paginate(15);
-
-        return view('admin.pagos.index', compact('pagos'));
-    }
-
-    public function create(Cita $cita)
-    {
-        return view('admin.pagos.create', compact('cita'));
-    }
-
-    public function store(Request $request, Cita $cita)
-    {
-        $datos = $request->validate([
-            'monto' => 'required|numeric|min:0',
-            'metodo_pago' => 'required|in:tarjeta,yape_plin,transferencia,efectivo',
-            'numero_comprobante' => 'nullable|string|max:255',
+        $filtros = $request->validate([
+            'estado' => ['nullable', Rule::enum(EstadoPago::class)],
         ]);
 
-        Pago::create([
-            'cita_id' => $cita->id,
-            'monto' => $datos['monto'],
-            'metodo_pago' => $datos['metodo_pago'],
-            'numero_comprobante' => $datos['numero_comprobante'] ?? null,
-            'estado' => 'pendiente',
+        $pagos = Pago::with(['cita.paciente', 'cita.psicologo', 'validadoPor'])
+            ->when($filtros['estado'] ?? null, fn ($q, $estado) => $q->where('estado', $estado))
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.pagos.index', compact('pagos', 'filtros'));
+    }
+
+    public function create(Cita $cita): View
+    {
+        $this->authorize('gestionarPagos', $cita);
+
+        $cita->load(['paciente', 'psicologo', 'promocion']);
+
+        return view('admin.pagos.create', [
+            'cita' => $cita,
+            'metodos' => MetodoPago::cases(),
         ]);
+    }
+
+    public function store(PagoRequest $request, Cita $cita): RedirectResponse
+    {
+        $this->citas->registrarPago($cita, $request->validated());
 
         return redirect()->route('citas.show', $cita)->with('status', 'Pago registrado, pendiente de validacion.');
     }
 
-    /**
-     * Valida el pago (reemplaza la verificacion visual manual del AS-IS)
-     * y automaticamente puede confirmar la cita asociada.
-     */
-    public function validar(Pago $pago)
+    public function validar(Request $request, Pago $pago): RedirectResponse
     {
-        $pago->update([
-            'estado' => 'confirmado',
-            'fecha_pago' => now(),
-            'validado_por' => Auth::id(),
-        ]);
+        /** @var User $usuario */
+        $usuario = $request->user();
 
-        // Una cita cancelada o ya atendida no vuelve a "confirmada" por validar su pago.
-        if (!in_array($pago->cita->estado, ['pendiente', 'reprogramada'])) {
-            return back()->with('status', 'Pago validado. La cita no cambio de estado porque esta ' . $pago->cita->estado . '.');
-        }
+        $confirmada = $this->citas->validarPago($pago, $usuario);
 
-        $pago->cita->update(['estado' => 'confirmada']);
-
-        return back()->with('status', 'Pago validado y cita confirmada.');
+        return back()->with('status', $confirmada
+            ? 'Pago validado y cita confirmada.'
+            : 'Pago validado. La cita no cambio de estado porque ya esta '.$pago->cita->estado->etiqueta().'.');
     }
 
-    public function rechazar(Pago $pago)
+    public function rechazar(Request $request, Pago $pago): RedirectResponse
     {
-        $pago->update(['estado' => 'rechazado', 'validado_por' => Auth::id()]);
+        /** @var User $usuario */
+        $usuario = $request->user();
+
+        $this->citas->rechazarPago($pago, $usuario);
+
         return back()->with('status', 'Pago marcado como rechazado.');
     }
 }

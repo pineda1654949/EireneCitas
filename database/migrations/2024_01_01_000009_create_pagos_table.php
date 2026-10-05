@@ -11,7 +11,7 @@ class CreatePagosTable extends Migration
      * En el proceso TO-BE el pago se vincula automaticamente a la cita,
      * eliminando la verificacion visual manual del comprobante (AS-IS).
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('pagos', function (Blueprint $table) {
             $table->id();
@@ -26,7 +26,7 @@ class CreatePagosTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('pagos');
     }

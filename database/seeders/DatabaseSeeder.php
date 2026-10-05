@@ -7,16 +7,19 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Ejecuta todos los seeders del sistema Eirene.
-     * Orden: usuarios base -> especialidades -> horarios -> promociones.
+     * Los catalogos se cargan en todos los entornos. Los usuarios de prueba
+     * (con contrasena conocida) nunca se crean en produccion: alli el primer
+     * administrador se crea con "php artisan eirene:crear-admin".
      */
-    public function run()
+    public function run(): void
     {
         $this->call([
-            UsuariosSeeder::class,
             EspecialidadSeeder::class,
-            HorarioSeeder::class,
             PromocionSeeder::class,
         ]);
+
+        if (! app()->isProduction()) {
+            $this->call(UsuariosDemoSeeder::class);
+        }
     }
 }

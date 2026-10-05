@@ -1,42 +1,43 @@
-@extends('layouts.panel')
+<x-layouts.app :titulo="'Hola, '.auth()->user()->name" subtitulo="Aquí puedes ver y gestionar tus sesiones.">
+    <x-slot:acciones>
+        <a href="{{ route('citas.create') }}" class="btn btn-primary"><x-heroicon-o-plus class="size-5" /> Solicitar cita</a>
+    </x-slot:acciones>
 
-@section('titulo', 'Mi panel')
-
-@section('content')
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body d-flex align-items-center justify-content-between">
-            <div>
-                <h5 class="mb-1">Hola, {{ auth()->user()->name }} 👋</h5>
-                <p class="text-muted mb-0">¿Necesitas una sesion? Solicita tu cita en pocos pasos.</p>
+    @if ($proximaCita)
+        <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white shadow-sm sm:p-8">
+            <div class="absolute -top-16 -right-16 size-56 rounded-full bg-white/10 blur-2xl"></div>
+            <p class="text-sm font-medium text-brand-100">Tu próxima sesión</p>
+            <p class="mt-2 text-2xl font-semibold sm:text-3xl">
+                {{ ucfirst($proximaCita->fecha->isoFormat('dddd D [de] MMMM')) }} · {{ $proximaCita->hora_corta }} h
+            </p>
+            <p class="mt-1 text-brand-100">
+                Con {{ $proximaCita->psicologo->nombre_completo }}
+                @if ($proximaCita->especialidad) · {{ $proximaCita->especialidad->nombre }} @endif
+            </p>
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+                <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">{{ $proximaCita->estado->etiqueta() }}</span>
+                <a href="{{ route('citas.show', $proximaCita) }}" class="btn btn-sm bg-white text-brand-700 hover:bg-brand-50">Ver detalle</a>
             </div>
-            <a href="{{ route('citas.create') }}" class="btn btn-primary">
-                <i class="bi bi-calendar-plus me-1"></i> Solicitar cita
-            </a>
-        </div>
-    </div>
+        </section>
+    @else
+        <x-card>
+            <x-vacio icono="calendar-days" titulo="No tienes sesiones próximas"
+                     descripcion="Solicita una cita y elige el horario que mejor se adapte a ti.">
+                <a href="{{ route('citas.create') }}" class="btn btn-primary">Solicitar mi cita</a>
+            </x-vacio>
+        </x-card>
+    @endif
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white fw-semibold">Mis ultimas citas</div>
-        <div class="table-responsive">
-            <table class="table mb-0 align-middle">
-                <thead class="table-light">
-                    <tr><th>Fecha</th><th>Hora</th><th>Psicologo</th><th>Especialidad</th><th>Estado</th><th></th></tr>
-                </thead>
-                <tbody>
-                    @forelse($misCitas as $cita)
-                        <tr>
-                            <td>{{ $cita->fecha->format('d/m/Y') }}</td>
-                            <td>{{ \Illuminate\Support\Carbon::parse($cita->hora)->format('H:i') }}</td>
-                            <td>{{ $cita->psicologo->name }} {{ $cita->psicologo->apellidos }}</td>
-                            <td>{{ optional($cita->especialidad)->nombre }}</td>
-                            <td><span class="badge bg-{{ $cita->estado_badge }}">{{ ucfirst($cita->estado) }}</span></td>
-                            <td class="text-end"><a href="{{ route('citas.show', $cita) }}" class="btn btn-sm btn-outline-primary">Ver</a></td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="6" class="text-center text-muted py-4">Aun no tienes citas registradas.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-@endsection
+    <x-card titulo="Mis citas recientes" :padding="false" class="mt-6">
+        <x-slot:acciones>
+            <a href="{{ route('citas.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700">Ver historial</a>
+        </x-slot:acciones>
+        <x-tabla-citas :citas="$misCitas" :paciente="false" :especialidad="true" vacio="Aún no has solicitado citas." />
+    </x-card>
+
+    @unless ($paciente)
+        <p class="mt-6 rounded-xl bg-amber-50 p-4 text-sm text-amber-800 ring-1 ring-amber-600/20">
+            Tu cuenta no tiene una ficha de paciente asociada. Comunícate con la clínica para completarla.
+        </p>
+    @endunless
+</x-layouts.app>

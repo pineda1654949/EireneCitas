@@ -11,7 +11,7 @@ class CreateEspecialidadesTable extends Migration
      * derivar al paciente al psicologo adecuado segun sus sintomas
      * (Capitulo 2.2 y 3.4 del documento).
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('especialidades', function (Blueprint $table) {
             $table->id();
@@ -21,7 +21,7 @@ class CreateEspecialidadesTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('especialidades');
     }

@@ -1,48 +1,28 @@
-@extends('layouts.auth')
-
-@section('titulo', 'Crear cuenta')
-
-@section('content')
-    <form method="POST" action="{{ route('register') }}">
+<x-layouts.guest titulo="Crea tu cuenta de paciente" subtitulo="Regístrate para solicitar y dar seguimiento a tus citas.">
+    <form method="POST" action="{{ route('register') }}" class="space-y-5">
         @csrf
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Nombres</label>
-                <input type="text" name="name" class="form-control" value="{{ old('name') }}" required autofocus>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Apellidos</label>
-                <input type="text" name="apellidos" class="form-control" value="{{ old('apellidos') }}" required>
-            </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <x-form.input name="name" label="Nombres" autocomplete="given-name" required autofocus />
+            <x-form.input name="apellidos" label="Apellidos" autocomplete="family-name" required />
         </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">DNI</label>
-                <input type="text" name="dni" class="form-control" value="{{ old('dni') }}">
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Telefono</label>
-                <input type="text" name="telefono" class="form-control" value="{{ old('telefono') }}">
-            </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <x-form.input name="dni" label="DNI" inputmode="numeric" maxlength="12" />
+            <x-form.input name="telefono" label="Teléfono" type="tel" autocomplete="tel" />
         </div>
-        <div class="mb-3">
-            <label class="form-label">Correo electronico</label>
-            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Contrasena</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Confirmar contrasena</label>
-                <input type="password" name="password_confirmation" class="form-control" required>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Crear cuenta</button>
+
+        <x-form.input name="email" label="Correo electrónico" type="email" autocomplete="email" required />
+
+        <x-form.input name="password" label="Contraseña" type="password" autocomplete="new-password" required
+                      hint="Mínimo 8 caracteres, con letras y números." />
+        <x-form.input name="password_confirmation" label="Confirma la contraseña" type="password" autocomplete="new-password" required />
+
+        <button type="submit" class="btn btn-primary w-full">Crear cuenta</button>
     </form>
 
-    <p class="text-center text-muted mt-4 mb-0">
-        ¿Ya tienes cuenta? <a href="{{ route('login') }}">Inicia sesion</a>
+    <p class="mt-8 text-center text-sm text-slate-500">
+        ¿Ya tienes una cuenta?
+        <a href="{{ route('login') }}" class="font-semibold text-brand-600 hover:text-brand-700">Inicia sesión</a>
     </p>
-@endsection
+</x-layouts.guest>

@@ -1,54 +1,75 @@
-@extends('layouts.panel')
+@use('App\Enums\EstadoPago')
 
-@section('titulo', 'Control de pagos')
+<x-layouts.app titulo="Pagos" subtitulo="Valida los pagos para confirmar las citas (RF-04).">
+    <x-card :padding="false">
+        <nav class="flex gap-1 overflow-x-auto border-b border-slate-100 px-4 pt-3 sm:px-5" aria-label="Filtrar por estado">
+            @foreach (['' => 'Todos'] + collect(EstadoPago::cases())->mapWithKeys(fn ($e) => [$e->value => $e->etiqueta()])->all() as $valor => $nombre)
+                @php $activo = ($filtros['estado'] ?? '') === $valor; @endphp
+                <a href="{{ route('pagos.index', array_filter(['estado' => $valor])) }}"
+                   @class(['border-b-2 px-3 pb-3 text-sm font-medium whitespace-nowrap',
+                           'border-brand-600 text-brand-700' => $activo,
+                           'border-transparent text-slate-500 hover:text-slate-700' => ! $activo])>
+                    {{ $nombre }}
+                </a>
+            @endforeach
+        </nav>
 
-@section('content')
-    <form method="GET" class="mb-3 d-flex gap-2">
-        <select name="estado" class="form-select" style="max-width: 220px;" onchange="this.form.submit()">
-            <option value="">Todos los estados</option>
-            <option value="pendiente" @selected(request('estado')==='pendiente')>Pendiente</option>
-            <option value="confirmado" @selected(request('estado')==='confirmado')>Confirmado</option>
-            <option value="rechazado" @selected(request('estado')==='rechazado')>Rechazado</option>
-        </select>
-    </form>
-
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table mb-0 align-middle">
-                <thead class="table-light">
-                    <tr><th>Cita</th><th>Paciente</th><th>Monto</th><th>Metodo</th><th>Estado</th><th></th></tr>
-                </thead>
-                <tbody>
-                    @forelse($pagos as $pago)
+        @if ($pagos->isEmpty())
+            <x-vacio icono="banknotes" titulo="No hay pagos en esta categoría" />
+        @else
+            <div class="overflow-x-auto">
+                <table class="table-base">
+                    <thead>
                         <tr>
-                            <td><a href="{{ route('citas.show', $pago->cita) }}">#{{ $pago->cita_id }}</a></td>
-                            <td>{{ $pago->cita->paciente->nombre_completo }}</td>
-                            <td>S/ {{ number_format($pago->monto, 2) }}</td>
-                            <td>{{ ucfirst(str_replace('_', ' ', $pago->metodo_pago)) }}</td>
-                            <td>
-                                <span class="badge bg-{{ $pago->estado === 'confirmado' ? 'success' : ($pago->estado === 'rechazado' ? 'danger' : 'warning') }}">
-                                    {{ ucfirst($pago->estado) }}
-                                </span>
-                            </td>
-                            <td class="text-end">
-                                @if($pago->estado === 'pendiente')
-                                    <form action="{{ route('pagos.validar', $pago) }}" method="POST" class="d-inline">
-                                        @csrf @method('PUT')
-                                        <button class="btn btn-sm btn-outline-success">Validar</button>
-                                    </form>
-                                    <form action="{{ route('pagos.rechazar', $pago) }}" method="POST" class="d-inline">
-                                        @csrf @method('PUT')
-                                        <button class="btn btn-sm btn-outline-danger">Rechazar</button>
-                                    </form>
-                                @endif
-                            </td>
+                            <th scope="col">Registrado</th>
+                            <th scope="col">Paciente</th>
+                            <th scope="col">Monto</th>
+                            <th scope="col">Método</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col"><span class="sr-only">Acciones</span></th>
                         </tr>
-                    @empty
-                        <tr><td colspan="6" class="text-center text-muted py-4">No hay pagos registrados.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="card-body">{{ $pagos->links() }}</div>
-    </div>
-@endsection
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach ($pagos as $pago)
+                            <tr>
+                                <td class="whitespace-nowrap">
+                                    <div>{{ $pago->created_at?->format('d/m/Y H:i') }}</div>
+                                    <a href="{{ route('citas.show', $pago->cita) }}" class="text-xs text-brand-600 hover:underline">Cita #{{ $pago->cita_id }}</a>
+                                </td>
+                                <td>
+                                    <div class="font-medium text-slate-900">{{ $pago->cita->paciente->nombre_completo }}</div>
+                                    <div class="text-xs text-slate-500">con {{ $pago->cita->psicologo->nombre_completo }}</div>
+                                </td>
+                                <td class="font-semibold text-slate-900 tabular-nums">S/ {{ number_format((float) $pago->monto, 2) }}</td>
+                                <td>
+                                    <div>{{ $pago->metodo_pago->etiqueta() }}</div>
+                                    @if ($pago->numero_comprobante) <div class="text-xs text-slate-500">{{ $pago->numero_comprobante }}</div> @endif
+                                </td>
+                                <td>
+                                    <x-estado-pago :estado="$pago->estado" />
+                                    @if ($pago->validadoPor) <div class="mt-1 text-xs text-slate-500">por {{ $pago->validadoPor->name }}</div> @endif
+                                </td>
+                                <td class="whitespace-nowrap text-right">
+                                    @if ($pago->estado === EstadoPago::Pendiente)
+                                        <form method="POST" action="{{ route('pagos.validar', $pago) }}" class="inline">
+                                            @csrf @method('PUT')
+                                            <button type="submit" class="btn btn-success btn-sm"><x-heroicon-m-check class="size-4" /> Validar</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('pagos.rechazar', $pago) }}" class="inline" data-confirm="¿Marcar este pago como rechazado?">
+                                            @csrf @method('PUT')
+                                            <button type="submit" class="btn btn-secondary btn-sm">Rechazar</button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            @if ($pagos->hasPages())
+                <div class="border-t border-slate-100 px-5 py-4 sm:px-6">{{ $pagos->links() }}</div>
+            @endif
+        @endif
+    </x-card>
+</x-layouts.app>

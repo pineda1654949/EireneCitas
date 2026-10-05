@@ -1,16 +1,13 @@
-@extends('layouts.panel')
+<x-layouts.app titulo="Nuevo paciente" subtitulo="Registra la ficha de un paciente atendido en persona o por teléfono.">
+    <x-card class="max-w-3xl">
+        <form method="POST" action="{{ route('admin.pacientes.store') }}">
+            @csrf
+            @include('admin.pacientes._form')
 
-@section('titulo', 'Nuevo paciente')
-
-@section('content')
-    <div class="card border-0 shadow-sm" style="max-width: 700px;">
-        <div class="card-body">
-            <form method="POST" action="{{ route('admin.pacientes.store') }}">
-                @csrf
-                @include('admin.pacientes._form')
+            <div class="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-5">
+                <a href="{{ route('admin.pacientes.index') }}" class="btn btn-ghost">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar paciente</button>
-                <a href="{{ route('admin.pacientes.index') }}" class="btn btn-link">Cancelar</a>
-            </form>
-        </div>
-    </div>
-@endsection
+            </div>
+        </form>
+    </x-card>
+</x-layouts.app>

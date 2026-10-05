@@ -1,0 +1,119 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+@plugin '@tailwindcss/forms';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../../app/Enums/*.php';
+
+/* Identidad visual de Eirene: tonos verde azulado que transmiten calma. */
+@theme inline {
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    --color-brand-50: var(--color-teal-50);
+    --color-brand-100: var(--color-teal-100);
+    --color-brand-200: var(--color-teal-200);
+    --color-brand-300: var(--color-teal-300);
+    --color-brand-400: var(--color-teal-400);
+    --color-brand-500: var(--color-teal-500);
+    --color-brand-600: var(--color-teal-600);
+    --color-brand-700: var(--color-teal-700);
+    --color-brand-800: var(--color-teal-800);
+    --color-brand-900: var(--color-teal-900);
+    --color-brand-950: var(--color-teal-950);
+}
+
+@layer base {
+    html {
+        @apply bg-slate-50 text-slate-800 antialiased;
+    }
+
+    ::selection {
+        @apply bg-brand-100 text-brand-900;
+    }
+}
+
+@layer components {
+    /* ----- Botones ----- */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+            focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-sm {
+        @apply rounded-lg px-3 py-1.5 text-xs;
+    }
+
+    .btn-primary {
+        @apply bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:outline-brand-600;
+    }
+
+    .btn-secondary {
+        @apply bg-white text-slate-700 shadow-sm ring-1 ring-slate-300 ring-inset hover:bg-slate-50 focus-visible:outline-slate-400;
+    }
+
+    .btn-danger {
+        @apply bg-rose-600 text-white shadow-sm hover:bg-rose-700 focus-visible:outline-rose-600;
+    }
+
+    .btn-success {
+        @apply bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 focus-visible:outline-emerald-600;
+    }
+
+    .btn-ghost {
+        @apply text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-slate-400;
+    }
+
+    /* ----- Formularios ----- */
+    .form-label {
+        @apply mb-1.5 block text-sm font-medium text-slate-700;
+    }
+
+    .form-control {
+        @apply block w-full rounded-xl border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm
+            placeholder:text-slate-400 focus:border-brand-500 focus:ring-brand-500 disabled:bg-slate-100;
+    }
+
+    .form-control[aria-invalid='true'] {
+        @apply border-rose-400 focus:border-rose-500 focus:ring-rose-500;
+    }
+
+    .form-hint {
+        @apply mt-1.5 text-xs text-slate-500;
+    }
+
+    .form-error {
+        @apply mt-1.5 text-xs font-medium text-rose-600;
+    }
+
+    /* ----- Tarjetas y tablas ----- */
+    .card {
+        @apply rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/70;
+    }
+
+    .table-base {
+        @apply min-w-full divide-y divide-slate-200 text-sm;
+    }
+
+    .table-base thead th {
+        @apply bg-slate-50/80 px-4 py-3 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase;
+    }
+
+    .table-base tbody td {
+        @apply px-4 py-3.5 align-middle text-slate-700;
+    }
+
+    .table-base tbody tr {
+        @apply transition hover:bg-slate-50/70;
+    }
+
+    /* ----- Selector de horas (RF-02) ----- */
+    .hora-chip {
+        @apply flex cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium
+            text-slate-700 transition hover:border-brand-400 hover:text-brand-700
+            has-checked:border-brand-600 has-checked:bg-brand-600 has-checked:text-white has-focus-visible:ring-2 has-focus-visible:ring-brand-500;
+    }
+}

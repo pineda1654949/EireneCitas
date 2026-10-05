@@ -1,63 +1,64 @@
-@extends('layouts.panel')
+@use('App\Models\Horario')
 
-@section('titulo', 'Mi disponibilidad')
-
-@section('content')
-    <div class="row g-4">
-        <div class="col-md-5">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white fw-semibold">Agregar bloque de horario</div>
-                <div class="card-body">
-                    <form method="POST" action="{{ route('psicologo.horarios.store') }}">
-                        @csrf
-                        <div class="mb-3">
-                            <label class="form-label">Dia de la semana</label>
-                            <select name="dia_semana" class="form-select" required>
-                                @foreach(\App\Models\Horario::DIAS as $num => $nombre)
-                                    <option value="{{ $num }}">{{ $nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Hora de inicio</label>
-                            <input type="time" name="hora_inicio" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Hora de fin</label>
-                            <input type="time" name="hora_fin" class="form-control" required>
-                        </div>
-                        <button class="btn btn-primary w-100">Agregar horario</button>
-                    </form>
+<x-layouts.app titulo="Mi disponibilidad" subtitulo="Bloques semanales en los que los pacientes pueden reservar contigo (RF-02).">
+    <div class="grid gap-6 lg:grid-cols-3">
+        <x-card titulo="Agregar bloque" descripcion="Las sesiones duran {{ config('eirene.citas.duracion_minutos') }} min y se ofrecen cada {{ config('eirene.citas.intervalo_minutos') }} min.">
+            <form method="POST" action="{{ route('psicologo.horarios.store') }}" class="space-y-5">
+                @csrf
+                <x-form.select name="dia_semana" label="Día" required>
+                    @foreach (Horario::DIAS as $numero => $dia)
+                        <option value="{{ $numero }}" @selected(old('dia_semana') == $numero)>{{ $dia }}</option>
+                    @endforeach
+                </x-form.select>
+                <div class="grid grid-cols-2 gap-4">
+                    <x-form.input name="hora_inicio" label="Desde" type="time" step="900" required />
+                    <x-form.input name="hora_fin" label="Hasta" type="time" step="900" required />
                 </div>
-            </div>
-        </div>
+                <button type="submit" class="btn btn-primary w-full"><x-heroicon-o-plus class="size-5" /> Agregar bloque</button>
+            </form>
+        </x-card>
 
-        <div class="col-md-7">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white fw-semibold">Mis horarios configurados</div>
-                <div class="table-responsive">
-                    <table class="table mb-0 align-middle">
-                        <thead class="table-light"><tr><th>Dia</th><th>Inicio</th><th>Fin</th><th></th></tr></thead>
-                        <tbody>
-                            @forelse($horarios as $h)
-                                <tr>
-                                    <td>{{ \App\Models\Horario::DIAS[$h->dia_semana] }}</td>
-                                    <td>{{ \Illuminate\Support\Carbon::parse($h->hora_inicio)->format('H:i') }}</td>
-                                    <td>{{ \Illuminate\Support\Carbon::parse($h->hora_fin)->format('H:i') }}</td>
-                                    <td class="text-end">
-                                        <form action="{{ route('psicologo.horarios.destroy', $h) }}" method="POST" onsubmit="return confirm('¿Eliminar este horario?');">
-                                            @csrf @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+        <x-card titulo="Horario semanal" :padding="false" class="lg:col-span-2">
+            @if ($horarios->isEmpty())
+                <x-vacio icono="clock" titulo="Aún no configuraste tu disponibilidad"
+                         descripcion="Mientras no agregues bloques, los pacientes no podrán reservar contigo." />
+            @else
+                <ul class="divide-y divide-slate-100">
+                    @foreach ($horarios as $dia => $bloques)
+                        <li class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:px-6">
+                            <span class="w-28 shrink-0 text-sm font-semibold text-slate-900">{{ Horario::DIAS[$dia] }}</span>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach ($bloques as $bloque)
+                                    <div @class([
+                                        'flex items-center gap-1 rounded-xl py-1 pr-1 pl-3 text-sm ring-1',
+                                        'bg-brand-50 text-brand-800 ring-brand-200' => $bloque->activo,
+                                        'bg-slate-50 text-slate-400 line-through ring-slate-200' => ! $bloque->activo,
+                                    ])>
+                                        <span class="tabular-nums">{{ substr($bloque->hora_inicio, 0, 5) }} – {{ substr($bloque->hora_fin, 0, 5) }}</span>
+                                        <form method="POST" action="{{ route('psicologo.horarios.alternar', $bloque) }}">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="rounded-lg p-1 text-slate-500 hover:bg-white hover:text-slate-800"
+                                                    title="{{ $bloque->activo ? 'Pausar bloque' : 'Activar bloque' }}" aria-label="{{ $bloque->activo ? 'Pausar bloque' : 'Activar bloque' }}">
+                                                @if ($bloque->activo)
+                                                    <x-heroicon-m-pause class="size-4" />
+                                                @else
+                                                    <x-heroicon-m-play class="size-4" />
+                                                @endif
+                                            </button>
                                         </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="4" class="text-center text-muted py-4">Aun no has configurado horarios.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                                        <form method="POST" action="{{ route('psicologo.horarios.destroy', $bloque) }}" data-confirm="¿Eliminar este bloque de horario?">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="rounded-lg p-1 text-slate-500 hover:bg-white hover:text-rose-600" aria-label="Eliminar bloque">
+                                                <x-heroicon-m-x-mark class="size-4" />
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </x-card>
     </div>
-@endsection
+</x-layouts.app>

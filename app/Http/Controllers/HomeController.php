@@ -2,69 +2,108 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EstadoCita;
+use App\Enums\EstadoPago;
+use App\Enums\Rol;
 use App\Models\Cita;
 use App\Models\Paciente;
+use App\Models\Pago;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
+/**
+ * Panel principal: muestra un resumen distinto segun el rol (RF-07).
+ */
 class HomeController extends Controller
 {
-    public function __construct()
+    public function __invoke(Request $request): View
     {
-        $this->middleware('auth');
+        /** @var User $usuario */
+        $usuario = $request->user();
+
+        return match ($usuario->role) {
+            Rol::Administrador => $this->panelAdministrador(),
+            Rol::Recepcionista => $this->panelRecepcionista(),
+            Rol::Psicologo => $this->panelPsicologo($usuario),
+            Rol::Paciente => $this->panelPaciente($usuario),
+        };
     }
 
-    /**
-     * Punto de entrada unico tras el login. Segun el rol del usuario
-     * (RF-07) se muestra el panel correspondiente con datos resumen.
-     */
-    public function index()
+    private function panelAdministrador(): View
     {
-        $user = Auth::user();
+        $porEstado = Cita::query()
+            ->selectRaw('estado, count(*) as total')
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
 
-        switch ($user->role) {
-            case 'administrador':
-                return view('dashboard.admin', [
-                    'totalPacientes' => Paciente::count(),
-                    'totalPsicologos' => User::psicologos()->count(),
-                    'citasPendientes' => Cita::where('estado', 'pendiente')->count(),
-                    'citasConfirmadas' => Cita::where('estado', 'confirmada')->count(),
-                    'citasAtendidas' => Cita::where('estado', 'atendida')->count(),
-                    'citasCanceladas' => Cita::where('estado', 'cancelada')->count(),
-                    'ultimasCitas' => Cita::with(['paciente', 'psicologo'])->latest()->take(8)->get(),
-                ]);
+        return view('dashboard.admin', [
+            'totalPacientes' => Paciente::count(),
+            'totalPsicologos' => User::psicologos()->activos()->count(),
+            'citasPorEstado' => $porEstado,
+            'ingresosMes' => Pago::where('estado', EstadoPago::Confirmado->value)
+                ->whereBetween('fecha_pago', [now()->startOfMonth(), now()->endOfMonth()])
+                ->sum('monto'),
+            'ultimasCitas' => Cita::with(['paciente', 'psicologo'])->latest()->take(8)->get(),
+        ]);
+    }
 
-            case 'recepcionista':
-                return view('dashboard.recepcionista', [
-                    'citasHoy' => Cita::with(['paciente', 'psicologo'])
-                        ->whereDate('fecha', now()->toDateString())
-                        ->orderBy('hora')->get(),
-                    'citasPendientes' => Cita::where('estado', 'pendiente')->count(),
-                ]);
+    private function panelRecepcionista(): View
+    {
+        return view('dashboard.recepcionista', [
+            'citasHoy' => Cita::with(['paciente', 'psicologo'])
+                ->whereDate('fecha', today())
+                ->orderBy('hora')
+                ->get(),
+            'citasPendientes' => Cita::where('estado', EstadoCita::Pendiente->value)->count(),
+            'pagosPorValidar' => Pago::where('estado', EstadoPago::Pendiente->value)->count(),
+        ]);
+    }
 
-            case 'psicologo':
-                return view('dashboard.psicologo', [
-                    'citasHoy' => Cita::with('paciente')
-                        ->where('psicologo_id', $user->id)
-                        ->whereDate('fecha', now()->toDateString())
-                        ->orderBy('hora')->get(),
-                    'proximasCitas' => Cita::with('paciente')
-                        ->where('psicologo_id', $user->id)
-                        ->where('fecha', '>=', now()->toDateString())
-                        ->whereIn('estado', Cita::ESTADOS_ACTIVOS)
-                        ->orderBy('fecha')->orderBy('hora')->take(10)->get(),
-                ]);
+    private function panelPsicologo(User $psicologo): View
+    {
+        return view('dashboard.psicologo', [
+            'citasHoy' => Cita::with('paciente')
+                ->where('psicologo_id', $psicologo->id)
+                ->whereDate('fecha', today())
+                ->activas()
+                ->orderBy('hora')
+                ->get(),
+            'proximasCitas' => Cita::with('paciente')
+                ->where('psicologo_id', $psicologo->id)
+                ->whereDate('fecha', '>', today())
+                ->activas()
+                ->orderBy('fecha')->orderBy('hora')
+                ->take(10)
+                ->get(),
+            'atendidasMes' => Cita::where('psicologo_id', $psicologo->id)
+                ->where('estado', EstadoCita::Atendida->value)
+                ->whereBetween('fecha', [now()->startOfMonth(), now()->endOfMonth()])
+                ->count(),
+        ]);
+    }
 
-            default: // paciente
-                $paciente = Paciente::where('user_id', $user->id)->first();
-                return view('dashboard.paciente', [
-                    'paciente' => $paciente,
-                    'misCitas' => $paciente
-                        ? Cita::with(['psicologo', 'especialidad'])
-                            ->where('paciente_id', $paciente->id)
-                            ->orderBy('fecha', 'desc')->take(10)->get()
-                        : collect(),
-                ]);
-        }
+    private function panelPaciente(User $usuario): View
+    {
+        $paciente = $usuario->pacienteFicha;
+
+        $citas = $paciente
+            ? Cita::with(['psicologo', 'especialidad'])
+                ->where('paciente_id', $paciente->id)
+                ->orderByDesc('fecha')->orderByDesc('hora')
+                ->take(10)
+                ->get()
+            : collect();
+
+        $proximaCita = $citas
+            ->filter(fn (Cita $cita) => $cita->estado->estaActiva() && $cita->inicio->isFuture())
+            ->sortBy(fn (Cita $cita) => $cita->inicio)
+            ->first();
+
+        return view('dashboard.paciente', [
+            'paciente' => $paciente,
+            'misCitas' => $citas,
+            'proximaCita' => $proximaCita,
+        ]);
     }
 }
