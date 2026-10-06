@@ -1,146 +1,86 @@
-@extends('layouts.panel')
+<x-layouts.app :titulo="$pacientes ? 'Registrar cita' : 'Solicitar cita'"
+               subtitulo="Elige la especialidad, el psicólogo y un horario disponible.">
+    <div class="grid gap-6 lg:grid-cols-3">
+        <form method="POST" action="{{ route('citas.store') }}" class="space-y-6 lg:col-span-2" data-reserva
+              data-url-psicologos="{{ route('api.especialidades.psicologos', ['especialidad' => '__ID__']) }}"
+              data-url-agenda="{{ route('api.agenda-del-dia') }}">
+            @csrf
 
-@section('titulo', 'Solicitar cita')
-
-@section('content')
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <form method="POST" action="{{ route('citas.store') }}">
-                @csrf
-
-                @if(isset($pacientes))
-                    <div class="mb-3">
-                        <label class="form-label">Paciente</label>
-                        <select name="paciente_id" class="form-select" required>
-                            <option value="">Selecciona el paciente...</option>
-                            @foreach($pacientes as $p)
-                                <option value="{{ $p->id }}" {{ old('paciente_id') == $p->id ? 'selected' : '' }}>{{ $p->nombre_completo }} @if($p->dni) ({{ $p->dni }}) @endif</option>
-                            @endforeach
-                        </select>
-                        <div class="form-text">¿El paciente es nuevo? <a href="{{ route('admin.pacientes.create') }}" target="_blank">Registralo aqui</a> y luego actualiza esta lista.</div>
-                    </div>
-                @endif
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Motivo de consulta / especialidad</label>
-                        <select id="especialidad_id" name="especialidad_id" class="form-select" required>
-                            <option value="">Selecciona una opcion...</option>
-                            @foreach($especialidades as $e)
-                                <option value="{{ $e->id }}" {{ old('especialidad_id') == $e->id ? 'selected' : '' }}>{{ $e->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Psicologo</label>
-                        <select id="psicologo_id" name="psicologo_id" class="form-select" required>
-                            <option value="">Primero elige una especialidad...</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Fecha</label>
-                        <input type="date" id="fecha" name="fecha" class="form-control" min="{{ now()->toDateString() }}" value="{{ old('fecha') }}" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Hora disponible</label>
-                        <select id="hora" name="hora" class="form-select" required>
-                            <option value="">Elige psicologo y fecha primero...</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Promocion (opcional)</label>
-                    <select name="promocion_id" class="form-select">
-                        <option value="">Sesion individual (sin promocion)</option>
-                        @foreach($promociones as $promo)
-                            <option value="{{ $promo->id }}" {{ old('promocion_id') == $promo->id ? 'selected' : '' }}>
-                                {{ $promo->nombre }} - {{ $promo->numero_sesiones }} sesion(es) - S/ {{ number_format($promo->precio, 2) }}
+            @if ($pacientes)
+                <x-card titulo="1. Paciente">
+                    <x-form.select name="paciente_id" label="Paciente" required
+                                   hint="¿Es un paciente nuevo? Regístralo primero en el módulo Pacientes.">
+                        <option value="">Selecciona el paciente...</option>
+                        @foreach ($pacientes as $p)
+                            <option value="{{ $p->id }}" @selected(old('paciente_id') == $p->id)>
+                                {{ $p->apellidos }}, {{ $p->nombres }} @if ($p->dni) — DNI {{ $p->dni }} @endif
                             </option>
                         @endforeach
-                    </select>
-                </div>
+                    </x-form.select>
+                </x-card>
+            @endif
 
-                <div class="mb-4">
-                    <label class="form-label">Cuentanos brevemente el motivo de tu consulta (opcional)</label>
-                    <textarea name="motivo_consulta" class="form-control" rows="3">{{ old('motivo_consulta') }}</textarea>
-                </div>
+            <x-card :titulo="($pacientes ? '2' : '1').'. Profesional'">
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <x-form.select name="especialidad_id" label="Motivo de consulta / especialidad" required data-especialidad>
+                        <option value="">Selecciona una opción...</option>
+                        @foreach ($especialidades as $e)
+                            <option value="{{ $e->id }}" @selected(old('especialidad_id') == $e->id)>{{ $e->nombre }}</option>
+                        @endforeach
+                    </x-form.select>
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check2-circle me-1"></i> Registrar cita
-                </button>
-            </form>
-        </div>
+                    <x-form.select name="psicologo_id" label="Psicólogo" required disabled data-psicologo data-inicial="{{ old('psicologo_id') }}">
+                        <option value="">Primero elige una especialidad...</option>
+                    </x-form.select>
+                </div>
+            </x-card>
+
+            <x-card :titulo="($pacientes ? '3' : '2').'. Fecha y hora'">
+                <x-form.input name="fecha" label="Fecha" type="date" required data-fecha
+                              min="{{ today()->toDateString() }}" class="sm:max-w-xs" />
+
+                <fieldset class="mt-5">
+                    <legend class="form-label">Hora <span class="text-rose-500" aria-hidden="true">*</span></legend>
+                    <p class="text-sm text-slate-500" data-horas-ayuda>Elige psicólogo y fecha para ver las horas.</p>
+                    <div class="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5" data-horas data-inicial="{{ old('hora') }}" aria-live="polite"></div>
+                    <x-leyenda-horas />
+                    @error('hora') <p class="form-error">{{ $message }}</p> @enderror
+                </fieldset>
+            </x-card>
+
+            <x-card :titulo="($pacientes ? '4' : '3').'. Detalles'">
+                <div class="space-y-5">
+                    <x-form.select name="promocion_id" label="Promoción">
+                        <option value="">Sesión individual (sin promoción)</option>
+                        @foreach ($promociones as $promo)
+                            <option value="{{ $promo->id }}" @selected(old('promocion_id') == $promo->id)>
+                                {{ $promo->nombre }} — {{ $promo->numero_sesiones }} {{ $promo->numero_sesiones === 1 ? 'sesión' : 'sesiones' }} — S/ {{ number_format((float) $promo->precio, 2) }}
+                            </option>
+                        @endforeach
+                    </x-form.select>
+
+                    <x-form.textarea name="motivo_consulta" label="Cuéntanos brevemente el motivo de la consulta" rows="4"
+                                     hint="Opcional. Solo lo verá el personal de la clínica y tu psicólogo." />
+                </div>
+            </x-card>
+
+            <div class="flex justify-end gap-3">
+                <a href="{{ route('citas.index') }}" class="btn btn-ghost">Cancelar</a>
+                <button type="submit" class="btn btn-primary"><x-heroicon-o-check-circle class="size-5" /> Registrar cita</button>
+            </div>
+        </form>
+
+        <aside class="space-y-4">
+            <x-card titulo="¿Cómo funciona?">
+                <ol class="space-y-4 text-sm text-slate-600">
+                    <li class="flex gap-3"><span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">1</span> Eliges el horario: solo se muestran las horas realmente libres.</li>
+                    <li class="flex gap-3"><span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">2</span> La cita queda <strong>pendiente</strong> hasta que la clínica valide el pago.</li>
+                    <li class="flex gap-3"><span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">3</span> Recibirás un correo con la confirmación y un recordatorio el día anterior.</li>
+                </ol>
+            </x-card>
+            <p class="rounded-xl bg-slate-100 p-4 text-xs text-slate-600">
+                Puedes reprogramar una cita hasta {{ App\Models\Cita::maxReprogramaciones() }} veces. Cada sesión dura {{ config('eirene.citas.duracion_minutos') }} minutos.
+            </p>
+        </aside>
     </div>
-@endsection
-
-@push('scripts')
-<script>
-const especialidadSelect = document.getElementById('especialidad_id');
-const psicologoSelect = document.getElementById('psicologo_id');
-const fechaInput = document.getElementById('fecha');
-const horaSelect = document.getElementById('hora');
-const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-// URL base generada por Laravel: funciona con "php artisan serve" y con Apache en /EireneCitas/public
-const apiUrl = @json(url('/api'));
-
-especialidadSelect.addEventListener('change', async function () {
-    psicologoSelect.innerHTML = '<option value="">Cargando...</option>';
-    horaSelect.innerHTML = '<option value="">Elige psicologo y fecha primero...</option>';
-
-    if (!this.value) {
-        psicologoSelect.innerHTML = '<option value="">Primero elige una especialidad...</option>';
-        return;
-    }
-
-    const res = await fetch(`${apiUrl}/especialidades/${this.value}/psicologos`, {
-        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-    });
-    const psicologos = await res.json();
-
-    psicologoSelect.innerHTML = '<option value="">Selecciona un psicologo...</option>';
-    psicologos.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = `${p.name} ${p.apellidos ?? ''}`;
-        psicologoSelect.appendChild(opt);
-    });
-
-    if (psicologos.length === 0) {
-        psicologoSelect.innerHTML = '<option value="">No hay psicologos disponibles para esta especialidad</option>';
-    }
-});
-
-async function cargarHoras() {
-    if (!psicologoSelect.value || !fechaInput.value) {
-        return;
-    }
-    horaSelect.innerHTML = '<option value="">Cargando horas disponibles...</option>';
-
-    const params = new URLSearchParams({ psicologo_id: psicologoSelect.value, fecha: fechaInput.value });
-    const res = await fetch(`${apiUrl}/horas-disponibles?${params.toString()}`, {
-        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-    });
-    const horas = await res.json();
-
-    if (horas.length === 0) {
-        horaSelect.innerHTML = '<option value="">No hay horas disponibles ese dia</option>';
-        return;
-    }
-
-    horaSelect.innerHTML = '<option value="">Selecciona una hora...</option>';
-    horas.forEach(h => {
-        const opt = document.createElement('option');
-        opt.value = h;
-        opt.textContent = h;
-        horaSelect.appendChild(opt);
-    });
-}
-
-psicologoSelect.addEventListener('change', cargarHoras);
-fechaInput.addEventListener('change', cargarHoras);
-</script>
-@endpush
+</x-layouts.app>

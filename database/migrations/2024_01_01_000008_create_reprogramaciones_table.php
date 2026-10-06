@@ -11,7 +11,7 @@ class CreateReprogramacionesTable extends Migration
      * trazabilidad (RF-03 y consecuencia detectada en el AS-IS: "riesgo de
      * perdida de historial del paciente").
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('reprogramaciones', function (Blueprint $table) {
             $table->id();
@@ -27,7 +27,7 @@ class CreateReprogramacionesTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('reprogramaciones');
     }

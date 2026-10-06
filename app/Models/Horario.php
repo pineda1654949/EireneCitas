@@ -2,72 +2,88 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
+use App\Models\Concerns\Auditable;
+use Database\Factories\HorarioFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Bloque de atencion semanal de un psicologo (RF-02).
+ *
+ * @property int $id
+ * @property int $psicologo_id
+ * @property int $dia_semana
+ * @property string $hora_inicio
+ * @property string $hora_fin
+ * @property bool $activo
+ * @property-read User $psicologo
+ */
 class Horario extends Model
 {
-    use HasFactory;
+    /** @use HasFactory<HorarioFactory> */
+    use Auditable, HasFactory;
 
     protected $fillable = ['psicologo_id', 'dia_semana', 'hora_inicio', 'hora_fin', 'activo'];
 
-    protected $casts = ['activo' => 'boolean'];
-
-    public const DIAS = [
-        0 => 'Domingo',
-        1 => 'Lunes',
-        2 => 'Martes',
-        3 => 'Miercoles',
-        4 => 'Jueves',
-        5 => 'Viernes',
-        6 => 'Sabado',
+    protected $attributes = [
+        'activo' => true,
     ];
 
-    public function psicologo()
+    protected function casts(): array
     {
-        return $this->belongsTo(User::class, 'psicologo_id');
+        return [
+            'dia_semana' => 'integer',
+            'activo' => 'boolean',
+        ];
+    }
+
+    /** 0 = Domingo ... 6 = Sabado (igual que Carbon::dayOfWeek). */
+    public const DIAS = [
+        1 => 'Lunes',
+        2 => 'Martes',
+        3 => 'Miércoles',
+        4 => 'Jueves',
+        5 => 'Viernes',
+        6 => 'Sábado',
+        0 => 'Domingo',
+    ];
+
+    /**
+     * Las horas se guardan siempre como HH:MM:SS para que las comparaciones
+     * (cruce de bloques) sean consistentes en MySQL y SQLite.
+     *
+     * @return Attribute<never, string>
+     */
+    protected function horaInicio(): Attribute
+    {
+        return Attribute::set(fn (string $valor) => self::normalizarHora($valor));
     }
 
     /**
-     * Horas libres (formato H:i) de un psicologo en una fecha, cruzando su
-     * horario configurado con las citas que ya ocupan ese dia (RF-02).
-     * $ignorarCitaId permite excluir la propia cita al reprogramarla.
+     * @return Attribute<never, string>
      */
-    public static function horasDisponibles($psicologoId, $fecha, $ignorarCitaId = null): array
+    protected function horaFin(): Attribute
     {
-        $fecha = Carbon::parse($fecha);
+        return Attribute::set(fn (string $valor) => self::normalizarHora($valor));
+    }
 
-        $bloques = static::where('psicologo_id', $psicologoId)
-            ->where('dia_semana', $fecha->dayOfWeek) // 0=domingo ... 6=sabado
-            ->where('activo', true)
-            ->orderBy('hora_inicio')
-            ->get();
+    public static function normalizarHora(string $hora): string
+    {
+        return strlen($hora) === 5 ? $hora.':00' : $hora;
+    }
 
-        $horasOcupadas = Cita::where('psicologo_id', $psicologoId)
-            ->whereDate('fecha', $fecha->toDateString())
-            ->whereIn('estado', Cita::ESTADOS_ACTIVOS)
-            ->when($ignorarCitaId, fn ($q) => $q->where('id', '!=', $ignorarCitaId))
-            ->pluck('hora')
-            ->map(fn ($h) => substr($h, 0, 5))
-            ->toArray();
+    public function nombreDia(): string
+    {
+        return self::DIAS[$this->dia_semana] ?? '-';
+    }
 
-        $disponibles = [];
-
-        foreach ($bloques as $bloque) {
-            $inicio = Carbon::parse($bloque->hora_inicio);
-            $fin = Carbon::parse($bloque->hora_fin);
-
-            // Sesiones de 50 minutos, con 10 minutos de margen entre citas.
-            while ($inicio->copy()->addMinutes(50)->lte($fin)) {
-                $horaTexto = $inicio->format('H:i');
-                if (!in_array($horaTexto, $horasOcupadas)) {
-                    $disponibles[] = $horaTexto;
-                }
-                $inicio->addMinutes(60);
-            }
-        }
-
-        return $disponibles;
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function psicologo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'psicologo_id');
     }
 }

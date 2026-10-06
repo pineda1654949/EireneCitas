@@ -10,7 +10,7 @@ class CreatePacientesTable extends Migration
      * Ficha del paciente (datos clinicos/personales adicionales a "users").
      * RF-05: Registro y actualizacion de datos del paciente.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('pacientes', function (Blueprint $table) {
             $table->id();
@@ -27,7 +27,7 @@ class CreatePacientesTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('pacientes');
     }

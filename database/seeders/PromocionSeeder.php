@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class PromocionSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $promociones = [
             ['nombre' => 'Sesion individual', 'descripcion' => 'Una sesion de terapia psicologica.', 'numero_sesiones' => 1, 'precio' => 80.00],
@@ -15,8 +15,8 @@ class PromocionSeeder extends Seeder
             ['nombre' => 'Paquete 8 sesiones', 'descripcion' => 'Paquete bimestral de 8 sesiones con 15% de descuento.', 'numero_sesiones' => 8, 'precio' => 544.00],
         ];
 
-        foreach ($promociones as $promo) {
-            Promocion::updateOrCreate(['nombre' => $promo['nombre']], $promo + ['activa' => true]);
+        foreach ($promociones as $promocion) {
+            Promocion::firstOrCreate(['nombre' => $promocion['nombre']], $promocion + ['activa' => true]);
         }
     }
 }

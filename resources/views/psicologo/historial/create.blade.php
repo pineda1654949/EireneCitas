@@ -1,24 +1,39 @@
-@extends('layouts.panel')
-
-@section('titulo', 'Registrar historial clinico')
-
-@section('content')
-    <div class="card border-0 shadow-sm" style="max-width: 650px;">
-        <div class="card-body">
-            <p class="text-muted">Paciente: <strong>{{ $cita->paciente->nombre_completo }}</strong> &middot; Sesion: {{ $cita->fecha->format('d/m/Y') }}</p>
-            <form method="POST" action="{{ route('psicologo.historial.store', $cita) }}">
+<x-layouts.app titulo="Registrar sesión" :subtitulo="$cita->paciente->nombre_completo.' · '.$cita->fecha->format('d/m/Y').' '.$cita->hora_corta.' h'">
+    <div class="grid gap-6 lg:grid-cols-3">
+        <x-card class="lg:col-span-2">
+            <form method="POST" action="{{ route('psicologo.historial.store', $cita) }}" class="space-y-5">
                 @csrf
-                <div class="mb-3">
-                    <label class="form-label">Avance / estado del paciente</label>
-                    <input type="text" name="avance" class="form-control" placeholder="Ej. Inicial, En progreso, Alta">
+                <x-form.textarea name="notas_sesion" label="Notas de la sesión" rows="10" required
+                                 :value="$cita->historialClinico?->notas_sesion"
+                                 hint="Se guardan cifradas y solo las ven los psicólogos que atienden al paciente." />
+
+                <x-form.select name="avance" label="Avance del tratamiento">
+                    <option value="">Sin especificar</option>
+                    @foreach (['Inicial', 'En progreso', 'Estable', 'Alta'] as $avance)
+                        <option value="{{ $avance }}" @selected(old('avance', $cita->historialClinico?->avance) === $avance)>{{ $avance }}</option>
+                    @endforeach
+                </x-form.select>
+
+                <div class="flex justify-end gap-3 border-t border-slate-100 pt-5">
+                    <a href="{{ route('citas.show', $cita) }}" class="btn btn-ghost">Cancelar</a>
+                    <button type="submit" class="btn btn-primary"><x-heroicon-o-check-circle class="size-5" /> Guardar y marcar como atendida</button>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Notas de la sesion</label>
-                    <textarea name="notas_sesion" class="form-control" rows="6" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar y marcar como atendida</button>
-                <a href="{{ route('citas.show', $cita) }}" class="btn btn-link">Cancelar</a>
             </form>
-        </div>
+        </x-card>
+
+        <aside>
+            <x-card titulo="Paciente">
+                <dl class="space-y-3 text-sm">
+                    <div><dt class="text-slate-500">Nombre</dt><dd class="font-medium text-slate-900">{{ $cita->paciente->nombre_completo }}</dd></div>
+                    @if ($cita->paciente->edad)
+                        <div><dt class="text-slate-500">Edad</dt><dd class="font-medium text-slate-900">{{ $cita->paciente->edad }} años</dd></div>
+                    @endif
+                    <div><dt class="text-slate-500">Motivo de consulta</dt><dd class="text-slate-700">{{ $cita->motivo_consulta ?: ($cita->paciente->motivo_consulta ?: '—') }}</dd></div>
+                </dl>
+                <a href="{{ route('psicologo.historial.paciente', $cita->paciente) }}" class="btn btn-secondary mt-5 w-full">
+                    <x-heroicon-o-folder-open class="size-5" /> Ver historia clínica
+                </a>
+            </x-card>
+        </aside>
     </div>
-@endsection
+</x-layouts.app>

@@ -3,68 +3,59 @@
 namespace App\Http\Controllers\Psicologo;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Psicologo\HistorialClinicoRequest;
 use App\Models\Cita;
-use App\Models\HistorialClinico;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Paciente;
+use App\Models\User;
+use App\Services\CitaService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 /**
- * RF-06: Consulta de historia clinica.
- * Actividad TO-BE 15: "Atender sesion y registrar historial clinico" (Psicologo).
+ * RF-06: historia clinica.
+ * Actividad TO-BE 15: "Atender sesion y registrar historial clinico".
  */
 class HistorialController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:psicologo']);
-    }
+    public function __construct(private readonly CitaService $citas) {}
 
     /**
-     * Historia clinica completa de un paciente (todas sus sesiones con este
-     * psicologo u otros, segun corresponda al flujo clinico).
+     * Historia clinica completa del paciente (todas sus sesiones atendidas).
      */
-    public function porPaciente($pacienteId)
+    public function porPaciente(Paciente $paciente): View
     {
-        $historiales = HistorialClinico::with(['cita', 'psicologo'])
-            ->where('paciente_id', $pacienteId)
+        $this->authorize('verHistorial', $paciente);
+
+        $historiales = $paciente->historialesClinicos()
+            ->with(['cita', 'psicologo'])
             ->latest()
             ->get();
 
-        return view('psicologo.historial.index', compact('historiales', 'pacienteId'));
+        return view('psicologo.historial.index', compact('historiales', 'paciente'));
     }
 
-    public function create(Cita $cita)
+    public function create(Cita $cita): View
     {
-        if ($cita->psicologo_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('atender', $cita);
+
+        $cita->load(['paciente', 'historialClinico']);
 
         return view('psicologo.historial.create', compact('cita'));
     }
 
-    public function store(Request $request, Cita $cita)
+    public function store(HistorialClinicoRequest $request, Cita $cita): RedirectResponse
     {
-        if ($cita->psicologo_id !== Auth::id()) {
-            abort(403);
-        }
+        /** @var User $psicologo */
+        $psicologo = $request->user();
 
-        $datos = $request->validate([
-            'notas_sesion' => 'required|string',
-            'avance' => 'nullable|string|max:255',
-        ]);
-
-        HistorialClinico::updateOrCreate(
-            ['cita_id' => $cita->id],
-            [
-                'paciente_id' => $cita->paciente_id,
-                'psicologo_id' => Auth::id(),
-                'notas_sesion' => $datos['notas_sesion'],
-                'avance' => $datos['avance'] ?? null,
-            ]
+        $this->citas->atenderSesion(
+            $cita,
+            $request->string('notas_sesion')->toString(),
+            $request->input('avance'),
+            $psicologo,
         );
 
-        $cita->update(['estado' => 'atendida']);
-
-        return redirect()->route('citas.show', $cita)->with('status', 'Historial clinico registrado. Sesion marcada como atendida.');
+        return redirect()->route('citas.show', $cita)
+            ->with('status', 'Historial clínico registrado. Sesión marcada como atendida.');
     }
 }

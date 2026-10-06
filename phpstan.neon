@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    # Nivel de exigencia del analisis estatico (0 = minimo, 10 = maximo).
+    level: 6
+
+    paths:
+        - app
+        - config
+        - database
+        - routes
+
+    tmpDir: build/phpstan

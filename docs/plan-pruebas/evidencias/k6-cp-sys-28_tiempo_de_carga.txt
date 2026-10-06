@@ -1,0 +1,173 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: tests/Carga/cp_sys_28_tiempo_de_carga.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * recorrido: 30 iterations for each of 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+
+running (00m01.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+recorrido   [   0% ] 1 VUs  00m01.0s/10m0s  00/30 iters, 30 per VU
+
+running (00m02.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+recorrido   [   0% ] 1 VUs  00m02.0s/10m0s  00/30 iters, 30 per VU
+
+running (00m03.0s), 1/1 VUs, 0 complete and 0 interrupted iterations
+recorrido   [   0% ] 1 VUs  00m03.0s/10m0s  00/30 iters, 30 per VU
+
+running (00m04.0s), 1/1 VUs, 1 complete and 0 interrupted iterations
+recorrido   [   3% ] 1 VUs  00m04.0s/10m0s  01/30 iters, 30 per VU
+
+running (00m05.0s), 1/1 VUs, 2 complete and 0 interrupted iterations
+recorrido   [   7% ] 1 VUs  00m05.0s/10m0s  02/30 iters, 30 per VU
+
+running (00m06.0s), 1/1 VUs, 3 complete and 0 interrupted iterations
+recorrido   [  10% ] 1 VUs  00m06.0s/10m0s  03/30 iters, 30 per VU
+
+running (00m07.0s), 1/1 VUs, 4 complete and 0 interrupted iterations
+recorrido   [  13% ] 1 VUs  00m07.0s/10m0s  04/30 iters, 30 per VU
+
+running (00m08.0s), 1/1 VUs, 5 complete and 0 interrupted iterations
+recorrido   [  17% ] 1 VUs  00m08.0s/10m0s  05/30 iters, 30 per VU
+
+running (00m09.0s), 1/1 VUs, 6 complete and 0 interrupted iterations
+recorrido   [  20% ] 1 VUs  00m09.0s/10m0s  06/30 iters, 30 per VU
+
+running (00m10.0s), 1/1 VUs, 7 complete and 0 interrupted iterations
+recorrido   [  23% ] 1 VUs  00m10.0s/10m0s  07/30 iters, 30 per VU
+
+running (00m11.0s), 1/1 VUs, 8 complete and 0 interrupted iterations
+recorrido   [  27% ] 1 VUs  00m11.0s/10m0s  08/30 iters, 30 per VU
+
+running (00m12.0s), 1/1 VUs, 9 complete and 0 interrupted iterations
+recorrido   [  30% ] 1 VUs  00m12.0s/10m0s  09/30 iters, 30 per VU
+
+running (00m13.0s), 1/1 VUs, 9 complete and 0 interrupted iterations
+recorrido   [  30% ] 1 VUs  00m13.0s/10m0s  09/30 iters, 30 per VU
+
+running (00m14.0s), 1/1 VUs, 11 complete and 0 interrupted iterations
+recorrido   [  37% ] 1 VUs  00m14.0s/10m0s  11/30 iters, 30 per VU
+
+running (00m15.0s), 1/1 VUs, 11 complete and 0 interrupted iterations
+recorrido   [  37% ] 1 VUs  00m15.0s/10m0s  11/30 iters, 30 per VU
+
+running (00m16.0s), 1/1 VUs, 12 complete and 0 interrupted iterations
+recorrido   [  40% ] 1 VUs  00m16.0s/10m0s  12/30 iters, 30 per VU
+
+running (00m17.0s), 1/1 VUs, 14 complete and 0 interrupted iterations
+recorrido   [  47% ] 1 VUs  00m17.0s/10m0s  14/30 iters, 30 per VU
+
+running (00m18.0s), 1/1 VUs, 15 complete and 0 interrupted iterations
+recorrido   [  50% ] 1 VUs  00m18.0s/10m0s  15/30 iters, 30 per VU
+
+running (00m19.0s), 1/1 VUs, 16 complete and 0 interrupted iterations
+recorrido   [  53% ] 1 VUs  00m19.0s/10m0s  16/30 iters, 30 per VU
+
+running (00m20.0s), 1/1 VUs, 17 complete and 0 interrupted iterations
+recorrido   [  57% ] 1 VUs  00m20.0s/10m0s  17/30 iters, 30 per VU
+
+running (00m21.0s), 1/1 VUs, 18 complete and 0 interrupted iterations
+recorrido   [  60% ] 1 VUs  00m21.0s/10m0s  18/30 iters, 30 per VU
+
+running (00m22.0s), 1/1 VUs, 19 complete and 0 interrupted iterations
+recorrido   [  63% ] 1 VUs  00m22.0s/10m0s  19/30 iters, 30 per VU
+
+running (00m23.0s), 1/1 VUs, 20 complete and 0 interrupted iterations
+recorrido   [  67% ] 1 VUs  00m23.0s/10m0s  20/30 iters, 30 per VU
+
+running (00m24.0s), 1/1 VUs, 21 complete and 0 interrupted iterations
+recorrido   [  70% ] 1 VUs  00m24.0s/10m0s  21/30 iters, 30 per VU
+
+running (00m25.0s), 1/1 VUs, 21 complete and 0 interrupted iterations
+recorrido   [  70% ] 1 VUs  00m25.0s/10m0s  21/30 iters, 30 per VU
+
+running (00m26.0s), 1/1 VUs, 22 complete and 0 interrupted iterations
+recorrido   [  73% ] 1 VUs  00m26.0s/10m0s  22/30 iters, 30 per VU
+
+running (00m27.0s), 1/1 VUs, 23 complete and 0 interrupted iterations
+recorrido   [  77% ] 1 VUs  00m27.0s/10m0s  23/30 iters, 30 per VU
+
+running (00m28.0s), 1/1 VUs, 24 complete and 0 interrupted iterations
+recorrido   [  80% ] 1 VUs  00m28.0s/10m0s  24/30 iters, 30 per VU
+
+running (00m29.0s), 1/1 VUs, 25 complete and 0 interrupted iterations
+recorrido   [  83% ] 1 VUs  00m29.0s/10m0s  25/30 iters, 30 per VU
+
+running (00m30.0s), 1/1 VUs, 26 complete and 0 interrupted iterations
+recorrido   [  87% ] 1 VUs  00m30.0s/10m0s  26/30 iters, 30 per VU
+
+running (00m31.0s), 1/1 VUs, 27 complete and 0 interrupted iterations
+recorrido   [  90% ] 1 VUs  00m31.0s/10m0s  27/30 iters, 30 per VU
+
+running (00m32.0s), 1/1 VUs, 28 complete and 0 interrupted iterations
+recorrido   [  93% ] 1 VUs  00m32.0s/10m0s  28/30 iters, 30 per VU
+
+running (00m33.0s), 1/1 VUs, 29 complete and 0 interrupted iterations
+recorrido   [  97% ] 1 VUs  00m33.0s/10m0s  29/30 iters, 30 per VU
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{pagina:api_agenda}
+    ✓ 'avg<300' avg=60.25ms
+
+    http_req_duration{pagina:citas_crear}
+    ✓ 'avg<300' avg=62.94ms
+
+    http_req_duration{pagina:citas}
+    ✓ 'avg<300' avg=60.24ms
+
+    http_req_duration{pagina:home}
+    ✓ 'avg<300' avg=61.4ms
+
+    http_req_duration{pagina:login}
+    ✓ 'avg<300' avg=77.83ms
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 151     4.535884/s
+    checks_succeeded...: 100.00% 151 out of 151
+    checks_failed......: 0.00%   0 out of 151
+
+    ✓ login redirige al panel
+    ✓ login 200
+    ✓ home 200
+    ✓ citas 200
+    ✓ citas_crear 200
+    ✓ api_agenda 200
+
+    HTTP
+    http_req_duration..............: avg=67.31ms min=19.21ms  med=57.79ms max=1.17s    p(90)=85.83ms p(95)=103.86ms
+      { expected_response:true }...: avg=67.31ms min=19.21ms  med=57.79ms max=1.17s    p(90)=85.83ms p(95)=103.86ms
+      { pagina:api_agenda }........: avg=60.25ms min=22.41ms  med=57.37ms max=144.06ms p(90)=77.42ms p(95)=88.51ms 
+      { pagina:citas_crear }.......: avg=62.94ms min=21.16ms  med=55.58ms max=237.38ms p(90)=82.36ms p(95)=135.84ms
+      { pagina:citas }.............: avg=60.24ms min=19.21ms  med=52.72ms max=257.6ms  p(90)=80.57ms p(95)=96.64ms 
+      { pagina:home }..............: avg=61.4ms  min=29.07ms  med=51.99ms max=204.28ms p(90)=86.06ms p(95)=101.76ms
+      { pagina:login }.............: avg=77.83ms min=42.37ms  med=70.59ms max=335.24ms p(90)=89.81ms p(95)=95.83ms 
+    http_req_failed................: 0.00%  0 out of 269
+    http_reqs......................: 269    8.080481/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.1s    min=848.73ms med=1.03s   max=3s       p(90)=1.19s   p(95)=1.21s   
+    iterations.....................: 30     0.901169/s
+    vus............................: 1      min=1        max=1
+    vus_max........................: 1      min=1        max=1
+
+    NETWORK
+    data_received..................: 1.7 MB 52 kB/s
+    data_sent......................: 200 kB 6.0 kB/s
+
+
+
+
+running (00m33.3s), 0/1 VUs, 30 complete and 0 interrupted iterations
+recorrido ✓ [ 100% ] 1 VUs  00m33.3s/10m0s  30/30 iters, 30 per VU

@@ -13,7 +13,7 @@ class CreateCitasTable extends Migration
      *        ver RNF "Confiabilidad de reglas de negocio" del documento).
      * RF-04: Confirmacion de citas.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('citas', function (Blueprint $table) {
             $table->id();
@@ -38,7 +38,7 @@ class CreateCitasTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('citas');
     }

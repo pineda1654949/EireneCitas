@@ -1,123 +1,170 @@
-@extends('layouts.panel')
+@use('App\Enums\EstadoPago')
 
-@section('titulo', 'Detalle de la cita')
+@php
+    $usuario = auth()->user();
+    $puedeReportarPago = $usuario->can('reportarPago', $cita) && $cita->estado->admiteConfirmacion();
+@endphp
 
-@section('content')
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold">Cita #{{ $cita->id }}</span>
-                    <span class="badge bg-{{ $cita->estado_badge }} fs-6">{{ ucfirst($cita->estado) }}</span>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-2"><div class="col-4 text-muted">Paciente</div><div class="col-8">{{ $cita->paciente->nombre_completo }}</div></div>
-                    <div class="row mb-2"><div class="col-4 text-muted">Psicologo</div><div class="col-8">{{ $cita->psicologo->name }} {{ $cita->psicologo->apellidos }}</div></div>
-                    <div class="row mb-2"><div class="col-4 text-muted">Especialidad</div><div class="col-8">{{ optional($cita->especialidad)->nombre ?? '-' }}</div></div>
-                    <div class="row mb-2"><div class="col-4 text-muted">Promocion</div><div class="col-8">{{ optional($cita->promocion)->nombre ?? 'Sesion individual' }}</div></div>
-                    <div class="row mb-2"><div class="col-4 text-muted">Fecha y hora</div><div class="col-8">{{ $cita->fecha->format('d/m/Y') }} - {{ \Illuminate\Support\Carbon::parse($cita->hora)->format('H:i') }}</div></div>
-                    <div class="row mb-2"><div class="col-4 text-muted">Motivo de consulta</div><div class="col-8">{{ $cita->motivo_consulta ?: '-' }}</div></div>
-                    <div class="row mb-2"><div class="col-4 text-muted">Reprogramaciones</div><div class="col-8">{{ $cita->numero_reprogramaciones }} / {{ \App\Models\Cita::MAX_REPROGRAMACIONES }}</div></div>
-                    @if($cita->enlace_meet)
-                        <div class="row mb-2"><div class="col-4 text-muted">Enlace de sesion</div><div class="col-8"><a href="{{ $cita->enlace_meet }}" target="_blank">{{ $cita->enlace_meet }}</a></div></div>
+<x-layouts.app :titulo="'Cita #'.$cita->id" :subtitulo="ucfirst($cita->fecha->isoFormat('dddd D [de] MMMM [de] YYYY')).' · '.$cita->hora_corta.' h'">
+    <x-slot:acciones>
+        <a href="{{ route('citas.index') }}" class="btn btn-ghost"><x-heroicon-m-arrow-left class="size-4" /> Volver</a>
+    </x-slot:acciones>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+        <div class="space-y-6 lg:col-span-2">
+            <x-card titulo="Datos de la cita">
+                <x-slot:acciones>
+                    <x-estado-cita :estado="$cita->estado" class="text-sm" />
+                </x-slot:acciones>
+
+                <dl class="divide-y divide-slate-100">
+                    <x-dato etiqueta="Paciente">{{ $cita->paciente->nombre_completo }}</x-dato>
+                    <x-dato etiqueta="Psicólogo">{{ $cita->psicologo->nombre_completo }}</x-dato>
+                    <x-dato etiqueta="Especialidad">{{ $cita->especialidad?->nombre ?? '—' }}</x-dato>
+                    <x-dato etiqueta="Promoción">{{ $cita->promocion?->nombre ?? 'Sesión individual' }}</x-dato>
+                    <x-dato etiqueta="Fecha y hora">{{ $cita->fecha->format('d/m/Y') }} · {{ $cita->hora_corta }} h</x-dato>
+                    <x-dato etiqueta="Motivo de consulta"><span class="font-normal whitespace-pre-line">{{ $cita->motivo_consulta ?: '—' }}</span></x-dato>
+                    <x-dato etiqueta="Reprogramaciones">{{ $cita->numero_reprogramaciones }} de {{ App\Models\Cita::maxReprogramaciones() }}</x-dato>
+                    @if ($cita->enlace_meet)
+                        <x-dato etiqueta="Enlace de sesión">
+                            <a href="{{ $cita->enlace_meet }}" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">{{ $cita->enlace_meet }}</a>
+                        </x-dato>
                     @endif
-                </div>
-            </div>
+                </dl>
+            </x-card>
 
-            @if($cita->historialClinico)
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white fw-semibold">Historial clinico de la sesion</div>
-                    <div class="card-body">
-                        <p class="mb-2"><strong>Avance:</strong> {{ $cita->historialClinico->avance ?: '-' }}</p>
-                        <p class="mb-0">{{ $cita->historialClinico->notas_sesion }}</p>
-                    </div>
-                </div>
+            @if ($cita->historialClinico && $usuario->can('atender', $cita))
+                <x-card titulo="Registro clínico de la sesión" descripcion="Información confidencial">
+                    <x-slot:acciones>
+                        <x-badge tono="sky">Avance: {{ $cita->historialClinico->avance ?: 'Sin especificar' }}</x-badge>
+                    </x-slot:acciones>
+                    <p class="text-sm whitespace-pre-line text-slate-700">{{ $cita->historialClinico->notas_sesion }}</p>
+                </x-card>
             @endif
 
-            @if($cita->reprogramaciones->isNotEmpty())
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white fw-semibold">Historial de cambios</div>
-                    <div class="table-responsive">
-                        <table class="table mb-0 small align-middle">
-                            <thead class="table-light"><tr><th>Tipo</th><th>Fecha anterior</th><th>Fecha nueva</th><th>Motivo</th><th>Fecha registro</th></tr></thead>
-                            <tbody>
-                                @foreach($cita->reprogramaciones as $r)
-                                    <tr>
-                                        <td>{{ ucfirst($r->tipo) }}</td>
-                                        <td>{{ $r->fecha_anterior }} {{ $r->hora_anterior }}</td>
-                                        <td>{{ $r->fecha_nueva ?? '-' }} {{ $r->hora_nueva }}</td>
-                                        <td>{{ $r->motivo ?: '-' }}</td>
-                                        <td>{{ $r->created_at->format('d/m/Y H:i') }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white fw-semibold">Acciones</div>
-                <div class="card-body d-grid gap-2">
-
-                    @if(in_array(auth()->user()->role, ['recepcionista','administrador']))
-                        @if(in_array($cita->estado, ['pendiente', 'reprogramada']))
-                            <a href="{{ route('pagos.create', $cita) }}" class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-credit-card me-1"></i> Registrar pago
-                            </a>
-                            @if($cita->pagos->contains('estado', 'confirmado'))
-                                <form action="{{ route('citas.confirmar', $cita) }}" method="POST">
-                                    @csrf @method('PUT')
-                                    <button class="btn btn-success btn-sm w-100">
-                                        <i class="bi bi-check2-circle me-1"></i> Confirmar cita
-                                    </button>
-                                </form>
-                            @else
-                                <div class="small text-muted">Para confirmar la cita primero valida un pago en el modulo de Pagos.</div>
-                            @endif
-                        @endif
-                    @endif
-
-                    @if(auth()->user()->role === 'psicologo' && $cita->psicologo_id === auth()->id() && !$cita->historialClinico && in_array($cita->estado, \App\Models\Cita::ESTADOS_ACTIVOS))
-                        <a href="{{ route('psicologo.historial.create', $cita) }}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-journal-medical me-1"></i> Registrar historial / atender sesion
-                        </a>
-                    @endif
-
-                    @if($cita->puedeReprogramarse())
-                        <a href="{{ route('citas.reprogramar.form', $cita) }}" class="btn btn-outline-warning btn-sm">
-                            <i class="bi bi-arrow-repeat me-1"></i> Reprogramar
-                        </a>
-                    @endif
-
-                    @if($cita->puedeCancelarse())
-                        <a href="{{ route('citas.cancelar.form', $cita) }}" class="btn btn-outline-danger btn-sm">
-                            <i class="bi bi-x-circle me-1"></i> Cancelar cita
-                        </a>
-                    @endif
-                </div>
-            </div>
-
-            @if($cita->pagos->isNotEmpty())
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white fw-semibold">Pagos</div>
-                    <ul class="list-group list-group-flush">
-                        @foreach($cita->pagos as $pago)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="small text-muted">{{ ucfirst(str_replace('_', ' ', $pago->metodo_pago)) }}</div>
-                                    S/ {{ number_format($pago->monto, 2) }}
-                                </div>
-                                <span class="badge bg-{{ $pago->estado === 'confirmado' ? 'success' : ($pago->estado === 'rechazado' ? 'danger' : 'warning') }}">
-                                    {{ ucfirst($pago->estado) }}
-                                </span>
+            @if ($cita->reprogramaciones->isNotEmpty())
+                <x-card titulo="Historial de cambios">
+                    <ol class="relative space-y-6 border-l border-slate-200 pl-6">
+                        @foreach ($cita->reprogramaciones->sortByDesc('created_at') as $cambio)
+                            <li class="relative">
+                                <span @class([
+                                    'absolute -left-[31px] flex size-4 items-center justify-center rounded-full ring-4 ring-white',
+                                    'bg-violet-500' => $cambio->tipo === 'reprogramacion',
+                                    'bg-rose-500' => $cambio->tipo === 'cancelacion',
+                                ])></span>
+                                <p class="text-sm font-medium text-slate-900">
+                                    @if ($cambio->tipo === 'reprogramacion')
+                                        Reprogramada del {{ $cambio->fecha_anterior?->format('d/m/Y') }} {{ substr((string) $cambio->hora_anterior, 0, 5) }}
+                                        al {{ $cambio->fecha_nueva?->format('d/m/Y') }} {{ substr((string) $cambio->hora_nueva, 0, 5) }}
+                                    @else
+                                        Cancelada
+                                    @endif
+                                </p>
+                                <p class="mt-0.5 text-xs text-slate-500">
+                                    {{ $cambio->created_at->format('d/m/Y H:i') }} · por {{ $cambio->usuario?->nombre_completo ?? 'Sistema' }}
+                                </p>
+                                @if ($cambio->motivo)
+                                    <p class="mt-1 text-sm text-slate-600">“{{ $cambio->motivo }}”</p>
+                                @endif
                             </li>
                         @endforeach
-                    </ul>
-                </div>
+                    </ol>
+                </x-card>
             @endif
         </div>
+
+        <aside class="space-y-6">
+            <x-card titulo="Acciones">
+                <div class="grid gap-2">
+                    @if ($puedeReportarPago)
+                        <a href="{{ route('pagos.create', $cita) }}" class="btn btn-secondary">
+                            <x-heroicon-o-credit-card class="size-5" /> {{ $usuario->esPaciente() ? 'Reportar pago (subir voucher)' : 'Registrar pago' }}
+                        </a>
+                    @endif
+
+                    @can('confirmar', $cita)
+                        @if ($cita->puedeConfirmarse())
+                            <form method="POST" action="{{ route('citas.confirmar', $cita) }}">
+                                @csrf @method('PUT')
+                                <button type="submit" class="btn btn-success w-full"><x-heroicon-o-check-circle class="size-5" /> Confirmar cita</button>
+                            </form>
+                        @elseif ($cita->estado->admiteConfirmacion())
+                            <p class="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">Para confirmar la cita primero registra y valida un pago.</p>
+                        @endif
+                    @endcan
+
+                    @if ($usuario->can('atender', $cita) && ! $cita->estado->estaCerrada() && ! $cita->fecha->isAfter(today()))
+                        <a href="{{ route('psicologo.historial.create', $cita) }}" class="btn btn-primary">
+                            <x-heroicon-o-document-text class="size-5" /> Atender sesión
+                        </a>
+                    @endif
+
+                    @if ($usuario->esPsicologo() && $usuario->can('verHistorial', $cita->paciente))
+                        <a href="{{ route('psicologo.historial.paciente', $cita->paciente) }}" class="btn btn-secondary">
+                            <x-heroicon-o-folder-open class="size-5" /> Historia clínica del paciente
+                        </a>
+                    @endif
+
+                    @if ($usuario->can('reprogramar', $cita) && $cita->puedeReprogramarsePor($usuario))
+                        <a href="{{ route('citas.reprogramar.form', $cita) }}" class="btn btn-secondary">
+                            <x-heroicon-o-arrow-path class="size-5" /> Reprogramar
+                            <span class="text-xs font-normal text-slate-500">
+                                ({{ $cita->puedeReprogramarse() ? $cita->reprogramacionesRestantes().' disponibles' : 'autorización de administrador' }})
+                            </span>
+                        </a>
+                    @elseif ($usuario->can('reprogramar', $cita) && ! $cita->estado->estaCerrada())
+                        <p class="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+                            Se alcanzó el límite de {{ App\Models\Cita::maxReprogramaciones() }} reprogramaciones. Un nuevo cambio requiere la autorización del administrador.
+                        </p>
+                    @endif
+
+                    @if ($usuario->can('cancelar', $cita) && $cita->puedeCancelarse())
+                        <a href="{{ route('citas.cancelar.form', $cita) }}" class="btn btn-ghost text-rose-600 hover:bg-rose-50 hover:text-rose-700">
+                            <x-heroicon-o-x-circle class="size-5" /> Cancelar cita
+                        </a>
+                    @endif
+
+                    @if ($cita->estado->estaCerrada())
+                        <p class="text-center text-sm text-slate-500">Esta cita está {{ mb_strtolower($cita->estado->etiqueta()) }}; no admite más cambios.</p>
+                    @endif
+                </div>
+            </x-card>
+
+            @if ($usuario->can('reportarPago', $cita) || $cita->pagos->isNotEmpty())
+                <x-card titulo="Pagos" :padding="false">
+                    @forelse ($cita->pagos as $pago)
+                        <div class="border-b border-slate-100 px-5 py-4 last:border-0 sm:px-6">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="font-semibold text-slate-900 tabular-nums">S/ {{ number_format((float) $pago->monto, 2) }}</p>
+                                    <p class="text-xs text-slate-500">{{ $pago->metodo_pago->etiqueta() }} · {{ $pago->etiquetaCuota() }} @if ($pago->numero_comprobante) · {{ $pago->numero_comprobante }} @endif</p>
+                                    @if ($pago->tieneComprobante())
+                                        <a href="{{ route('pagos.comprobante', $pago) }}" target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline">
+                                            <x-heroicon-o-paper-clip class="size-3.5" /> Ver voucher
+                                        </a>
+                                    @endif
+                                </div>
+                                <x-estado-pago :estado="$pago->estado" />
+                            </div>
+
+                            @if ($pago->estado === EstadoPago::Pendiente && $usuario->can('gestionarPagos', $cita))
+                                <div class="mt-3 flex gap-2">
+                                    <form method="POST" action="{{ route('pagos.validar', $pago) }}">
+                                        @csrf @method('PUT')
+                                        <button type="submit" class="btn btn-success btn-sm">Validar</button>
+                                    </form>
+                                    <form method="POST" action="{{ route('pagos.rechazar', $pago) }}" data-confirm="¿Marcar este pago como rechazado?">
+                                        @csrf @method('PUT')
+                                        <button type="submit" class="btn btn-secondary btn-sm">Rechazar</button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="px-5 py-6 text-center text-sm text-slate-500 sm:px-6">Sin pagos registrados.</p>
+                    @endforelse
+                </x-card>
+            @endif
+        </aside>
     </div>
-@endsection
+</x-layouts.app>

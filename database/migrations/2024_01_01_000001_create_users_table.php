@@ -12,7 +12,7 @@ class CreateUsersTable extends Migration
      * Roles definidos en el proyecto (Tabla 7 del documento):
      *   administrador, recepcionista, psicologo, paciente
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -24,14 +24,14 @@ class CreateUsersTable extends Migration
             $table->string('dni', 15)->nullable()->unique();
             $table->string('telefono', 20)->nullable();
             $table->enum('role', ['administrador', 'recepcionista', 'psicologo', 'paciente'])
-                  ->default('paciente');
+                ->default('paciente');
             $table->boolean('activo')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('users');
     }

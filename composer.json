@@ -1,21 +1,30 @@
 {
+    "$schema": "https://getcomposer.org/schema.json",
     "name": "eirene/sistema-gestion-citas",
     "type": "project",
     "description": "Sistema de Gestion de Citas para la Clinica Psicologica Eirene",
-    "keywords": ["framework", "laravel", "eirene", "citas"],
+    "keywords": [
+        "laravel",
+        "eirene",
+        "citas",
+        "psicologia"
+    ],
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.0",
-        "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.75",
-        "laravel/tinker": "^2.5"
+        "php": "^8.2",
+        "blade-ui-kit/blade-heroicons": "^2.6",
+        "laravel/framework": "^12.0",
+        "laravel/tinker": "^2.10.1",
+        "spatie/laravel-backup": "^9.3"
     },
     "require-dev": {
-        "facade/ignition": "^2.5",
-        "fakerphp/faker": "^1.21",
-        "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^5.10",
-        "phpunit/phpunit": "^9.5.10"
+        "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.0",
+        "laravel/dusk": "^8.7",
+        "laravel/pint": "^1.24",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^11.5.50"
     },
     "autoload": {
         "psr-4": {
@@ -30,6 +39,26 @@
         }
     },
     "scripts": {
+        "setup": [
+            "composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate",
+            "@php artisan migrate --force",
+            "npm install",
+            "npm run build"
+        ],
+        "test": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test"
+        ],
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "lint": "pint --test",
+        "format": "pint",
+        "calidad": [
+            "@lint",
+            "@analyse",
+            "@test"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -40,8 +69,12 @@
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
-        "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
+        "pre-package-uninstall": [
+            "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "test:cobertura": [
+            "@php artisan config:clear --ansi",
+            "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=app vendor/bin/phpunit --coverage-text --coverage-html build/cobertura"
         ]
     },
     "extra": {
@@ -52,8 +85,11 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }

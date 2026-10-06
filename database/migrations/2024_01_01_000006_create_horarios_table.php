@@ -11,7 +11,7 @@ class CreateHorariosTable extends Migration
      * RF-02: Consulta de disponibilidad de horarios (en tiempo real, ya no
      * mediante Excel mensual como en el proceso AS-IS).
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('horarios', function (Blueprint $table) {
             $table->id();
@@ -25,7 +25,7 @@ class CreateHorariosTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('horarios');
     }

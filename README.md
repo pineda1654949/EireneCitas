@@ -1,165 +1,127 @@
-# Eirene - Sistema de Gestion de Citas
+# Eirene · Sistema de Gestión de Citas
 
-Sistema web para la gestion de citas de la clinica psicologica **Eirene**, desarrollado en
-**PHP con el framework Laravel 8**, pensado para ejecutarse en un entorno **XAMPP** (Apache + MySQL).
+Sistema web para la gestión de citas de la **Clínica Psicológica Eirene**: reserva con disponibilidad en tiempo real, reprogramación y cancelación con reglas de negocio, validación de pagos, historia clínica cifrada, reportes, auditoría y notificaciones por correo.
 
-Cubre los requerimientos funcionales de tu documento de proyecto:
-
-| Requerimiento | Descripcion | Donde esta en el codigo |
-|---|---|---|
-| RF-01 | Registro de citas | `CitaController@store`, vista `citas/create.blade.php` |
-| RF-02 | Consulta de disponibilidad de horarios en tiempo real | `Api\DisponibilidadController`, tabla `horarios` |
-| RF-03 | Reprogramacion y cancelacion de citas (maximo 3 reprogramaciones) | `CitaController@reprogramar` / `@cancelar`, `Cita::MAX_REPROGRAMACIONES` |
-| RF-04 | Confirmacion de citas | `CitaController@confirm`, `PagoController@validar` |
-| RF-05 | Registro y actualizacion de datos del paciente | `Admin\PacienteController` |
-| RF-06 | Consulta de historia clinica | `Psicologo\HistorialController` |
-| RF-07 | Control de acceso por rol (administrador, recepcionista, psicologo, paciente) | `RoleMiddleware`, `routes/web.php` |
-| RF-08 | Generacion de reportes / indicadores | `Admin\ReporteController` |
-
----
-
-## 1. Requisitos previos
-
-1. **XAMPP** instalado (incluye PHP 7.4+/8.x y MySQL) — https://www.apachefriends.org/
-2. **Composer** instalado (gestor de dependencias de PHP) — https://getcomposer.org/download/
-   - Este proyecto **no trae la carpeta `vendor/`** (son las librerias de Laravel); Composer las
-     descarga automaticamente en el paso 3.
-3. No necesitas Node.js ni `npm`: las vistas usan Bootstrap 5 vía CDN, no hay que compilar assets.
-
----
-
-## 2. Copiar el proyecto a XAMPP
-
-1. Descomprime este `.zip`.
-2. Copia toda la carpeta `EireneCitas` dentro de `C:\xampp\htdocs\` (Windows) o
-   `/Applications/XAMPP/htdocs/` (Mac) / `/opt/lampp/htdocs/` (Linux).
-
----
-
-## 3. Instalar las dependencias de Laravel
-
-Abre una terminal (cmd, PowerShell o terminal) dentro de la carpeta del proyecto:
-
-```bash
-cd C:\xampp\htdocs\EireneCitas
-composer install
-```
-
-Esto creara la carpeta `vendor/` con el framework Laravel y sus librerias.
-
----
-
-## 4. Configurar el archivo de entorno (`.env`)
-
-1. Duplica el archivo `.env.example` y renombralo a `.env`.
-2. Genera la clave de la aplicacion:
-
-```bash
-php artisan key:generate
-```
-
-3. El archivo `.env` ya viene preconfigurado para XAMPP por defecto:
-
-```
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=eirene_citas
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-Si tu XAMPP usa otro usuario/contrasena de MySQL, ajusta estas lineas.
-
----
-
-## 5. Crear la base de datos
-
-1. Inicia **Apache** y **MySQL** desde el Panel de Control de XAMPP.
-2. Abre **phpMyAdmin**: http://localhost/phpmyadmin
-3. Crea una nueva base de datos llamada exactamente: `eirene_citas`
-   (cotejamiento sugerido: `utf8mb4_unicode_ci`).
-
----
-
-## 6. Ejecutar las migraciones y cargar datos de prueba
-
-Desde la terminal, en la carpeta del proyecto:
-
-```bash
-php artisan migrate --seed
-```
-
-Esto crea todas las tablas (usuarios, pacientes, citas, pagos, historiales clinicos, etc.) y
-carga usuarios de prueba, especialidades, horarios y promociones.
-
----
-
-## 7. Levantar el sistema
-
-Tienes dos opciones:
-
-**Opcion A — servidor propio de Laravel (recomendado para desarrollo):**
-```bash
-php artisan serve
-```
-Luego abre: http://localhost:8000
-
-**Opcion B — usando Apache de XAMPP directamente:**
-Abre: `http://localhost/EireneCitas/public/`
-(Para una URL mas limpia puedes configurar un Virtual Host apuntando a la carpeta `public/`).
-
----
-
-## 8. Usuarios de prueba (contrasena para todos: `contraseña`)
-
-| Rol | Correo |
+| | |
 |---|---|
-| Administrador | admin (usuario, sin dominio de correo) |
-| Recepcionista | recepcion@eirene.test |
-| Psicologo 1 (Ansiedad, Depresion, Autoestima) | psicologo1@eirene.test |
-| Psicologo 2 (Pareja, Infantil) | psicologo2@eirene.test |
-| Paciente | paciente@eirene.test |
-
-Cualquier persona nueva tambien puede registrarse libremente como paciente desde
-`http://localhost:8000/registro`.
+| **Backend** | PHP 8.2+ · Laravel 12 |
+| **Frontend** | Blade · Tailwind CSS 4 · Vite 7 (sin dependencias de CDN) |
+| **Base de datos** | MySQL 8 / MariaDB 10.4+ (SQLite en pruebas) |
+| **Calidad** | PHPUnit 11 (347 pruebas, 97 % de cobertura) · Laravel Dusk (15 E2E) · k6 (carga) · Larastan nivel 6 · Pint · GitHub Actions |
 
 ---
 
-## 9. Estructura del proyecto (resumen)
+## Requerimientos funcionales cubiertos
+
+| RF | Descripción | Implementación principal |
+|---|---|---|
+| RF-01 | Registro de citas | `CitaController@store` → `CitaService::registrar` |
+| RF-02 | Disponibilidad de horarios en tiempo real | `AgendaService`, `Api\DisponibilidadController` |
+| RF-03 | Reprogramación (máx. 3) y cancelación | `CitaService::reprogramar` / `cancelar` |
+| RF-04 | Confirmación de citas con pago validado | `CitaService::confirmar` / `validarPago` |
+| RF-05 | Registro y actualización de pacientes | `Admin\PacienteController`, registro público |
+| RF-06 | Historia clínica | `Psicologo\HistorialController`, `PacientePolicy` |
+| RF-07 | Control de acceso por rol | middleware `rol`, `CitaPolicy`, `PacientePolicy` |
+| RF-08 | Reportes e indicadores | `Admin\ReporteController` (incluye exportación CSV) |
+
+**Funciones añadidas por el plan de pruebas V-Bounce:** derivación de pacientes con aceptación o rechazo, agenda por colores (libre, ocupado, bloqueado), voucher de pago subido por el propio paciente, pago en cuotas, ciclo de vida del paciente y autorización del administrador para una 4.ª reprogramación (RN-01).
+
+**Funciones adicionales para producción:** recuperación de contraseña por correo, notificaciones encoladas (registro, confirmación, reprogramación, cancelación y recordatorio del día anterior), auditoría de acciones, respaldos automáticos de la base de datos, cabeceras de seguridad, cifrado de notas clínicas y límite de intentos de inicio de sesión.
+
+---
+
+## Instalación local (XAMPP)
+
+**Requisitos:** XAMPP con PHP 8.2 o superior, [Composer](https://getcomposer.org/) y [Node.js 20+](https://nodejs.org/).
+
+```bash
+# 1. Dependencias
+composer install
+npm install
+
+# 2. Configuración
+copy .env.example .env          # en Linux/Mac: cp .env.example .env
+php artisan key:generate
+
+# 3. Base de datos: crea "eirene_citas" en phpMyAdmin (utf8mb4_unicode_ci) y luego:
+php artisan migrate --seed
+
+# 4. Compilar el frontend
+npm run build                   # o "npm run dev" mientras desarrollas
+
+# 5. Levantar el sistema
+php artisan serve               # http://localhost:8000
+```
+
+> Si actualizas una instalación anterior (Laravel 8), basta con `composer install`, `npm install && npm run build` y `php artisan migrate`. Las migraciones nuevas conservan tus datos.
+
+### Cuentas de demostración
+
+Solo se crean fuera de producción. La contraseña de todas es **`contraseña`**.
+
+| Rol | Usuario |
+|---|---|
+| Administrador | `admin` |
+| Recepcionista | `recepcion@eirene.test` |
+| Psicóloga (Ansiedad, Depresión, Autoestima) | `psicologo1@eirene.test` |
+| Psicólogo (Pareja, Infantil) | `psicologo2@eirene.test` |
+| Paciente | `paciente@eirene.test` |
+
+En desarrollo los correos no se envían: quedan escritos en `storage/logs/laravel.log`.
+
+---
+
+## Calidad y pruebas
+
+```bash
+composer test        # suite completa de pruebas (PHPUnit)
+composer lint        # verificación de estilo (Pint)
+composer analyse     # análisis estático (PHPStan nivel 6)
+composer calidad     # las tres anteriores en secuencia
+composer format      # corrige el estilo automáticamente
+```
+
+- **Plan de pruebas V-Bounce (Fases 1 a 9)**, con los casos CP-UT, CP-IT, CP-SYS y CP-UAT, sus resultados y evidencias: **[docs/plan-pruebas/](docs/plan-pruebas/README.md)**.
+- Estrategia general, trazabilidad y registro de defectos: **[docs/PLAN_DE_PRUEBAS.md](docs/PLAN_DE_PRUEBAS.md)**.
+
+```bash
+php artisan test --testsuite=Fase6    # casos CP-UT del plan
+php artisan test --testsuite=Fase7    # casos CP-IT
+php artisan test --testsuite=Fase8    # casos CP-SYS de seguridad
+composer test:cobertura               # cobertura (requiere la extension PCOV)
+php artisan dusk                      # E2E en Chrome (ver docs/plan-pruebas/08_Fase8_System_Testing.md)
+```
+
+Cada *push* ejecuta la integración continua ([.github/workflows/ci.yml](.github/workflows/ci.yml)): estilo, análisis estático, auditoría de dependencias, pruebas en PHP 8.2/8.3/8.4 con cobertura, pruebas contra MySQL 8 y compilación del frontend.
+
+---
+
+## Despliegue a producción
+
+La guía paso a paso (hosting compartido y VPS, cron, colas, respaldos, HTTPS y lista de verificación de seguridad) está en **[docs/DESPLIEGUE.md](docs/DESPLIEGUE.md)**.
+
+---
+
+## Estructura del proyecto
 
 ```
 app/
-  Http/Controllers/         Controladores (Auth, Citas, Admin, Psicologo, Api)
-  Http/Middleware/          RoleMiddleware.php -> control de acceso por rol (RF-07)
-  Models/                   User, Paciente, Cita, Pago, Horario, HistorialClinico, etc.
-database/
-  migrations/                Estructura de la base de datos
-  seeders/                    Datos iniciales (usuarios, especialidades, horarios, promociones)
-resources/views/
-  layouts/                    Plantillas base (login/registro y panel con sidebar)
-  auth/                        Login y registro de pacientes
-  dashboard/                   Un panel distinto por cada rol
-  citas/                       Solicitar, ver, reprogramar y cancelar citas
-  admin/                        Pacientes, psicologos, promociones, pagos, reportes
-  psicologo/                    Horarios de disponibilidad e historial clinico
-routes/web.php                Todas las rutas del sistema, agrupadas por rol
+  Console/Commands/     citas:enviar-recordatorios, eirene:crear-admin
+  Enums/                Rol, EstadoCita, EstadoPago, MetodoPago
+  Exceptions/           ReglaDeNegocioException
+  Http/Controllers/     Controladores delgados por módulo (Auth, Admin, Psicologo, Api)
+  Http/Middleware/      VerificarRol, AsegurarUsuarioActivo, CabecerasDeSeguridad
+  Http/Requests/        Validación de cada formulario (FormRequest)
+  Listeners/            Auditoría de inicios de sesión
+  Models/               Modelos Eloquent + trait Auditable
+  Notifications/        Correos de citas y de recuperación de contraseña
+  Policies/             Autorización: CitaPolicy, PacientePolicy
+  Services/             Lógica de negocio: AgendaService, CitaService
+config/eirene.php       Reglas de negocio configurables (reprogramaciones, duración, etc.)
+database/               Migraciones, factories y seeders
+docs/                   Plan de pruebas y guía de despliegue
+resources/views/        Vistas Blade y componentes reutilizables (x-card, x-form.input, ...)
+resources/js/           Interacciones sin scripts en línea (compatibles con CSP)
+routes/console.php      Tareas programadas (cola, recordatorios, respaldos)
+tests/                  Pruebas unitarias y de funcionalidad
 ```
-
----
-
-## 10. Notas importantes
-
-- **Seguridad**: cambia las contrasenas de los usuarios de prueba antes de usar el sistema en
-  un entorno real (produccion).
-- **Reglas de negocio ya implementadas**:
-  - Maximo **3 reprogramaciones** por cita (`Cita::MAX_REPROGRAMACIONES`), tal como especifica
-    tu documento en los requisitos no funcionales de confiabilidad.
-  - El sistema no permite dos citas para el mismo psicologo en el mismo horario (validacion en
-    `CitaController@store`).
-  - Al confirmar un pago, la cita pasa automaticamente a estado "confirmada" (RF-04),
-    eliminando la verificacion manual del proceso anterior descrito en tu documento (AS-IS).
-- Este proyecto tomo como referencia la estructura tecnica (Laravel + roles) del proyecto
-  "CitaMe" que adjuntaste, pero **todo el modelo de datos, reglas de negocio, roles y vistas
-  fueron creados desde cero** siguiendo los requerimientos especificos de tu documento
-  "Sistema de Gestion de Citas Eirene".

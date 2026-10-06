@@ -11,7 +11,7 @@ class CreateHistorialesClinicosTable extends Migration
      * RF-06: Consulta de historia clinica.
      * Actividad TO-BE 15: "Atender sesion y registrar historial clinico" (Psicologo).
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('historiales_clinicos', function (Blueprint $table) {
             $table->id();
@@ -25,7 +25,7 @@ class CreateHistorialesClinicosTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('historiales_clinicos');
     }

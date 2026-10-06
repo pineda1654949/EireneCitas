@@ -1,0 +1,24 @@
+Warning: TTY mode is not supported on Windows platform.
+
+   PASS  Tests\Browser\FlujosDelSistemaTest
+  ✓ c p s y s 01 recepcionista registra paciente y agenda cita con pago                                         32.24s  
+  ✓ c p s y s 02 recepcionista valida el pago y la cita queda confirmada                                        13.51s  
+  ✓ c p s y s 03 reprogramacion al limite bloquea el cuarto cambio con aviso                                    19.02s  
+  ✓ c p s y s 04 derivacion del paciente al psicologo                                                           25.91s  
+  ✓ c p s y s 05 rechazo de derivacion con motivo                                                               12.32s  
+  ✓ c p s y s 06 dos usuarios eligen la misma hora y solo uno reserva                                           32.41s  
+  ✓ c p s y s 07 historial registrado es visible solo para el psicologo                                         25.29s  
+  ✓ c p s y s 08 el estado de la cita es coherente en todas las vistas                                          32.67s  
+  ✓ c p s y s 09 un error de validacion no pierde lo escrito                                                    10.55s  
+  ✓ c p s y s 10 los totales del dashboard coinciden con la base de datos                                        9.68s  
+  ✓ c p s y s 12 sesion expirada redirige al login                                                              10.11s  
+
+   PASS  Tests\Browser\UsabilidadTest
+  ✓ c p s y s 29 vista movil con menu desplegable                                                               10.47s  
+  ✓ c p s y s 30 funciona en chrome                                                                              1.82s  
+  ✓ c p s y s 31 los mensajes de error son claros y visibles                                                     7.18s  
+  ✓ c p s y s 32 accesibilidad basica                                                                           10.96s  
+
+  Tests:    15 passed (52 assertions)
+  Duration: 256.00s
+

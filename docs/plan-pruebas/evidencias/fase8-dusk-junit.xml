@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="C:\xampp\htdocs\EireneCitas\phpunit.dusk.xml" tests="15" assertions="52" errors="0" failures="0" skipped="0" time="254.130856">
+    <testsuite name="Browser Test Suite" tests="15" assertions="52" errors="0" failures="0" skipped="0" time="254.130856">
+      <testsuite name="Tests\Browser\FlujosDelSistemaTest" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" tests="11" assertions="38" errors="0" failures="0" skipped="0" time="223.703699">
+        <testcase name="test_CP_SYS_01_recepcionista_registra_paciente_y_agenda_cita_con_pago" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="29" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="3" time="32.236551"/>
+        <testcase name="test_CP_SYS_02_recepcionista_valida_el_pago_y_la_cita_queda_confirmada" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="76" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="3" time="13.506647"/>
+        <testcase name="test_CP_SYS_03_reprogramacion_al_limite_bloquea_el_cuarto_cambio_con_aviso" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="96" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="3" time="19.018123"/>
+        <testcase name="test_CP_SYS_04_derivacion_del_paciente_al_psicologo" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="127" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="5" time="25.907348"/>
+        <testcase name="test_CP_SYS_05_rechazo_de_derivacion_con_motivo" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="159" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="2" time="12.321023"/>
+        <testcase name="test_CP_SYS_06_dos_usuarios_eligen_la_misma_hora_y_solo_uno_reserva" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="177" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="2" time="32.411924"/>
+        <testcase name="test_CP_SYS_07_historial_registrado_es_visible_solo_para_el_psicologo" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="206" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="4" time="25.287330"/>
+        <testcase name="test_CP_SYS_08_el_estado_de_la_cita_es_coherente_en_todas_las_vistas" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="233" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="8" time="32.670386"/>
+        <testcase name="test_CP_SYS_09_un_error_de_validacion_no_pierde_lo_escrito" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="265" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="3" time="10.554122"/>
+        <testcase name="test_CP_SYS_10_los_totales_del_dashboard_coinciden_con_la_base_de_datos" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="286" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="3" time="9.684688"/>
+        <testcase name="test_CP_SYS_12_sesion_expirada_redirige_al_login" file="C:\xampp\htdocs\EireneCitas\tests\Browser\FlujosDelSistemaTest.php" line="306" class="Tests\Browser\FlujosDelSistemaTest" classname="Tests.Browser.FlujosDelSistemaTest" assertions="2" time="10.105555"/>
+      </testsuite>
+      <testsuite name="Tests\Browser\UsabilidadTest" file="C:\xampp\htdocs\EireneCitas\tests\Browser\UsabilidadTest.php" tests="4" assertions="14" errors="0" failures="0" skipped="0" time="30.427158">
+        <testcase name="test_CP_SYS_29_vista_movil_con_menu_desplegable" file="C:\xampp\htdocs\EireneCitas\tests\Browser\UsabilidadTest.php" line="19" class="Tests\Browser\UsabilidadTest" classname="Tests.Browser.UsabilidadTest" assertions="4" time="10.469795"/>
+        <testcase name="test_CP_SYS_30_funciona_en_chrome" file="C:\xampp\htdocs\EireneCitas\tests\Browser\UsabilidadTest.php" line="47" class="Tests\Browser\UsabilidadTest" classname="Tests.Browser.UsabilidadTest" assertions="2" time="1.816900"/>
+        <testcase name="test_CP_SYS_31_los_mensajes_de_error_son_claros_y_visibles" file="C:\xampp\htdocs\EireneCitas\tests\Browser\UsabilidadTest.php" line="57" class="Tests\Browser\UsabilidadTest" classname="Tests.Browser.UsabilidadTest" assertions="3" time="7.175962"/>
+        <testcase name="test_CP_SYS_32_accesibilidad_basica" file="C:\xampp\htdocs\EireneCitas\tests\Browser\UsabilidadTest.php" line="73" class="Tests\Browser\UsabilidadTest" classname="Tests.Browser.UsabilidadTest" assertions="5" time="10.964500"/>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

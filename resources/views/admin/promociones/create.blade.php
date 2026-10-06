@@ -1,16 +1,13 @@
-@extends('layouts.panel')
+<x-layouts.app titulo="Nueva promoción">
+    <x-card class="max-w-2xl">
+        <form method="POST" action="{{ route('admin.promociones.store') }}">
+            @csrf
+            @include('admin.promociones._form')
 
-@section('titulo', 'Nueva promocion')
-
-@section('content')
-    <div class="card border-0 shadow-sm" style="max-width: 600px;">
-        <div class="card-body">
-            <form method="POST" action="{{ route('admin.promociones.store') }}">
-                @csrf
-                @include('admin.promociones._form')
-                <button type="submit" class="btn btn-primary">Guardar</button>
-                <a href="{{ route('admin.promociones.index') }}" class="btn btn-link">Cancelar</a>
-            </form>
-        </div>
-    </div>
-@endsection
+            <div class="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-5">
+                <a href="{{ route('admin.promociones.index') }}" class="btn btn-ghost">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Crear promoción</button>
+            </div>
+        </form>
+    </x-card>
+</x-layouts.app>

@@ -1,24 +1,17 @@
-@php $pr = $promocion ?? null; @endphp
+<div class="grid gap-5 sm:grid-cols-2">
+    <x-form.input name="nombre" label="Nombre" :value="$promocion->nombre" required class="sm:col-span-2" />
+    <x-form.textarea name="descripcion" label="Descripción" :value="$promocion->descripcion" rows="3" class="sm:col-span-2" />
+    <x-form.input name="numero_sesiones" label="Número de sesiones" type="number" min="1" max="50" :value="$promocion->numero_sesiones ?? 1" required />
+    <x-form.input name="precio" label="Precio total (S/)" type="number" min="0.01" step="0.01" :value="$promocion->precio" required />
+</div>
 
-<div class="mb-3">
-    <label class="form-label">Nombre</label>
-    <input type="text" name="nombre" class="form-control" value="{{ old('nombre', $pr->nombre ?? '') }}" required>
+<div class="mt-6 space-y-4 rounded-xl border border-slate-200 p-4">
+    <x-form.checkbox name="permite_cuotas" label="Permite pago en cuotas" :checked="$promocion->permite_cuotas"
+                     descripcion="El paciente podrá pagar el paquete en varias cuotas (RF-03)." />
+    <x-form.input name="max_cuotas" label="Máximo de cuotas" type="number" min="2" max="12"
+                  :value="$promocion->permite_cuotas ? $promocion->max_cuotas : 2" class="sm:max-w-xs"
+                  hint="Entre 2 y 12. Solo aplica si se permite el pago en cuotas." />
 </div>
-<div class="mb-3">
-    <label class="form-label">Descripcion</label>
-    <textarea name="descripcion" class="form-control" rows="2">{{ old('descripcion', $pr->descripcion ?? '') }}</textarea>
-</div>
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Numero de sesiones</label>
-        <input type="number" name="numero_sesiones" class="form-control" min="1" value="{{ old('numero_sesiones', $pr->numero_sesiones ?? 1) }}" required>
-    </div>
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Precio (S/)</label>
-        <input type="number" step="0.01" name="precio" class="form-control" min="0" value="{{ old('precio', $pr->precio ?? '') }}" required>
-    </div>
-</div>
-<div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" name="activa" value="1" id="activa" @checked(old('activa', $pr->activa ?? true))>
-    <label class="form-check-label" for="activa">Promocion activa</label>
-</div>
+
+<x-form.checkbox name="activa" label="Promoción activa" :checked="$promocion->activa" class="mt-6"
+                 descripcion="Solo las promociones activas se ofrecen al solicitar una cita." />

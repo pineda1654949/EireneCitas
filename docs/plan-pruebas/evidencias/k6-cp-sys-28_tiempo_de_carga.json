@@ -1,0 +1,217 @@
+{
+    "metrics": {
+        "http_req_duration{pagina:citas_crear}": {
+            "p(95)": 135.84033,
+            "avg": 62.94356271186442,
+            "min": 21.1603,
+            "med": 55.5815,
+            "max": 237.3884,
+            "p(90)": 82.36524000000001,
+            "thresholds": {
+                "avg<300": false
+            }
+        },
+        "http_req_receiving": {
+            "max": 14.504,
+            "p(90)": 8.79828,
+            "p(95)": 9.65282,
+            "avg": 5.9560639405204485,
+            "min": 1.5107,
+            "med": 5.6491
+        },
+        "checks": {
+            "passes": 151,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_tls_handshaking": {
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0
+        },
+        "http_req_blocked": {
+            "avg": 0.046681784386617096,
+            "min": 0,
+            "med": 0,
+            "max": 5.1781,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 1
+        },
+        "iteration_duration": {
+            "avg": 1109.4930333333332,
+            "min": 848.7347,
+            "med": 1037.00965,
+            "max": 3006.8039,
+            "p(90)": 1191.8733,
+            "p(95)": 1213.24749
+        },
+        "http_req_failed": {
+            "fails": 269,
+            "passes": 0,
+            "value": 0
+        },
+        "http_req_duration{pagina:citas}": {
+            "avg": 60.246684745762714,
+            "min": 19.2115,
+            "med": 52.7267,
+            "max": 257.6067,
+            "p(90)": 80.57376,
+            "p(95)": 96.64557999999994,
+            "thresholds": {
+                "avg<300": false
+            }
+        },
+        "data_received": {
+            "rate": 51997.80661494929,
+            "count": 1731012
+        },
+        "http_req_waiting": {
+            "p(95)": 97.28431999999998,
+            "avg": 61.2830992565056,
+            "min": 16.4119,
+            "med": 52.0206,
+            "max": 1162.6585,
+            "p(90)": 77.69950000000001
+        },
+        "vus_max": {
+            "min": 1,
+            "max": 1,
+            "value": 1
+        },
+        "http_req_duration{pagina:home}": {
+            "p(95)": 101.76240999999999,
+            "avg": 61.40107288135593,
+            "min": 29.0706,
+            "med": 51.9967,
+            "max": 204.2829,
+            "p(90)": 86.06272000000001,
+            "thresholds": {
+                "avg<300": false
+            }
+        },
+        "iterations": {
+            "rate": 0.9011689106999135,
+            "count": 30
+        },
+        "http_req_duration{pagina:login}": {
+            "min": 42.3764,
+            "med": 70.59264999999999,
+            "max": 335.2457,
+            "p(90)": 89.81161000000002,
+            "p(95)": 95.834025,
+            "avg": 77.832275,
+            "thresholds": {
+                "avg<300": false
+            }
+        },
+        "http_req_connecting": {
+            "avg": 0.025880669144981414,
+            "min": 0,
+            "med": 0,
+            "max": 5.1781,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_duration{pagina:api_agenda}": {
+            "p(95)": 88.51127999999996,
+            "avg": 60.25347457627119,
+            "min": 22.4126,
+            "med": 57.3756,
+            "max": 144.0601,
+            "p(90)": 77.42858,
+            "thresholds": {
+                "avg<300": false
+            }
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(95)": 103.86273999999999,
+            "avg": 67.3115921933085,
+            "min": 19.2115,
+            "med": 57.7982,
+            "max": 1170.3426,
+            "p(90)": 85.83484000000001
+        },
+        "http_reqs": {
+            "count": 269,
+            "rate": 8.080481232609225
+        },
+        "data_sent": {
+            "count": 200302,
+            "rate": 6016.864505033803
+        },
+        "http_req_sending": {
+            "max": 3.4728,
+            "p(90)": 0,
+            "p(95)": 0.5720999999999998,
+            "avg": 0.07242899628252789,
+            "min": 0,
+            "med": 0
+        },
+        "http_req_duration": {
+            "max": 1170.3426,
+            "p(90)": 85.83484000000001,
+            "p(95)": 103.86273999999999,
+            "avg": 67.3115921933085,
+            "min": 19.2115,
+            "med": 57.7982
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "login redirige al panel": {
+                    "name": "login redirige al panel",
+                    "path": "::login redirige al panel",
+                    "id": "8172c311c2b3c5136033bf6742dd4b54",
+                    "passes": 1,
+                    "fails": 0
+                },
+                "login 200": {
+                    "path": "::login 200",
+                    "id": "48b06dc5cde7f6ebb606ad7da726a2a5",
+                    "passes": 30,
+                    "fails": 0,
+                    "name": "login 200"
+                },
+                "home 200": {
+                    "path": "::home 200",
+                    "id": "d5a546618676c7c5737c4af152946908",
+                    "passes": 30,
+                    "fails": 0,
+                    "name": "home 200"
+                },
+                "citas 200": {
+                    "name": "citas 200",
+                    "path": "::citas 200",
+                    "id": "96c88dfdbb86797daf4d5179256f8d9e",
+                    "passes": 30,
+                    "fails": 0
+                },
+                "citas_crear 200": {
+                    "name": "citas_crear 200",
+                    "path": "::citas_crear 200",
+                    "id": "8c719e6729b558cd5cdb8a76c1d09b52",
+                    "passes": 30,
+                    "fails": 0
+                },
+                "api_agenda 200": {
+                    "name": "api_agenda 200",
+                    "path": "::api_agenda 200",
+                    "id": "ea708304e90eee8b9d80d7b96ac0b1d3",
+                    "passes": 30,
+                    "fails": 0
+                }
+            }
+    }
+}

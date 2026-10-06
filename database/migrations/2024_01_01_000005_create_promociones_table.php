@@ -10,7 +10,7 @@ class CreatePromocionesTable extends Migration
      * Promociones / paquetes de sesiones que el administrador gestiona
      * (Tabla 1 del documento: "Gestion de citas... segun la promocion contratada").
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('promociones', function (Blueprint $table) {
             $table->id();
@@ -23,7 +23,7 @@ class CreatePromocionesTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('promociones');
     }

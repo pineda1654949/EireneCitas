@@ -10,7 +10,7 @@ class CreateEspecialidadPsicologoTable extends Migration
      * Relacion muchos a muchos: un psicologo puede atender varias
      * especialidades / motivos de consulta.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('especialidad_psicologo', function (Blueprint $table) {
             $table->id();
@@ -20,7 +20,7 @@ class CreateEspecialidadPsicologoTable extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('especialidad_psicologo');
     }

@@ -3,67 +3,64 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\PromocionRequest;
 use App\Models\Promocion;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class PromocionController extends Controller
 {
-    public function __construct()
+    public function index(): View
     {
-        $this->middleware(['auth', 'role:administrador']);
-    }
+        $promociones = Promocion::withCount('citas')->orderBy('nombre')->paginate(15);
 
-    public function index()
-    {
-        $promociones = Promocion::orderBy('nombre')->paginate(15);
         return view('admin.promociones.index', compact('promociones'));
     }
 
-    public function create()
+    public function create(): View
     {
-        return view('admin.promociones.create');
+        return view('admin.promociones.create', ['promocion' => new Promocion(['activa' => true])]);
     }
 
-    public function store(Request $request)
+    public function store(PromocionRequest $request): RedirectResponse
     {
-        $datos = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'numero_sesiones' => 'required|integer|min:1',
-            'precio' => 'required|numeric|min:0',
-            'activa' => 'boolean',
-        ]);
-        $datos['activa'] = $request->boolean('activa', true);
+        Promocion::create($this->datos($request));
 
-        Promocion::create($datos);
-
-        return redirect()->route('admin.promociones.index')->with('status', 'Promocion creada correctamente.');
+        return redirect()->route('admin.promociones.index')->with('status', 'Promoción creada correctamente.');
     }
 
-    public function edit(Promocion $promocion)
+    public function edit(Promocion $promocion): View
     {
         return view('admin.promociones.edit', compact('promocion'));
     }
 
-    public function update(Request $request, Promocion $promocion)
+    public function update(PromocionRequest $request, Promocion $promocion): RedirectResponse
     {
-        $datos = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'numero_sesiones' => 'required|integer|min:1',
-            'precio' => 'required|numeric|min:0',
-            'activa' => 'boolean',
-        ]);
-        $datos['activa'] = $request->boolean('activa');
+        $promocion->update($this->datos($request));
 
-        $promocion->update($datos);
-
-        return redirect()->route('admin.promociones.index')->with('status', 'Promocion actualizada.');
+        return redirect()->route('admin.promociones.index')->with('status', 'Promoción actualizada.');
     }
 
-    public function destroy(Promocion $promocion)
+    /**
+     * @return array<string, mixed>
+     */
+    private function datos(PromocionRequest $request): array
     {
+        $permiteCuotas = $request->boolean('permite_cuotas');
+
+        return [
+            ...$request->safe()->except(['max_cuotas']),
+            'activa' => $request->boolean('activa'),
+            'permite_cuotas' => $permiteCuotas,
+            'max_cuotas' => $permiteCuotas ? $request->integer('max_cuotas') : 1,
+        ];
+    }
+
+    public function destroy(Promocion $promocion): RedirectResponse
+    {
+        // Las citas conservan su referencia como "sin promocion" (nullOnDelete).
         $promocion->delete();
-        return back()->with('status', 'Promocion eliminada.');
+
+        return back()->with('status', 'Promoción eliminada.');
     }
 }

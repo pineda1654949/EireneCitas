@@ -2,49 +2,118 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\EstadoCita;
+use App\Enums\EstadoPago;
 use App\Http\Controllers\Controller;
 use App\Models\Cita;
 use App\Models\Pago;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * RF-08: Generacion de reportes de atencion.
- * Actividad TO-BE 16: "Actualizar dashboard de indicadores" (Sistema).
+ * RF-08: reportes e indicadores de atencion.
  */
 class ReporteController extends Controller
 {
-    public function __construct()
+    public function index(Request $request): View
     {
-        $this->middleware(['auth', 'role:administrador,recepcionista']);
-    }
-
-    public function index(Request $request)
-    {
-        $desde = $request->input('desde', now()->subDays(30)->toDateString());
-        $hasta = $request->input('hasta', now()->toDateString());
+        [$desde, $hasta] = $this->rango($request);
 
         $citasPorEstado = Cita::whereBetween('fecha', [$desde, $hasta])
-            ->select('estado', DB::raw('count(*) as total'))
+            ->selectRaw('estado, count(*) as total')
             ->groupBy('estado')
             ->pluck('total', 'estado');
 
         $citasPorPsicologo = Cita::whereBetween('fecha', [$desde, $hasta])
             ->join('users', 'users.id', '=', 'citas.psicologo_id')
-            ->select('users.name', 'users.apellidos', DB::raw('count(*) as total'))
+            ->selectRaw('users.name, users.apellidos, count(*) as total')
+            ->selectRaw('sum(case when citas.estado = ? then 1 else 0 end) as atendidas', [EstadoCita::Atendida->value])
             ->groupBy('users.id', 'users.name', 'users.apellidos')
             ->orderByDesc('total')
             ->get();
 
-        $ingresosConfirmados = Pago::whereHas('cita', function ($q) use ($desde, $hasta) {
-            $q->whereBetween('fecha', [$desde, $hasta]);
-        })->where('estado', 'confirmado')->sum('monto');
+        $ingresosConfirmados = Pago::whereHas('cita', fn ($q) => $q->whereBetween('fecha', [$desde, $hasta]))
+            ->where('estado', EstadoPago::Confirmado->value)
+            ->sum('monto');
 
-        $totalReprogramaciones = Cita::whereBetween('fecha', [$desde, $hasta])->sum('numero_reprogramaciones');
+        $totalReprogramaciones = (int) Cita::whereBetween('fecha', [$desde, $hasta])->sum('numero_reprogramaciones');
 
-        return view('admin.reportes.index', compact(
-            'desde', 'hasta', 'citasPorEstado', 'citasPorPsicologo', 'ingresosConfirmados', 'totalReprogramaciones'
-        ));
+        return view('admin.reportes.index', [
+            'desde' => $desde->toDateString(),
+            'hasta' => $hasta->toDateString(),
+            'citasPorEstado' => $citasPorEstado,
+            'totalCitas' => (int) $citasPorEstado->sum(),
+            'citasPorPsicologo' => $citasPorPsicologo,
+            'ingresosConfirmados' => $ingresosConfirmados,
+            'totalReprogramaciones' => $totalReprogramaciones,
+        ]);
+    }
+
+    /**
+     * Exporta las citas del periodo a CSV (abre en Excel).
+     */
+    public function exportar(Request $request): StreamedResponse
+    {
+        [$desde, $hasta] = $this->rango($request);
+
+        $nombre = "citas_{$desde->toDateString()}_{$hasta->toDateString()}.csv";
+
+        return response()->streamDownload(function () use ($desde, $hasta) {
+            $salida = fopen('php://output', 'w');
+            fwrite($salida, "\xEF\xBB\xBF"); // BOM para que Excel reconozca UTF-8
+            fputcsv($salida, ['ID', 'Fecha', 'Hora', 'Paciente', 'DNI', 'Psicólogo', 'Especialidad', 'Estado', 'Reprogramaciones']);
+
+            Cita::with(['paciente', 'psicologo', 'especialidad'])
+                ->whereBetween('fecha', [$desde, $hasta])
+                ->orderBy('fecha')->orderBy('hora')
+                ->chunk(200, function ($citas) use ($salida) {
+                    foreach ($citas as $cita) {
+                        fputcsv($salida, array_map([$this, 'celdaSegura'], [
+                            $cita->id,
+                            $cita->fecha->format('d/m/Y'),
+                            $cita->hora_corta,
+                            $cita->paciente->nombre_completo,
+                            $cita->paciente->dni,
+                            $cita->psicologo->nombre_completo,
+                            $cita->especialidad?->nombre,
+                            $cita->estado->etiqueta(),
+                            $cita->numero_reprogramaciones,
+                        ]));
+                    }
+                });
+
+            fclose($salida);
+        }, $nombre, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Evita la inyeccion de formulas (OWASP "CSV Injection"): un nombre que
+     * empiece por = + - @ se ejecutaria como formula al abrirlo en Excel.
+     */
+    private function celdaSegura(mixed $valor): mixed
+    {
+        if (is_string($valor) && $valor !== '' && in_array($valor[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'".$valor;
+        }
+
+        return $valor;
+    }
+
+    /**
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    private function rango(Request $request): array
+    {
+        $datos = $request->validate([
+            'desde' => ['nullable', 'date_format:Y-m-d'],
+            'hasta' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:desde'],
+        ]);
+
+        return [
+            Carbon::parse($datos['desde'] ?? now()->subDays(30)->toDateString())->startOfDay(),
+            Carbon::parse($datos['hasta'] ?? now()->toDateString())->endOfDay(),
+        ];
     }
 }
