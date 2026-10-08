@@ -17,7 +17,7 @@
                     <x-estado-cita :estado="$cita->estado" class="text-sm" />
                 </x-slot:acciones>
 
-                <dl class="divide-y divide-slate-100">
+                <div class="divide-y divide-slate-100">
                     <x-dato etiqueta="Paciente">{{ $cita->paciente->nombre_completo }}</x-dato>
                     <x-dato etiqueta="Psicólogo">{{ $cita->psicologo->nombre_completo }}</x-dato>
                     <x-dato etiqueta="Especialidad">{{ $cita->especialidad?->nombre ?? '—' }}</x-dato>
@@ -30,7 +30,7 @@
                             <a href="{{ $cita->enlace_meet }}" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">{{ $cita->enlace_meet }}</a>
                         </x-dato>
                     @endif
-                </dl>
+                </div>
             </x-card>
 
             @if ($cita->historialClinico && $usuario->can('atender', $cita))

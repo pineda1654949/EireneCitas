@@ -17,17 +17,17 @@ class CrearAdministrador extends Command
     protected $signature = 'eirene:crear-admin
                             {--usuario= : Usuario o correo con el que iniciara sesion}
                             {--nombre=Administrador : Nombre visible}
-                            {--password= : Contrasena (si se omite, se pregunta de forma oculta)}';
+                            {--contrasena= : Contrasena (si se omite, se pregunta de forma oculta)}';
 
     protected $description = 'Crea una cuenta de administrador';
 
     public function handle(): int
     {
         $usuario = $this->option('usuario') ?: $this->ask('Usuario o correo del administrador');
-        $password = $this->option('password') ?: $this->secret('Contraseña (mínimo 8 caracteres, letras y números)');
+        $contrasena = $this->option('contrasena') ?: $this->secret('Contraseña (mínimo 8 caracteres, letras y números)');
 
         $validador = Validator::make(
-            ['usuario' => $usuario, 'password' => $password],
+            ['usuario' => $usuario, 'password' => $contrasena],
             [
                 'usuario' => ['required', 'string', 'max:255', 'unique:users,email'],
                 'password' => ['required', Password::defaults()],
@@ -45,7 +45,7 @@ class CrearAdministrador extends Command
         User::create([
             'name' => $this->option('nombre'),
             'email' => $usuario,
-            'password' => $password,
+            'password' => $contrasena,
             'role' => Rol::Administrador,
             'activo' => true,
         ]);
