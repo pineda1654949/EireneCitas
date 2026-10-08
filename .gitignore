@@ -24,3 +24,5 @@ Homestead.yaml
 Thumbs.db
 /build
 .env.dusk.local
+.scannerwork/
+sonar-issues.json

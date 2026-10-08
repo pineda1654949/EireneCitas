@@ -1,6 +1,0 @@
-projectKey=IreneCitas
-serverUrl=http://localhost:9000
-serverVersion=26.9.0.129388
-dashboardUrl=http://localhost:9000/dashboard?id=IreneCitas
-ceTaskId=489f5aa4-8cea-4b03-9c78-98dca9ca3bee
-ceTaskUrl=http://localhost:9000/api/ce/task?id=489f5aa4-8cea-4b03-9c78-98dca9ca3bee
