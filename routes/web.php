@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::redirect('/', '/login');
+Route::get('/', fn () => redirect()->route('login'));
 
 // ----- Autenticacion y recuperacion de contrasena (RF-07) -----
 Route::middleware('guest')->group(function () {

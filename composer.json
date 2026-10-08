@@ -4,7 +4,7 @@
     "type": "project",
     "description": "Sistema de Gestion de Citas para la Clinica Psicologica Eirene",
     "keywords": [
-        "laravel",
+        "laravel",  
         "eirene",
         "citas",
         "psicologia"
@@ -75,6 +75,10 @@
         "test:cobertura": [
             "@php artisan config:clear --ansi",
             "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=app vendor/bin/phpunit --coverage-text --coverage-html build/cobertura"
+        ],
+        "test:sonar": [
+            "@php artisan config:clear --ansi",
+            "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=app vendor/bin/phpunit --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml"
         ]
     },
     "extra": {
