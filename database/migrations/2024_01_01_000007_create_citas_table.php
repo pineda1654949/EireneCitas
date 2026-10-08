@@ -19,8 +19,8 @@ class CreateCitasTable extends Migration
             $table->id();
             $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
             $table->foreignId('psicologo_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('especialidad_id')->nullable()->constrained('especialidades')->onDelete('set null');
-            $table->foreignId('promocion_id')->nullable()->constrained('promociones')->onDelete('set null');
+            $table->foreignId('especialidad_id')->nullable()->constrained('especialidades')->nullOnDelete();
+            $table->foreignId('promocion_id')->nullable()->constrained('promociones')->nullOnDelete();
             $table->date('fecha');
             $table->time('hora');
             $table->text('motivo_consulta')->nullable();
@@ -33,7 +33,7 @@ class CreateCitasTable extends Migration
             ])->default('pendiente');
             $table->unsignedTinyInteger('numero_reprogramaciones')->default(0); // maximo 3
             $table->string('enlace_meet')->nullable();
-            $table->foreignId('creado_por')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('creado_por')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

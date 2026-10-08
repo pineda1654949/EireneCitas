@@ -16,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Sin enlaces propios en el contenedor: los servicios de la aplicacion
+        // se resuelven por autowiring y toda la configuracion vive en boot().
     }
 
     public function boot(): void

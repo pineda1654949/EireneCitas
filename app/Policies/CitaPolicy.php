@@ -42,12 +42,12 @@ class CitaPolicy
         return $this->view($usuario, $cita);
     }
 
-    public function confirmar(User $usuario, Cita $cita): bool
+    public function confirmar(User $usuario): bool
     {
         return $usuario->esPersonalAdministrativo();
     }
 
-    public function gestionarPagos(User $usuario, Cita $cita): bool
+    public function gestionarPagos(User $usuario): bool
     {
         return $usuario->esPersonalAdministrativo();
     }
