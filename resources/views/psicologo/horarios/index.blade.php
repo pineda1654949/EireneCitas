@@ -38,7 +38,8 @@
                                         <form method="POST" action="{{ route('psicologo.horarios.alternar', $bloque) }}">
                                             @csrf @method('PATCH')
                                             <button type="submit" class="rounded-lg p-1 text-slate-500 hover:bg-white hover:text-slate-800"
-                                                    title="{{ $bloque->activo ? 'Pausar bloque' : 'Activar bloque' }}" aria-label="{{ $bloque->activo ? 'Pausar bloque' : 'Activar bloque' }}">
+                                                    title="{{ $bloque->activo ? 'Pausar bloque' : 'Activar bloque' }}">
+                                                <span class="sr-only">{{ $bloque->activo ? 'Pausar bloque' : 'Activar bloque' }}</span>
                                                 @if ($bloque->activo)
                                                     <x-heroicon-m-pause class="size-4" />
                                                 @else

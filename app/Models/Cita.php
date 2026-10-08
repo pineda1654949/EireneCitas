@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EstadoCita;
-use App\Enums\EstadoPago;
+use App\Models\Concerns\AplicaReglasDeCita;
 use App\Models\Concerns\Auditable;
 use Database\Factories\CitaFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,7 +43,7 @@ use Illuminate\Support\Carbon;
 class Cita extends Model
 {
     /** @use HasFactory<CitaFactory> */
-    use Auditable, HasFactory;
+    use AplicaReglasDeCita, Auditable, HasFactory;
 
     protected $fillable = [
         'paciente_id',
@@ -196,50 +196,5 @@ class Cita extends Model
     protected function inicio(): Attribute
     {
         return Attribute::get(fn () => Carbon::parse($this->fecha->toDateString().' '.$this->hora));
-    }
-
-    // ----- Reglas de negocio -----
-
-    public function puedeReprogramarse(): bool
-    {
-        return $this->numero_reprogramaciones < self::maxReprogramaciones()
-            && ! $this->estado->estaCerrada();
-    }
-
-    /**
-     * RN-01: superado el limite, solo el administrador puede autorizar un
-     * nuevo cambio.
-     */
-    public function puedeReprogramarsePor(User $usuario): bool
-    {
-        if ($this->estado->estaCerrada()) {
-            return false;
-        }
-
-        return $this->numero_reprogramaciones < self::maxReprogramaciones() || $usuario->esAdministrador();
-    }
-
-    public function reprogramacionesRestantes(): int
-    {
-        return max(0, self::maxReprogramaciones() - $this->numero_reprogramaciones);
-    }
-
-    public function puedeCancelarse(): bool
-    {
-        return ! $this->estado->estaCerrada();
-    }
-
-    public function puedeConfirmarse(): bool
-    {
-        return $this->estado->admiteConfirmacion() && $this->pagoConfirmado();
-    }
-
-    public function pagoConfirmado(): bool
-    {
-        if ($this->relationLoaded('pagos')) {
-            return $this->pagos->contains(fn (Pago $pago) => $pago->estado === EstadoPago::Confirmado);
-        }
-
-        return $this->pagos()->where('estado', EstadoPago::Confirmado->value)->exists();
     }
 }

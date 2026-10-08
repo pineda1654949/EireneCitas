@@ -1,13 +1,14 @@
 {{-- Mensajes flash de exito y resumen de errores de validacion. --}}
 @if (session('status'))
-    <div class="mb-6 flex items-start gap-3 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800 ring-1 ring-emerald-600/20 transition-opacity duration-300"
-         role="status" data-alert data-autoclose>
+    {{-- <output> tiene rol "status" implicito: los lectores de pantalla anuncian el mensaje. --}}
+    <output class="mb-6 flex items-start gap-3 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800 ring-1 ring-emerald-600/20 transition-opacity duration-300"
+            data-alert data-autoclose>
         <x-heroicon-s-check-circle class="size-5 shrink-0 text-emerald-500" />
-        <p class="flex-1">{{ session('status') }}</p>
+        <span class="flex-1">{{ session('status') }}</span>
         <button type="button" class="text-emerald-600 hover:text-emerald-800" data-dismiss aria-label="Cerrar">
             <x-heroicon-m-x-mark class="size-5" />
         </button>
-    </div>
+    </output>
 @endif
 
 @if ($errors->any())

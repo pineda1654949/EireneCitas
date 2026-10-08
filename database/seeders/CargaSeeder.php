@@ -3,12 +3,12 @@
 namespace Database\Seeders;
 
 use App\Enums\Rol;
+use App\Exceptions\EntornoNoPermitidoException;
 use App\Models\Especialidad;
 use App\Models\Horario;
 use App\Models\Paciente;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use RuntimeException;
 
 /**
  * Datos para las pruebas de carga con k6 (Fase 8, CP-SYS-24 a CP-SYS-28).
@@ -24,7 +24,7 @@ class CargaSeeder extends Seeder
     public function run(): void
     {
         if (app()->isProduction()) {
-            throw new RuntimeException('CargaSeeder no debe ejecutarse en produccion.');
+            throw EntornoNoPermitidoException::enProduccion('CargaSeeder');
         }
 
         $especialidad = Especialidad::firstOrCreate(['nombre' => 'Ansiedad y estres']);
