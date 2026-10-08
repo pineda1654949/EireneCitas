@@ -4,7 +4,7 @@
     "type": "project",
     "description": "Sistema de Gestion de Citas para la Clinica Psicologica Eirene",
     "keywords": [
-        "laravel",
+        "laravel",  
         "eirene",
         "citas",
         "psicologia"
