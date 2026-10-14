@@ -22,7 +22,12 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
-/build
+/build/*
+!/build/logs/
+/build/logs/*
+# Reportes de PHPUnit que lee el pipeline de calidad de GitLab
+!/build/logs/clover.xml
+!/build/logs/junit.xml
 .env.dusk.local
 .scannerwork/
 sonar-issues.json
