@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\PacienteController;
 use App\Http\Controllers\Admin\PagoController;
 use App\Http\Controllers\Admin\PromocionController;
 use App\Http\Controllers\Admin\PsicologoController;
+use App\Http\Controllers\Admin\RecepcionistaController;
 use App\Http\Controllers\Admin\ReporteController;
 use App\Http\Controllers\Api\DisponibilidadController;
 use App\Http\Controllers\Auth\RecuperarContrasenaController;
@@ -103,6 +104,7 @@ Route::middleware('auth')->group(function () {
     // ----- Administrador: psicologos, promociones y auditoria -----
     Route::middleware('rol:administrador')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('psicologos', PsicologoController::class)->except(['show']);
+        Route::resource('recepcionistas', RecepcionistaController::class)->except(['show']);
         Route::resource('promociones', PromocionController::class)
             ->except(['show'])
             ->parameters(['promociones' => 'promocion']);

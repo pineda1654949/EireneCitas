@@ -65,6 +65,7 @@
             @if ($usuario->esAdministrador())
                 <x-nav-seccion titulo="Administración">
                     <x-nav-link :href="route('admin.psicologos.index')" :active="request()->routeIs('admin.psicologos.*')" icono="identification">Psicólogos</x-nav-link>
+                    <x-nav-link :href="route('admin.recepcionistas.index')" :active="request()->routeIs('admin.recepcionistas.*')" icono="user-group">Recepcionistas</x-nav-link>
                     <x-nav-link :href="route('admin.promociones.index')" :active="request()->routeIs('admin.promociones.*')" icono="tag">Promociones</x-nav-link>
                     <x-nav-link :href="route('admin.auditoria.index')" :active="request()->routeIs('admin.auditoria.*')" icono="shield-check">Auditoría</x-nav-link>
                 </x-nav-seccion>
