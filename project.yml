@@ -1,0 +1,24 @@
+project:
+  name: "EireneCitas"
+  version: 1.0.0
+  description: "Sistema web de gestion de citas de la Clinica Psicologica Eirene (Laravel 12): reservas, reprogramacion, pagos, historia clinica, reportes y notificaciones"
+stack:
+  detect: true
+academic:
+  course: "Pruebas y Calidad de Software"
+  evaluation_name: "Evaluación del Parcial"
+  partial_weight_percentage: 80
+  evaluator:
+    name: "Dr. Maglioni Arana Caparachin"
+    email: "marana@continental.edu.pe"
+    role: "Docente Evaluador"
+  members:
+    - name: "Leonardo Alvaro Jorge Orosco"
+      code: "74053719"
+      email: "74053719@continental.edu.pe"
+    - name: "Angelo Gabriel Ledesma Huaman"
+      code: "75608544"
+      email: "75608544@continental.edu.pe"
+    - name: "Walter Cristhian Pineda Tenicela"
+      code: "72749649"
+      email: "72749649@continental.edu.pe"

@@ -74,11 +74,12 @@
         ],
         "test:cobertura": [
             "@php artisan config:clear --ansi",
-            "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=app vendor/bin/phpunit --coverage-text --coverage-html build/cobertura"
+            "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=. -d \"pcov.exclude=~(vendor|node_modules|storage)~\" vendor/bin/phpunit --coverage-text --coverage-html build/cobertura"
         ],
         "test:sonar": [
             "@php artisan config:clear --ansi",
-            "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=app vendor/bin/phpunit --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml"
+            "@php -d extension=pcov -d pcov.enabled=1 -d pcov.directory=. -d \"pcov.exclude=~(vendor|node_modules|storage)~\" vendor/bin/phpunit --coverage-clover build/logs/clover.xml --log-junit build/logs/junit.xml",
+            "@php scripts/sonar-rutas-relativas.php build/logs/clover.xml build/logs/junit.xml"
         ]
     },
     "extra": {

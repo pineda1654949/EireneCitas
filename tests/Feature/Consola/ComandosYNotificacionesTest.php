@@ -44,7 +44,7 @@ class ComandosYNotificacionesTest extends TestCase
 
     public function test_crea_un_administrador_desde_consola(): void
     {
-        $this->artisan('eirene:crear-admin', ['--usuario' => 'direccion', '--password' => 'Direccion2026'])
+        $this->artisan('eirene:crear-admin', ['--usuario' => 'direccion', '--contrasena' => 'Direccion2026'])
             ->assertSuccessful();
 
         $admin = User::where('email', 'direccion')->sole();
@@ -56,7 +56,7 @@ class ComandosYNotificacionesTest extends TestCase
     {
         User::factory()->create(['email' => 'direccion']);
 
-        $this->artisan('eirene:crear-admin', ['--usuario' => 'direccion', '--password' => '123'])
+        $this->artisan('eirene:crear-admin', ['--usuario' => 'direccion', '--contrasena' => '123'])
             ->assertFailed();
 
         $this->assertSame(1, User::count());

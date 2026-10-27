@@ -189,32 +189,38 @@ class CitaService
             );
         }
 
-        // Las cuotas ya registradas (no rechazadas) fijan el plan de pago.
-        $previos = $cita->pagos()->where('estado', '!=', EstadoPago::Rechazado->value)->get();
-        $planVigente = $previos->first()?->total_cuotas;
-
-        if ($planVigente !== null && $planVigente !== $totalCuotas) {
-            throw new ReglaDeNegocioException("El plan de pago de esta cita ya es de {$planVigente} cuota(s).", 'total_cuotas');
-        }
-
-        if ($previos->count() >= $totalCuotas) {
-            throw new ReglaDeNegocioException('Ya se registraron todas las cuotas de esta cita.', 'monto');
-        }
-
         $ruta = $comprobante?->store('comprobantes/'.$cita->id, 'local');
 
         try {
-            return $cita->pagos()->create([
-                'monto' => $datos['monto'],
-                'metodo_pago' => $datos['metodo_pago'],
-                'numero_cuota' => $previos->count() + 1,
-                'total_cuotas' => $totalCuotas,
-                'numero_comprobante' => $datos['numero_comprobante'] ?? null,
-                'comprobante_path' => $ruta ?: null,
-                'comprobante_nombre' => $comprobante ? Str::limit($comprobante->getClientOriginalName(), 200, '') : null,
-                'estado' => EstadoPago::Pendiente,
-                'registrado_por' => $registrador->id,
-            ]);
+            return DB::transaction(function () use ($cita, $datos, $registrador, $comprobante, $totalCuotas, $ruta) {
+                // Serializa los pagos de una misma cita: un doble envio del
+                // formulario no registra dos veces la misma cuota.
+                Cita::whereKey($cita->id)->lockForUpdate()->first();
+
+                // Las cuotas ya registradas (no rechazadas) fijan el plan de pago.
+                $previos = $cita->pagos()->where('estado', '!=', EstadoPago::Rechazado->value)->get();
+                $planVigente = $previos->first()?->total_cuotas;
+
+                if ($planVigente !== null && $planVigente !== $totalCuotas) {
+                    throw new ReglaDeNegocioException("El plan de pago de esta cita ya es de {$planVigente} cuota(s).", 'total_cuotas');
+                }
+
+                if ($previos->count() >= $totalCuotas) {
+                    throw new ReglaDeNegocioException('Ya se registraron todas las cuotas de esta cita.', 'monto');
+                }
+
+                return $cita->pagos()->create([
+                    'monto' => $datos['monto'],
+                    'metodo_pago' => $datos['metodo_pago'],
+                    'numero_cuota' => $previos->count() + 1,
+                    'total_cuotas' => $totalCuotas,
+                    'numero_comprobante' => $datos['numero_comprobante'] ?? null,
+                    'comprobante_path' => $ruta ?: null,
+                    'comprobante_nombre' => $comprobante ? Str::limit($comprobante->getClientOriginalName(), 200, '') : null,
+                    'estado' => EstadoPago::Pendiente,
+                    'registrado_por' => $registrador->id,
+                ]);
+            });
         } catch (Throwable $e) {
             // Si no se pudo guardar el pago, no queda un archivo huerfano.
             if ($ruta) {
@@ -232,13 +238,12 @@ class CitaService
      */
     public function validarPago(Pago $pago, User $usuario): bool
     {
-        if ($pago->estado !== EstadoPago::Pendiente) {
-            throw new ReglaDeNegocioException('Este pago ya fue procesado.', 'pago');
-        }
-
         $cita = $pago->cita;
 
         $confirmada = DB::transaction(function () use ($pago, $cita, $usuario) {
+            $this->bloquearPagoPendiente($pago);
+            $cita->refresh();
+
             $pago->update([
                 'estado' => EstadoPago::Confirmado,
                 'fecha_pago' => now(),
@@ -263,11 +268,24 @@ class CitaService
 
     public function rechazarPago(Pago $pago, User $usuario): void
     {
-        if ($pago->estado !== EstadoPago::Pendiente) {
+        DB::transaction(function () use ($pago, $usuario) {
+            $this->bloquearPagoPendiente($pago);
+
+            $pago->update(['estado' => EstadoPago::Rechazado, 'validado_por' => $usuario->id]);
+        });
+    }
+
+    /**
+     * Lee el estado real del pago con bloqueo de fila: si otro usuario ya lo
+     * valido o rechazo, la copia que se tiene en memoria esta desactualizada.
+     */
+    private function bloquearPagoPendiente(Pago $pago): void
+    {
+        $estado = Pago::whereKey($pago->id)->lockForUpdate()->value('estado');
+
+        if ($estado !== EstadoPago::Pendiente) {
             throw new ReglaDeNegocioException('Este pago ya fue procesado.', 'pago');
         }
-
-        $pago->update(['estado' => EstadoPago::Rechazado, 'validado_por' => $usuario->id]);
     }
 
     /**

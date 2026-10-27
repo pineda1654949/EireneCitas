@@ -28,6 +28,8 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>database</directory>
+            <directory>routes</directory>
         </include>
     </source>
     <php>
