@@ -71,7 +71,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @param Builder<User> $query
+     * @param  Builder<User>  $query
      */
     public function scopeRecepcionistas(Builder $query): void
     {
