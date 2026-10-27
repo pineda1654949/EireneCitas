@@ -18,7 +18,7 @@ use App\Http\Controllers\Psicologo\DerivacionController as PsicologoDerivacionCo
 use App\Http\Controllers\Psicologo\HistorialController;
 use App\Http\Controllers\Psicologo\HorarioController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Admin\RecepcionistaController;
 /*
 |--------------------------------------------------------------------------
 | Rutas web - Sistema de Gestion de Citas Eirene
@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
     // ----- Administrador: psicologos, promociones y auditoria -----
     Route::middleware('rol:administrador')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('psicologos', PsicologoController::class)->except(['show']);
+       Route::resource('recepcionistas', RecepcionistaController::class)->except(['show']);
         Route::resource('promociones', PromocionController::class)
             ->except(['show'])
             ->parameters(['promociones' => 'promocion']);

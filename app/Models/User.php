@@ -71,6 +71,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @param Builder<User> $query
+     */
+    public function scopeRecepcionistas(Builder $query): void
+    {
+        $query->where('role', Rol::Recepcionista->value);
+    }
+
+    /**
      * @param  Builder<User>  $query
      */
     public function scopeActivos(Builder $query): void
