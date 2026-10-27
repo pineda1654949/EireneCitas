@@ -220,7 +220,9 @@ return [
         'notifiable' => Notifiable::class,
 
         'mail' => [
-            'to' => env('BACKUP_NOTIFICATION_EMAIL', env('MAIL_FROM_ADDRESS', 'admin@example.com')),
+            // Con "?:" una variable vacia en el .env tambien usa el respaldo;
+            // spatie/laravel-backup rechaza '' y rompe todos los comandos artisan.
+            'to' => env('BACKUP_NOTIFICATION_EMAIL') ?: env('MAIL_FROM_ADDRESS', 'admin@example.com'),
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
