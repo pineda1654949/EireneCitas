@@ -5,9 +5,11 @@ namespace Tests\Feature\Pagos;
 use App\Enums\EstadoCita;
 use App\Enums\EstadoPago;
 use App\Enums\MetodoPago;
+use App\Exceptions\ReglaDeNegocioException;
 use App\Models\Pago;
 use App\Models\User;
 use App\Notifications\CitaConfirmada;
+use App\Services\CitaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\Concerns\CreaEscenarios;
@@ -109,6 +111,52 @@ class PagoTest extends TestCase
         $this->actingAs($this->recepcion)->put(route('pagos.rechazar', $pago))->assertSessionHasErrors('pago');
 
         $this->assertSame(EstadoPago::Rechazado, $pago->refresh()->estado);
+    }
+
+    /**
+     * Dos recepcionistas abren el mismo pago pendiente: el segundo trabaja con
+     * una copia desactualizada y no debe pisar la decision del primero.
+     */
+    public function test_un_pago_validado_por_otro_usuario_no_se_rechaza_con_datos_desactualizados(): void
+    {
+        [$psicologo] = $this->psicologoConAgenda();
+        $cita = $this->citaPara($psicologo);
+        $pago = Pago::factory()->create(['cita_id' => $cita->id]);
+        $copiaDesactualizada = Pago::findOrFail($pago->id);
+        $servicio = app(CitaService::class);
+
+        $servicio->validarPago($pago, $this->recepcion);
+
+        try {
+            $servicio->rechazarPago($copiaDesactualizada, User::factory()->recepcionista()->create());
+            $this->fail('Se rechazo un pago que ya estaba validado.');
+        } catch (ReglaDeNegocioException) {
+            // esperado
+        }
+
+        $this->assertSame(EstadoPago::Confirmado, $pago->refresh()->estado);
+        $this->assertSame(EstadoCita::Confirmada, $cita->refresh()->estado);
+    }
+
+    public function test_un_pago_rechazado_por_otro_usuario_no_se_valida_con_datos_desactualizados(): void
+    {
+        [$psicologo] = $this->psicologoConAgenda();
+        $cita = $this->citaPara($psicologo);
+        $pago = Pago::factory()->create(['cita_id' => $cita->id]);
+        $copiaDesactualizada = Pago::findOrFail($pago->id);
+        $servicio = app(CitaService::class);
+
+        $servicio->rechazarPago($pago, $this->recepcion);
+
+        $this->expectException(ReglaDeNegocioException::class);
+
+        try {
+            $servicio->validarPago($copiaDesactualizada, $this->recepcion);
+        } finally {
+            $this->assertSame(EstadoPago::Rechazado, $pago->refresh()->estado);
+            $this->assertSame(EstadoCita::Pendiente, $cita->refresh()->estado);
+            Notification::assertNothingSent();
+        }
     }
 
     public function test_rechazar_un_pago_no_confirma_la_cita(): void
