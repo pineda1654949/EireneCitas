@@ -19,6 +19,7 @@ use App\Http\Controllers\Psicologo\DerivacionController as PsicologoDerivacionCo
 use App\Http\Controllers\Psicologo\HistorialController;
 use App\Http\Controllers\Psicologo\HorarioController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\EspecialidadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,6 +110,9 @@ Route::middleware('auth')->group(function () {
             ->except(['show'])
             ->parameters(['promociones' => 'promocion']);
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+        Route::resource('especialidades', EspecialidadController::class)
+            ->except(['show'])
+            ->parameters(['especialidades' => 'especialidad']);
     });
 
     // ----- Psicologo: disponibilidad e historia clinica (RF-06) -----
