@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\DerivacionController as AdminDerivacionController;
+use App\Http\Controllers\Admin\EspecialidadController;
 use App\Http\Controllers\Admin\PacienteController;
 use App\Http\Controllers\Admin\PagoController;
 use App\Http\Controllers\Admin\PromocionController;
@@ -109,6 +110,9 @@ Route::middleware('auth')->group(function () {
             ->except(['show'])
             ->parameters(['promociones' => 'promocion']);
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+        Route::resource('especialidades', EspecialidadController::class)
+            ->except(['show'])
+            ->parameters(['especialidades' => 'especialidad']);
     });
 
     // ----- Psicologo: disponibilidad e historia clinica (RF-06) -----
