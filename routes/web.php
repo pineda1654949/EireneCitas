@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\DerivacionController as AdminDerivacionController;
+use App\Http\Controllers\Admin\EspecialidadController;
 use App\Http\Controllers\Admin\PacienteController;
 use App\Http\Controllers\Admin\PagoController;
 use App\Http\Controllers\Admin\PromocionController;
@@ -19,7 +20,6 @@ use App\Http\Controllers\Psicologo\DerivacionController as PsicologoDerivacionCo
 use App\Http\Controllers\Psicologo\HistorialController;
 use App\Http\Controllers\Psicologo\HorarioController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\EspecialidadController;
 
 /*
 |--------------------------------------------------------------------------
