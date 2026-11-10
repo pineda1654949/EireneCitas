@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\EstadoAtencion;
+use App\Enums\TipoDiscapacidad;
 use App\Models\Paciente;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -42,6 +43,9 @@ class PacienteRequest extends FormRequest
             'estado_atencion' => ['sometimes', Rule::enum(EstadoAtencion::class)],
             'direccion' => ['nullable', 'string', 'max:255'],
             'motivo_consulta' => ['nullable', 'string', 'max:2000'],
+            'tiene_discapacidad' => ['sometimes', 'boolean'],
+            'tipo_discapacidad' => ['nullable', 'required_if:tiene_discapacidad,1', Rule::enum(TipoDiscapacidad::class)],
+            'necesidades_especiales' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

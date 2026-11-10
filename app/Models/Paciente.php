@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EstadoAtencion;
+use App\Enums\TipoDiscapacidad;
 use App\Models\Concerns\Auditable;
 use Database\Factories\PacienteFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,9 @@ use Illuminate\Notifications\Notifiable;
  * @property string|null $motivo_consulta
  * @property int|null $psicologo_id
  * @property EstadoAtencion $estado_atencion
+ * @property bool $tiene_discapacidad
+ * @property TipoDiscapacidad|null $tipo_discapacidad
+ * @property string|null $necesidades_especiales
  * @property-read User|null $psicologoAsignado
  * @property-read string $nombre_completo
  * @property-read User|null $user
@@ -50,6 +54,9 @@ class Paciente extends Model
         'direccion',
         'motivo_consulta',
         'estado_atencion',
+        'tiene_discapacidad',
+        'tipo_discapacidad',
+        'necesidades_especiales',
     ];
 
     protected $attributes = [
@@ -61,6 +68,8 @@ class Paciente extends Model
         return [
             'edad' => 'integer',
             'estado_atencion' => EstadoAtencion::class,
+            'tiene_discapacidad' => 'boolean',
+            'tipo_discapacidad' => TipoDiscapacidad::class,
         ];
     }
 
