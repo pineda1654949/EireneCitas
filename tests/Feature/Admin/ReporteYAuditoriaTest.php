@@ -6,6 +6,7 @@ use App\Enums\EstadoCita;
 use App\Models\Auditoria;
 use App\Models\Cita;
 use App\Models\HistorialClinico;
+use App\Models\Paciente;
 use App\Models\Pago;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,6 +40,22 @@ class ReporteYAuditoriaTest extends TestCase
             ->assertViewHas('ingresosConfirmados', fn ($monto) => (float) $monto === 120.0)
             ->assertSee('Maria Fernandez')
             ->assertSee('S/ 120.00');
+    }
+
+    public function test_el_reporte_muestra_recepcionistas_activas_y_pacientes_con_discapacidad(): void
+    {
+        User::factory()->recepcionista()->create(['activo' => true]);
+        User::factory()->recepcionista()->create(['activo' => false]);
+        Paciente::factory()->create(['tiene_discapacidad' => true, 'tipo_discapacidad' => 'visual']);
+        Paciente::factory()->create(['tiene_discapacidad' => false]);
+
+        $this->actingAs(User::factory()->administrador()->create())
+            ->get(route('reportes.index'))
+            ->assertOk()
+            ->assertViewHas('recepcionistasActivas', 1)
+            ->assertViewHas('pacientesConDiscapacidad', 1)
+            ->assertSee('Recepcionistas activas')
+            ->assertSee('Pacientes con discapacidad');
     }
 
     public function test_valida_el_rango_de_fechas(): void

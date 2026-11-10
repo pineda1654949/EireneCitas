@@ -32,7 +32,14 @@
                         @foreach ($pacientes as $paciente)
                             <tr>
                                 <td>
-                                    <div class="font-medium text-slate-900">{{ $paciente->apellidos }}, {{ $paciente->nombres }}</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-slate-900">{{ $paciente->apellidos }}, {{ $paciente->nombres }}</span>
+                                        @if ($paciente->tiene_discapacidad)
+                                            <x-badge tono="violet" title="{{ $paciente->tipo_discapacidad?->etiqueta() }}">
+                                                <x-heroicon-o-hand-raised class="size-3.5" /> Discapacidad
+                                            </x-badge>
+                                        @endif
+                                    </div>
                                     <div class="text-xs text-slate-500">
                                         @if ($paciente->edad) {{ $paciente->edad }} años · @endif
                                         {{ $paciente->user_id ? 'Con cuenta web' : 'Sin cuenta web' }}

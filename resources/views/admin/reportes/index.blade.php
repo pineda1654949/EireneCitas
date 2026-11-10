@@ -28,6 +28,13 @@
         <x-stat etiqueta="Ingresos confirmados" :valor="'S/ '.number_format((float) $ingresosConfirmados, 2)" icono="banknotes" tono="amber" />
     </div>
 
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <x-stat etiqueta="Recepcionistas activas" :valor="$recepcionistasActivas" icono="user-group" tono="sky"
+                detalle="Personal habilitado para registrar citas y pagos" :href="route('admin.recepcionistas.index')" />
+        <x-stat etiqueta="Pacientes con discapacidad" :valor="$pacientesConDiscapacidad" icono="hand-raised" tono="violet"
+                detalle="Fichas marcadas para adaptar la atención" :href="route('admin.pacientes.index')" />
+    </div>
+
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <x-card titulo="Citas por estado">
             <ul class="space-y-4">

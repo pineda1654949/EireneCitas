@@ -129,3 +129,68 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
       - run: npm run build
+
+  cypress:
+    name: Pruebas E2E (Cypress)
+    runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database.sqlite
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite
+          coverage: none
+
+      - name: Instalar dependencias PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias de frontend (incluye Cypress)
+        run: npm ci
+
+      - name: Compilar assets
+        run: npm run build
+
+      - name: Preparar entorno y base de datos de prueba
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+          php artisan migrate --force --seed
+
+      - name: Levantar el servidor de Laravel
+        run: |
+          php artisan serve > /tmp/serve.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8000/login > /dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/serve.log
+          exit 1
+
+      - name: Ejecutar escenarios de Cypress (Recepcionistas y Discapacidad)
+        run: npx cypress run
+
+      - name: Subir videos de la ejecucion (evidencia de los escenarios)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
+
+      - name: Subir capturas de los escenarios que fallaron
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

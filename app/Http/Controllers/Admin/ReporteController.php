@@ -6,7 +6,9 @@ use App\Enums\EstadoCita;
 use App\Enums\EstadoPago;
 use App\Http\Controllers\Controller;
 use App\Models\Cita;
+use App\Models\Paciente;
 use App\Models\Pago;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
@@ -40,6 +42,9 @@ class ReporteController extends Controller
 
         $totalReprogramaciones = (int) Cita::whereBetween('fecha', [$desde, $hasta])->sum('numero_reprogramaciones');
 
+        $recepcionistasActivas = User::recepcionistas()->activos()->count();
+        $pacientesConDiscapacidad = Paciente::where('tiene_discapacidad', true)->count();
+
         return view('admin.reportes.index', [
             'desde' => $desde->toDateString(),
             'hasta' => $hasta->toDateString(),
@@ -48,6 +53,8 @@ class ReporteController extends Controller
             'citasPorPsicologo' => $citasPorPsicologo,
             'ingresosConfirmados' => $ingresosConfirmados,
             'totalReprogramaciones' => $totalReprogramaciones,
+            'recepcionistasActivas' => $recepcionistasActivas,
+            'pacientesConDiscapacidad' => $pacientesConDiscapacidad,
         ]);
     }
 

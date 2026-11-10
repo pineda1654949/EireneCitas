@@ -31,3 +31,6 @@ Thumbs.db
 .env.dusk.local
 .scannerwork/
 sonar-issues.json
+/cypress/videos
+/cypress/screenshots
+/cypress/downloads
