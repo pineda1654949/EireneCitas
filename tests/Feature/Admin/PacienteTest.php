@@ -98,4 +98,48 @@ class PacienteTest extends TestCase
 
         $this->assertModelExists($cita->paciente);
     }
+
+    public function test_registra_un_paciente_con_discapacidad(): void
+    {
+        $this->actingAs($this->recepcion)
+            ->post(route('admin.pacientes.store'), [
+                'nombres' => 'Luz',
+                'apellidos' => 'Vargas',
+                'dni' => '45678913',
+                'tiene_discapacidad' => '1',
+                'tipo_discapacidad' => 'visual',
+                'necesidades_especiales' => 'Usa bastón guía.',
+            ])
+            ->assertRedirect(route('admin.pacientes.index'));
+
+        $this->assertDatabaseHas('pacientes', [
+            'dni' => '45678913',
+            'tiene_discapacidad' => true,
+            'tipo_discapacidad' => 'visual',
+        ]);
+    }
+
+    public function test_el_tipo_de_discapacidad_es_obligatorio_si_se_marca_la_casilla(): void
+    {
+        $this->actingAs($this->recepcion)
+            ->post(route('admin.pacientes.store'), [
+                'nombres' => 'Ana',
+                'apellidos' => 'Rios',
+                'tiene_discapacidad' => '1',
+            ])
+            ->assertSessionHasErrors(['tipo_discapacidad']);
+    }
+
+    public function test_el_listado_muestra_la_insignia_de_discapacidad(): void
+    {
+        $paciente = Paciente::factory()->create([
+            'tiene_discapacidad' => true,
+            'tipo_discapacidad' => 'auditiva',
+        ]);
+
+        $this->actingAs($this->recepcion)
+            ->get(route('admin.pacientes.index'))
+            ->assertSee('Discapacidad')
+            ->assertSee($paciente->nombres);
+    }
 }
