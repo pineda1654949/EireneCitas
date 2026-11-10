@@ -23,6 +23,9 @@ describe('Recepcionistas', () => {
 
     it('REC-02 el formulario vacio muestra los errores de campos obligatorios', () => {
         cy.visit('/admin/recepcionistas/create');
+        // Quita la validacion nativa del navegador para que la peticion
+        // llegue al servidor y se vean los errores de Laravel.
+        cy.get('form').invoke('attr', 'novalidate', 'novalidate');
         cy.contains('button', /registrar recepcionista/i).click();
 
         cy.url().should('include', '/admin/recepcionistas/create');
