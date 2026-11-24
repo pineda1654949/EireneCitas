@@ -1,0 +1,43 @@
+# .htaccess de htdocs/ en InfinityFree (copia de public/.htaccess + protecciones).
+# El empaquetador lo copia como htdocs/.htaccess.
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # La carpeta de la aplicacion (codigo, .env, storage) nunca se sirve.
+    RewriteRule ^eirene(/.*)?$ - [F,L]
+
+    # Archivos ocultos (.env, .git...) bloqueados, salvo .well-known (SSL).
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+    # HTTPS obligatorio. Descomentar SOLO cuando el certificado SSL ya este
+    # activo en el panel de InfinityFree y https://tu-dominio cargue bien.
+    # RewriteCond %{HTTPS} !=on
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Sin listado de directorios ni firma del servidor
+Options -Indexes
+ServerSignature Off

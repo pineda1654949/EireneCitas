@@ -1,6 +1,6 @@
 # Guía de despliegue a producción · Eirene
 
-Esta guía cubre dos escenarios: **hosting compartido con cPanel** (lo más económico) y **VPS con Nginx** (más control). Las secciones 1, 4, 5 y 6 aplican a ambos.
+Esta guía cubre dos escenarios: **hosting compartido con cPanel** (lo más económico) y **VPS con Nginx** (más control). Las secciones 1, 4, 5 y 6 aplican a ambos. La sección 8 describe una publicación de demostración en **hosting gratuito (InfinityFree)**, sin terminal ni cron.
 
 ---
 
@@ -152,3 +152,57 @@ php artisan up
 - [ ] Permisos: solo `storage/` y `bootstrap/cache/` con escritura
 - [ ] La CI está en verde en la versión desplegada
 - [ ] `/up` responde 200 (sirve para monitorear la disponibilidad con UptimeRobot u otro servicio similar)
+
+---
+
+## 8. Hosting gratuito sin terminal (InfinityFree)
+
+Sirve para **simular producción** y mostrar el sistema en línea con HTTPS, sin costo. InfinityFree no ofrece terminal, Composer ni cron, así que todo lo que en las secciones 2 y 3 se hace con `php artisan` se prepara antes en tu PC con un script.
+
+> Usa solo **datos ficticios**: un hosting gratuito no es apto para historias clínicas reales (Ley N.° 29733).
+
+### 8.1 Armar el paquete en tu PC
+
+Requisitos: PHP 8.2+, Composer, Node.js y un MySQL o MariaDB **local** (por ejemplo, el de XAMPP).
+
+```powershell
+# Desde la raíz del proyecto, en PowerShell
+.\scripts\empaquetar-infinityfree.ps1 -Dominio tu-subdominio.rf.gd -GenerarSql -MysqlBin C:\xampp\mysql\bin -MysqlPuerto 3306
+```
+
+El script parte del **commit actual** (no de tu carpeta de trabajo) y deja en `Descargas\EireneCitas_InfinityFree\`:
+
+| Elemento | Contenido |
+|---|---|
+| `htdocs\` | Lo que se sube al hosting. El contenido de `public\` queda en la raíz y la aplicación en `htdocs\eirene\`, bloqueada con su propio `.htaccess` (`deploy/infinityfree/`) |
+| `htdocs\eirene\.env` | Configuración de producción con una `APP_KEY` nueva. Faltan los datos de la base del hosting |
+| `eirene_produccion.sql` | Las 20 tablas con sus migraciones registradas, especialidades, promociones y el administrador inicial. Sin usuarios de prueba |
+| `CREDENCIALES.txt` | La `APP_KEY` y la contraseña del administrador. **No lo subas** al hosting ni a Git |
+
+### 8.2 Publicar
+
+1. Crea la cuenta en InfinityFree y una cuenta de hosting con un subdominio gratuito. En el panel, verifica que la versión de PHP sea **8.2 o superior**.
+2. **MySQL Databases:** crea la base. Anota el host (`sqlXXX.infinityfree.com`), el nombre (`if0_..._eirene`), el usuario y la contraseña de la cuenta de hosting.
+3. **phpMyAdmin:** abre la base y usa *Importar* con `eirene_produccion.sql`.
+4. Edita `htdocs\eirene\.env`: completa `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` y, si no usaste `-Dominio`, `APP_URL`.
+5. **SSL:** solicita el certificado gratuito para el subdominio en el panel y espera a que quede activo. La aplicación genera enlaces `https://` en producción y la cookie de sesión solo viaja por HTTPS: sin certificado no se puede iniciar sesión.
+6. **Subir por FTP** (FileZilla, con los datos FTP del panel): borra el archivo de bienvenida de `htdocs/` y sube **el contenido** de `htdocs\` dentro de `htdocs/` del hosting. Son unos 9 000 archivos; tarda varios minutos.
+7. Abre `https://tu-subdominio/login`, entra con el administrador de `CREDENCIALES.txt` y crea las demás cuentas desde el sistema.
+8. Cuando HTTPS funcione, descomenta en `htdocs/.htaccess` las dos líneas de la redirección de HTTP a HTTPS.
+
+### 8.3 Diferencias con una producción real
+
+| Función | En InfinityFree | Alternativa |
+|---|---|---|
+| Cron (`schedule:run`) | No disponible: no hay recordatorios automáticos, ni respaldos programados, ni depuración de la auditoría | Usar un VPS o un hosting con cron (secciones 2 y 3) |
+| Cola de correos | `QUEUE_CONNECTION=sync`: los correos se envían en la misma petición | Con cron: `database` |
+| Envío de correos | `MAIL_MAILER=log`: quedan en `storage/logs` | SMTP externo, por ejemplo Gmail con contraseña de aplicación |
+| Respaldos | Exportar la base a mano desde phpMyAdmin | `backup:run` (sección 5) |
+| Migraciones nuevas | No se puede ejecutar `php artisan migrate` | Regenerar el SQL con el script o aplicar el cambio desde phpMyAdmin |
+| Archivos | Límite de inodos de la cuenta gratuita | — |
+
+### 8.4 Actualizar la versión publicada
+
+1. Fusiona los cambios en `main`, ejecuta de nuevo el script **sin** `-GenerarSql` y sube solo lo que cambió (normalmente `htdocs/build/` y `htdocs/eirene/app`, `resources`, `routes` y `vendor`).
+2. **No reemplaces** `htdocs/eirene/.env` del hosting: cada paquete trae una `APP_KEY` nueva y, si se cambia, las notas clínicas ya guardadas no se pueden descifrar.
+3. Si la versión trae migraciones nuevas, aplícalas en phpMyAdmin antes de subir el código.
